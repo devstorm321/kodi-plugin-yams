@@ -8,12 +8,12 @@ __all__ = ['StringIO', 'parse_qsl', 'json', 'utf8']
 
 try:
     # When cStringIO is available
-    import cStringIO as StringIO
+    import io as StringIO
 except ImportError:
-    import StringIO
+    import io
 
 try:
-    from urlparse import parse_qsl
+    from urllib.parse import parse_qsl
 except ImportError:
     # Python < 2.6
     from cgi import parse_qsl
@@ -46,7 +46,7 @@ if not (json and hasattr(json, 'loads')):
 
 
 def utf8(value):
-    if isinstance(value, unicode) and sys.version_info < (3, 0):
+    if isinstance(value, str) and sys.version_info < (3, 0):
         return value.encode('utf-8')
     else:
         return value

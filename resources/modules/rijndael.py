@@ -21,9 +21,9 @@ If any strings are of the wrong length a ValueError is thrown
 """
 
 # ported from the Java reference code by Bram Cohen, April 2001
-# this code is public domain, unless someone makes 
-# an intellectual property claim against the reference 
-# code, in which case it can be made public domain by 
+# this code is public domain, unless someone makes
+# an intellectual property claim against the reference
+# code, in which case it can be made public domain by
 # deleting all the comments and renaming all the variables
 
 import copy

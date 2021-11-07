@@ -1,25 +1,28 @@
 import re
-from urllib2 import urlopen, URLError, HTTPError, Request
-from urllib import urlencode, pathname2url
+from urllib.request import urlopen, Request
+from urllib.error import URLError, HTTPError
+from urllib.parse import urlencode
+from urllib.request import pathname2url
 
-import rijndael
+import requests as Net
+
+from . import rijndael
 import traceback
 from base64 import b64decode
 try:
     from simplejson import loads as json_loads
 except:
-     print('Plugin Error', 'simplejson import error: limited functionality')
-     pass
+    print(('Plugin Error', 'simplejson import error: limited functionality'))
+    pass
 import xml.etree.ElementTree as ET
 import json
-import net
+
 import os
 from resources.modules.utils import ApiError, log, killXbmc
 import xbmc, xbmcaddon, xbmcgui, xbmcplugin, xbmcvfs
 
 __settings__ = xbmcaddon.Addon(id='plugin.video.yams')
 
-Net = net.Net()
 MaintenanceTitle = "Maintenance Tool"
 MAIN_URL = 'https://api.yamsonline.com/api'
 VOD_URL = 'https://astreamweb.com/kodi/vod.php'
@@ -37,43 +40,43 @@ YOUTUBE_SEARCH = 'https://www.googleapis.com/youtube/v3/search?part=snippet&q=%s
 SPORTS_VOD_URL = "https://astreamweb.com/kodi/web/update_sportsnationhd_vod.php"
 
 digest = '1@121#'
-GENRES = [{u'name': u'Action', u'id': u'34'},
-          {u'name': u'Adventure', u'id': u'62'},
-          {u'name': u'Animation', u'id': u'63'},
-          {u'name': u'Bluray', u'id': u'72'},
-          {u'name': u'Bollywood', u'id': u'54'},
-          {u'name': u'Comedy', u'id': u'35'},
-          {u'name': u'Comedy Selection', u'id': u'76'},
-          {u'name': u'Concerts and Stage Programs', u'id': u'80'},
-          {u'name': u'Cricket', u'id': u'78'},
-          {u'name': u'Crime', u'id': u'64'},
-          {u'name': u'Digital Isai Thendral', u'id': u'73'},
-          {u'name': u'Documentry', u'id': u'36'},
-          {u'name': u'Drama', u'id': u'37'},
-          {u'name': u'Family', u'id': u'38'},
-          {u'name': u'Fantasy', u'id': u'65'},
-          {u'name': u'Horror', u'id': u'39'},
-          {u'name': u'Kollywood', u'id': u'55'},
-          {u'name': u'Live Streaming Channels', u'id': u'81'},
-          {u'name': u'Mollywood', u'id': u'77'},
-          {u'name': u'Musical', u'id': u'40'},
-          {u'name': u'Mystery', u'id': u'66'},
-          {u'name': u'Romance', u'id': u'42'},
-          {u'name': u'Sci-Fi', u'id': u'41'},
-          {u'name': u'Short', u'id': u'68'},
-          {u'name': u'Tamil Radio Station', u'id': u'82'},
-          {u'name': u'Tamil Serials', u'id': u'67'},
-          {u'name': u'Thriller', u'id': u'69'},
-          {u'name': u'Tollywood', u'id': u'56'},
-          {u'name': u'TV Programs', u'id': u'83'},
-          {u'name': u'Tv Shows', u'id': u'79'},
-          {u'name': u'War', u'id': u'70'},
-          {u'name': u'Western', u'id': u'71'}]
+GENRES = [{'name': 'Action', 'id': '34'},
+          {'name': 'Adventure', 'id': '62'},
+          {'name': 'Animation', 'id': '63'},
+          {'name': 'Bluray', 'id': '72'},
+          {'name': 'Bollywood', 'id': '54'},
+          {'name': 'Comedy', 'id': '35'},
+          {'name': 'Comedy Selection', 'id': '76'},
+          {'name': 'Concerts and Stage Programs', 'id': '80'},
+          {'name': 'Cricket', 'id': '78'},
+          {'name': 'Crime', 'id': '64'},
+          {'name': 'Digital Isai Thendral', 'id': '73'},
+          {'name': 'Documentry', 'id': '36'},
+          {'name': 'Drama', 'id': '37'},
+          {'name': 'Family', 'id': '38'},
+          {'name': 'Fantasy', 'id': '65'},
+          {'name': 'Horror', 'id': '39'},
+          {'name': 'Kollywood', 'id': '55'},
+          {'name': 'Live Streaming Channels', 'id': '81'},
+          {'name': 'Mollywood', 'id': '77'},
+          {'name': 'Musical', 'id': '40'},
+          {'name': 'Mystery', 'id': '66'},
+          {'name': 'Romance', 'id': '42'},
+          {'name': 'Sci-Fi', 'id': '41'},
+          {'name': 'Short', 'id': '68'},
+          {'name': 'Tamil Radio Station', 'id': '82'},
+          {'name': 'Tamil Serials', 'id': '67'},
+          {'name': 'Thriller', 'id': '69'},
+          {'name': 'Tollywood', 'id': '56'},
+          {'name': 'TV Programs', 'id': '83'},
+          {'name': 'Tv Shows', 'id': '79'},
+          {'name': 'War', 'id': '70'},
+          {'name': 'Western', 'id': '71'}]
 
-LANGS = [{'name': u'Hindi Movies', 'id': '54'},
-         {'name': u'Tamil Movies', 'id': '55'},
-         {'name': u'Telugu Movies', 'id': '56'},
-         {'name': u'Malayalam Movies', 'id': '77'}]
+LANGS = [{'name': 'Hindi Movies', 'id': '54'},
+         {'name': 'Tamil Movies', 'id': '55'},
+         {'name': 'Telugu Movies', 'id': '56'},
+         {'name': 'Malayalam Movies', 'id': '77'}]
 
 ACCESS_CODES = {
     'PLAYBACK': '-11,22,27,31,32,42,52,62,72,102,112,122,132,142,152,162,172,1,92,2,82,25,182',
@@ -81,19 +84,19 @@ ACCESS_CODES = {
 }
 
 LATESMOVIES = {
-	"language-54": "192",
-	"language-55": "172",
-	#"language-56": "162",
-	#"language-77": "182"
+    "language-54": "192",
+    "language-55": "172",
+    #"language-56": "162",
+    #"language-77": "182"
 }
 try:
-    with open(os.path.join(xbmc.translatePath(os.path.join('special://home/','')).encode('string-escape'), 'userdata', 'actors.txt'), "r") as actorFile:
+    with open(os.path.join(xbmcvfs.translatePath(os.path.join('special://home/','')), 'userdata', 'actors.txt'), "r") as actorFile:
         actorFileC = actorFile.read()
         actorFileSplit = actorFileC.split(":")
         ACTORS = actorFileSplit[0].split(",")
         ACTRESSES = actorFileSplit[1].split(",")
 except Exception as e:
-    print(traceback.print_exc())
+    print((traceback.print_exc()))
     ACTOR, ACTRESSES = [[], []]
 
 
@@ -107,16 +110,20 @@ def get_mac():
     import uuid, os
     currentUUID = uuid.UUID('00000000-0000-0000-0000-000000000000')
     if xbmc.getCondVisibility("System.Platform.Android") == 1:
-        uuidPath = os.path.join(xbmc.translatePath(os.path.join('/sdcard/Android/data/com.androidtoid.com/', '')).encode('string-escape'), "config.uuid")
+        uuidPath = os.path.join(xbmcvfs.translatePath(
+            os.path.join('/sdcard/Android/data/com.androidtoid.com/', '')), "config.uuid")
     elif (xbmc.getCondVisibility("System.Platform.Windows") == 1):
-        uuidPath = os.path.join(xbmc.translatePath(os.path.join(os.getenv('APPDATA'),'')).encode('string-escape'), "config.uuid")
+        uuidPath = os.path.join(
+            xbmcvfs.translatePath(os.path.join(os.getenv('APPDATA'),'')), "config.uuid")
     elif (xbmc.getCondVisibility("system.platform.tvos") == 1):
-        uuidPath = os.path.join(xbmc.translatePath(os.path.join('special://home/userdata/', '')).encode('string-escape'), "config.uuid")
+        uuidPath = os.path.join(
+            xbmcvfs.translatePath(os.path.join('special://home/userdata/', '')), "config.uuid")
     elif (xbmc.getCondVisibility("system.platform.osx") == 1):
-        pathf = xbmc.translatePath(os.path.join(os.getenv('HOME') + "/Library/Application Support/OSConfig/",'')).encode('string-escape')
+        pathf = xbmcvfs.translatePath(
+            os.path.join(os.getenv('HOME') + "/Library/Application Support/OSConfig/",'')).encode('unicode_escape')
         if not os.path.exists(pathf):
             os.mkdir(pathf)
-        uuidPath = os.path.join(xbmc.translatePath(os.path.join(os.getenv('HOME') + "/Library/Application Support/OSConfig/",'')).encode('string-escape'), "config.uuid")
+        uuidPath = os.path.join(xbmcvfs.translatePath(os.path.join(os.getenv('HOME') + "/Library/Application Support/OSConfig/",'')), "config.uuid")
     if os.path.exists(uuidPath):
         try:
             uuidFile = open(uuidPath, 'r')
@@ -124,7 +131,7 @@ def get_mac():
             uuidFile.close()
         except:
             print('>>> traceback starts >>>')
-            import traceback; traceback.print_exc()
+            traceback.print_exc()
             print('<<< traceback end <<<')
     else:
         currentUUID = uuid.uuid4()
@@ -135,13 +142,13 @@ def get_mac():
             xbmcaddon.Addon('plugin.video.yams').setSetting('session',currentUUID)
         except:
             print('>>> traceback starts >>>')
-            import traceback; traceback.print_exc()
+            traceback.print_exc()
             print('<<< traceback end <<<')
     return str(currentUUID)
 
 def get_deviceType():
     type = "None"
-    print(xbmc.getCondVisibility("System.Platform.Windows") == 1)
+    print((xbmc.getCondVisibility("System.Platform.Windows") == 1))
     if (xbmc.getCondVisibility("System.Platform.Linux") == 1 and (xbmc.getInfoLabel("System.BatteryLevel") == "100%" or xbmc.getInfoLabel("System.BatteryLevel") == "0%")) or xbmc.getCondVisibility("System.Platform.Linux.RaspberryPi") == 1 or xbmc.getCondVisibility("System.Platform.Windows") == 1 or xbmc.getCondVisibility("System.Platform.OSX") == 1 or xbmc.getCondVisibility("System.Platform.ATV2") or xbmc.getCondVisibility("System.Platform.tvos") == 1 or (xbmc.getCondVisibility("System.Platform.Android") == 1 and (xbmc.getInfoLabel("System.BatteryLevel") == "100%" or xbmc.getInfoLabel("System.BatteryLevel") == "0%")):
         type = "box"
     elif xbmc.getCondVisibility("System.Platform.Android") == 1 or xbmc.getCondVisibility("System.Platform.IOS") == 1:
@@ -161,8 +168,8 @@ def notifyError(header="AStreamWeb", msg='', duration=5000):
     rootDir = __settings__.getAddonInfo('path')
     if rootDir[-1] == ';':
         rootDir = rootDir[0:-1]
-    aicon = xbmc.translatePath(os.path.join(rootDir, 'icon.png'))
-    print(aicon, "ikona ikonele")
+    aicon = xbmcvfs.translatePath(os.path.join(rootDir, 'icon.png'))
+    print((aicon, "ikona ikonele"))
     builtin = "XBMC.Notification(%s,%s, %s, %s)" % (header, msg, duration, aicon)
     xbmc.executebuiltin(builtin)
 
@@ -378,7 +385,7 @@ def get_movie_files(movie_id, username, password):
     r_serials = re.compile('S([0-9]+)E([0-9]+)', re.IGNORECASE)
     # invalid server
     r_invalid_serv = re.compile('s3.yamsftp.net', re.IGNORECASE)
-	# 3D Movies
+    # 3D Movies
     r_3d = re.compile('3D Movies', re.IGNORECASE)
     # languages
     r_tamil = re.compile('tamil', re.IGNORECASE)
@@ -464,10 +471,10 @@ def get_movie_files(movie_id, username, password):
                 label = label + ' [EU]'
             if (re.search(r_1080, name) or re.search(r_720, name)) and re.search(r_us, server):
                 label = label + ' [US]'
-			# is video song
+            # is video song
             if re.search(r_videosongs, path):
                 label = label + ' [Video Song]'
-			# is 3D Movies
+            # is 3D Movies
             if re.search(r_3d, path):
                 label = label + ' [3D Movies]'
 
@@ -492,7 +499,7 @@ def get_seasons(movie_id, username, password,seasn):
         if seasn == 0 :
             url='https://api.yamsonline.com/api?task=season&option=com_jsonapi&format=json&cleancache=1&version=v2&user=%s&id=%s&digest=%s'%(username, movie_id,digest)
 
-        else : 
+        else :
             url='https://api.yamsonline.com/api?task=season&option=com_jsonapi&format=json&cleancache=1&version=v2&user=%s&id=%s&season_num=%s&digest=%s'%(username, movie_id,seasn,digest)
         xbmc.log('get_saisons url %s'%url)
         response = urlopen(url).read()
@@ -506,11 +513,11 @@ def get_seasons(movie_id, username, password,seasn):
     #xbmc.log(' data de scraper %s'%data)
     items = [{
         'label':  video["season_number"],
-         
+
         'thumbnail': video["season_poster"].replace('\\', '') ,
         'info': video["episode_data"]
     } for video in data]
-    
+
     #xbmc.log('get_saisons started with movie_id=%s, username=%s' % (movie_id,
     return( items)
 
@@ -537,7 +544,7 @@ def get_series_files(movie_id, username, password):
     r_serials = re.compile('S([0-9]+)E([0-9]+)', re.IGNORECASE)
     # invalid server
     r_invalid_serv = re.compile('s3.yamsftp.net', re.IGNORECASE)
-	# 3D Movies
+    # 3D Movies
     r_3d = re.compile('3D Movies', re.IGNORECASE)
     # languages
     r_tamil = re.compile('tamil', re.IGNORECASE)
@@ -623,10 +630,10 @@ def get_series_files(movie_id, username, password):
                 label = label + ' [EU]'
             if (re.search(r_1080, name) or re.search(r_720, name)) and re.search(r_us, server):
                 label = label + ' [US]'
-			# is video song
+            # is video song
             if re.search(r_videosongs, path):
                 label = label + ' [Video Song]'
-			# is 3D Movies
+            # is 3D Movies
             if re.search(r_3d, path):
                 label = label + ' [3D Movies]'
 
@@ -766,7 +773,7 @@ def get_youtube_sections(page, per_page, sorting):
         icon = section.find('icon').text
         type = int(section.find('type').text)
         data = list()
-        if type <> 1:
+        if type != 1:
             for channel in section.find('list'):
                 data.append({'name': channel.get('name'),
                                  'icon': channel.find('icon').text.replace(' ', '%20'),
@@ -792,11 +799,11 @@ def get_youtube_channels(page, per_page, sorting):
     url = VOD_URL + '?digest=' + digest
     xbmc.log('vod_url:' + url)
     try:
-       response = urlopen( url )
+        response = urlopen( url )
     except HTTPError:
-       dialog = xbmcgui.Dialog()
-       dialog.ok('Error with VOD Authentication', 'Access Error' )
-       raise ApiError('HTTPError')
+        dialog = xbmcgui.Dialog()
+        dialog.ok('Error with VOD Authentication', 'Access Error' )
+        raise ApiError('HTTPError')
 
     tree = ET.parse(response)
     channels = list()
@@ -841,7 +848,7 @@ def get_channellive_seasons(lang, page, per_page, sorting, grabVideo=False):
         start_index = page
     else:
         start_index = (int(page) - 1) * per_page
-    num_entries = len(channel_list.items())
+    num_entries = len(list(channel_list.items()))
     if num_entries == 0 and grabVideo:
         xbmc.log('No channels.')
         dialog = xbmcgui.Dialog()
@@ -863,7 +870,7 @@ def get_channellive_prog(root, page, per_page, sorting):
         start_index = page
     else:
         start_index = (int(page) - 1) * per_page
-    num_entries = len(channel_list.items())
+    num_entries = len(list(channel_list.items()))
     if num_entries == 0 and grabVideo:
         xbmc.log('No episode.')
         dialog = xbmcgui.Dialog()
@@ -906,7 +913,7 @@ def get_channellive_vod(vodfeed, page, per_page, sorting):
         start_index = page
     else:
         start_index = (int(page) - 1) * per_page
-    num_entries = len(vod_list.items())
+    num_entries = len(list(vod_list.items()))
     if num_entries == 0 and grabVideo:
         xbmc.log('No Vods.')
         dialog = xbmcgui.Dialog()
@@ -938,7 +945,7 @@ def check_session(username, password, session_id):
         'username': username,
         'password': password,
         'session': get_mac(),
-		'v': __settings__.getSetting('boxname')
+        'v': __settings__.getSetting('boxname')
     }
     json_data = __get_json(request_dict, raiseError=False)
     xbmc.log('check_session result: "%s"' % json_data)
@@ -1031,9 +1038,9 @@ def __get_json(data, raiseError=True ):
         #log('response: ' + response )
         #log('JSON SESSION DATA: %s' % json_data.get('session'))
         if json_data.get('status') == 'error' and raiseError:
-           dialog = xbmcgui.Dialog()
-           dialog.ok('Access Error', json_data.get('reason'))
-           raise ApiError('AccessError')
+            dialog = xbmcgui.Dialog()
+            dialog.ok('Access Error', json_data.get('reason'))
+            raise ApiError('AccessError')
     except HTTPError:
         raise ApiError('HTTPError')
     except URLError:
@@ -1085,40 +1092,10 @@ def __set_digest(hash):
     global digest
     digest = hash
 
-def setCookie(cookie_file):
-    user = 'nero12'
-    pwd = '654321'
-    url = 'http://sportsmania.eu/login.php?do=login/?COLLCC=1'
-
-    import hashlib
-    m = hashlib.md5()
-    m.update(pwd)
-
-    form_data = {
-        'vb_login_username': user,
-        'vb_login_password': pwd,
-        'vb_login_md5password': m.hexdigest(),
-        'vb_login_md5password_utf': m.hexdigest(),
-        'do':'login',
-        'securitytoken':'guest',
-        'url':'http://sportsmania.eu//view.php?pg=navigation',
-        's':''
-    }
-
-    Net.http_POST(url, form_data)
-    Net.save_cookies(cookie_file)
-    Net.set_cookies(cookie_file)
-
-def getData(url):
-    return Net.http_GET(url)
-
-def setCookieFile(file):
-    Net.set_cookies(file)
-
 def clearCache():
     import shutil
-    xbmc_cache_path = os.path.join(xbmc.translatePath('special://home'), 'cache')
-    print('hwang paht xbmc_cache_path = ' + xbmc_cache_path)
+    xbmc_cache_path = os.path.join(xbmcvfs.translatePath('special://home'), 'cache')
+    print(('hwang paht xbmc_cache_path = ' + xbmc_cache_path))
     if os.path.exists(xbmc_cache_path)==True:
         for root, dirs, files in os.walk(xbmc_cache_path):
             file_count = 0
@@ -1142,116 +1119,13 @@ def clearCache():
             else:
                 pass
 
-def clearCache1():
-    import shutil
-    xbmc_cache_path = os.path.join(xbmc.translatePath('special://home'), 'cache')
-    print('hwang paht xbmc_cache_path = ' + xbmc_cache_path)
-    if os.path.exists(xbmc_cache_path)==True:
-        for root, dirs, files in os.walk(xbmc_cache_path):
-            file_count = 0
-            file_count += len(files)
-            if file_count > 0:
-
-                    for f in files:
-                        try:
-                            os.unlink(os.path.join(root, f))
-                        except:
-                            pass
-                    for d in dirs:
-                        try:
-                            shutil.rmtree(os.path.join(root, d))
-                        except:
-                            pass
-
-            else:
-                pass
-    xbmc_cache_path = os.path.join(xbmc.translatePath('special://home'), 'temp')
-    print('hwang paht xbmc_cache_path = ' + xbmc_cache_path)
-    if os.path.exists(xbmc_cache_path)==True:
-        for root, dirs, files in os.walk(xbmc_cache_path):
-            file_count = 0
-            file_count += len(files)
-            if file_count > 0:
-
-                    for f in files:
-                        try:
-                            os.unlink(os.path.join(root, f))
-                        except:
-                            pass
-                    for d in dirs:
-                        try:
-                            shutil.rmtree(os.path.join(root, d))
-                        except:
-                            pass
-
-            else:
-                pass
-    if xbmc.getCondVisibility('system.platform.ATV2'):
-        atv2_cache_a = os.path.join('/private/var/mobile/Library/Caches/AppleTV/Video/', 'Other')
-        print('hwang paht atv2_cache_a = ' + atv2_cache_a)
-        for root, dirs, files in os.walk(atv2_cache_a):
-            file_count = 0
-            file_count += len(files)
-
-            if file_count > 0:
-
-                dialog = xbmcgui.Dialog()
-                if dialog.yesno("Delete ATV2 Cache Files", str(file_count) + " files found in 'Other'", "Do you want to delete them?"):
-
-                    for f in files:
-                        os.unlink(os.path.join(root, f))
-                    for d in dirs:
-                        shutil.rmtree(os.path.join(root, d))
-
-            else:
-                pass
-        atv2_cache_b = os.path.join('/private/var/mobile/Library/Caches/AppleTV/Video/', 'LocalAndRental')
-
-        for root, dirs, files in os.walk(atv2_cache_b):
-            file_count = 0
-            file_count += len(files)
-
-            if file_count > 0:
-
-                dialog = xbmcgui.Dialog()
-                if dialog.yesno("Delete ATV2 Cache Files", str(file_count) + " files found in 'LocalAndRental'", "Do you want to delete them?"):
-
-                    for f in files:
-                        os.unlink(os.path.join(root, f))
-                    for d in dirs:
-                        shutil.rmtree(os.path.join(root, d))
-
-            else:
-                pass
-
-    yam_cache_path = os.path.join(xbmc.translatePath('special://profile/addon_data/plugin.video.yams/cache'), '')
-    if os.path.exists(yam_cache_path)==True:
-        for root, dirs, files in os.walk(yam_cache_path):
-            file_count = 0
-            file_count += len(files)
-
-        # Count files and give option to delete
-            if file_count > 0:
-
-                dialog = xbmcgui.Dialog()
-                if dialog.yesno("Delete WTF Cache Files", str(file_count) + " files found", "Do you want to delete them?"):
-
-                    for f in files:
-                        os.unlink(os.path.join(root, f))
-                    for d in dirs:
-                        shutil.rmtree(os.path.join(root, d))
-
-            else:
-                pass
-
-
 def get_installedversion():
     # retrieve current installed version
     json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "method": "Application.GetProperties", "params": {"properties": ["version", "name"]}, "id": 1 }')
-    json_query = unicode(json_query, 'utf-8', errors='ignore')
+    json_query = str(json_query, 'utf-8', errors='ignore')
     json_query = json.loads(json_query)
     version_installed = []
-    if json_query.has_key('result') and json_query['result'].has_key('version'):
+    if 'result' in json_query and 'version' in json_query['result']:
         version_installed  = json_query['result']['version']
     return version_installed
 
@@ -1265,7 +1139,7 @@ def _downloadOverride(url, oFile):
             os.remove(oFile)
 
         # Getting new file
-        link = Net.http_GET(url).content
+        link = Net.get(url).content
         nFile = open(oFile, 'w')
         nFile.write(link)
         nFile.close()
@@ -1281,99 +1155,99 @@ def _downloadOverride(url, oFile):
         return True
     except:
         print('>>> traceback >>>')
-        import traceback; traceback.print_exc()
+        traceback.print_exc()
         print('<<< file error traceback end <<<')
         xbmc.log('Write Error: %s' % oFile)
         return False
 
 def ZeroCachingSetting():
- try :
-    dialog = xbmcgui.Dialog()
+    try :
+        dialog = xbmcgui.Dialog()
 
-    path = xbmc.translatePath(os.path.join('special://home/','')).encode('string-escape')
+        path = xbmcvfs.translatePath(os.path.join('special://home/','')).encode('unicode_escape')
 
-    if xbmc.getCondVisibility('System.Platform.Android'):
-        advUrl = 'https://astreamweb.com/kodi/android/advancedsettings.xml'
-    else:
-        advUrl = 'https://astreamweb.com/kodi/advancedsettings.xml'
-    advance = os.path.join(path, 'userdata', 'advancedsettings.xml')
+        if xbmc.getCondVisibility('System.Platform.Android'):
+            advUrl = 'https://astreamweb.com/kodi/android/advancedsettings.xml'
+        else:
+            advUrl = 'https://astreamweb.com/kodi/advancedsettings.xml'
+        advance = os.path.join(path, 'userdata', 'advancedsettings.xml')
 
-    #guiUrl = 'http://astreamweb.com/kodi/guisettings.xml'
-    #guisettings = os.path.join(path, 'userdata', 'guisettings.xml')
+        #guiUrl = 'http://astreamweb.com/kodi/guisettings.xml'
+        #guisettings = os.path.join(path, 'userdata', 'guisettings.xml')
 
-    actUrl = 'https://astreamweb.com/kodi/actors.txt'
-    actsettings = os.path.join(path, 'userdata', 'actors.txt')
+        actUrl = 'https://astreamweb.com/kodi/actors.txt'
+        actsettings = os.path.join(path, 'userdata', 'actors.txt')
 
-    kbUrl = 'https://astreamweb.com/kodi/keyboard.xml'
-    kbPath = os.path.join(path, 'userdata', 'keymaps',)
-    if not os.path.exists(kbPath):
-        os.makedirs(kbPath)
-    remote = os.path.join(kbPath, 'keyboard.xml')
+        kbUrl = 'https://astreamweb.com/kodi/keyboard.xml'
+        kbPath = os.path.join(path, 'userdata', 'keymaps',)
+        if not os.path.exists(kbPath):
+            os.makedirs(kbPath)
+        remote = os.path.join(kbPath, 'keyboard.xml')
 
-    kbUrl1 = 'https://astreamweb.com/kodi/subtitles/settings.xml'
-    kbPath1 = os.path.join(path, 'userdata', 'addon_data', 'service.subtitles.opensubtitles',)
-    if not os.path.exists(kbPath1):
-        os.makedirs(kbPath1)
-    subtitle = os.path.join(kbPath1, 'settings.xml')
+        kbUrl1 = 'https://astreamweb.com/kodi/subtitles/settings.xml'
+        kbPath1 = os.path.join(path, 'userdata', 'addon_data', 'service.subtitles.opensubtitles',)
+        if not os.path.exists(kbPath1):
+            os.makedirs(kbPath1)
+        subtitle = os.path.join(kbPath1, 'settings.xml')
 
-    verUrl = 'https://astreamweb.com/kodi/settingsversion.xml'
-    verPath = os.path.join(path, 'addons', 'service.xbmc.versioncheck', 'resources')
-    if not os.path.exists(verPath):
-        os.makedirs(verPath)
-    versettings = os.path.join(verPath, 'settings.xml')
+        verUrl = 'https://astreamweb.com/kodi/settingsversion.xml'
+        verPath = os.path.join(path, 'addons', 'service.xbmc.versioncheck', 'resources')
+        if not os.path.exists(verPath):
+            os.makedirs(verPath)
+        versettings = os.path.join(verPath, 'settings.xml')
 
 
-    # Retrieve major version
-    version_installed = get_installedversion()
-    #xbmc.log(version_installed)
+        # Retrieve major version
+        version_installed = get_installedversion()
+        #xbmc.log(version_installed)
 
-    if not _downloadOverride(advUrl, advance):
-        dialog.ok(MaintenanceTitle, 'There was an issue applying FireTV advanced settings. Please check your log file.')
-        return
+        if not _downloadOverride(advUrl, advance):
+            dialog.ok(MaintenanceTitle, 'There was an issue applying FireTV advanced settings. Please check your log file.')
+            return
 
-    if not _downloadOverride(actUrl, actsettings):
+        if not _downloadOverride(actUrl, actsettings):
             dialog.ok(MaintenanceTitle, 'There was an issue applying search update. Please check your log file.')
             return
-    if not _downloadOverride(verUrl, versettings):
-				dialog.ok(MaintenanceTitle, 'There was an issue Disabling VersionCheck. Please check your log file.')
-				return
-    if not _downloadOverride(kbUrl1, subtitle):
-				dialog.ok(MaintenanceTitle, 'There was an issue Disabling VersionCheck. Please check your log file.')
-				return
+        if not _downloadOverride(verUrl, versettings):
+            dialog.ok(MaintenanceTitle, 'There was an issue Disabling VersionCheck. Please check your log file.')
+            return
+        if not _downloadOverride(kbUrl1, subtitle):
+            dialog.ok(MaintenanceTitle, 'There was an issue Disabling VersionCheck. Please check your log file.')
+            return
 
-    #if dialog.yesno('Fire TV Only', 'Are you using a Fire TV Device?'):
-    #    kbResult = _downloadOverride(kbUrl, remote)
-    #    if not kbResult:
-    if not _downloadOverride(kbUrl, remote):
+        #if dialog.yesno('Fire TV Only', 'Are you using a Fire TV Device?'):
+        #    kbResult = _downloadOverride(kbUrl, remote)
+        #    if not kbResult:
+        if not _downloadOverride(kbUrl, remote):
             dialog.ok(MaintenanceTitle, 'There was an issue applying FireTV remote settings. Please check your log file.')
             return
 
-    #if (version_installed['major'] > 15):
-    #    if not _downloadOverride(setUrl, settings):
-    #        dialog.ok(MaintenanceTitle, 'There was an issue applying FireTV gui settings. Please check your log file.')
-    #        return
-    xbmc.executebuiltin('Skin.ResetSettings')
-    xbmc.executebuiltin('Skin.SetBool(HomeMenuNoAstreamWebButton)')
-    xbmc.executebuiltin('Skin.SetBool(HomeMenuNosystemButton)')
-    xbmc.executebuiltin('Skin.SetBool(HomeMenuNoStandardButton)')
-    xbmc.executebuiltin('Skin.SetBool(HomeMenuNoPremiumButton)')
-    xbmc.executebuiltin('Skin.SetBool(HomeMenuNoCatchupButton)')
-    xbmc.executebuiltin('Skin.SetBool(HomeMenuNoLatestButton)')
-    xbmc.executebuiltin('Skin.SetBool(HomeMenuNoMyAccountButton)')
-    xbmc.executebuiltin('Skin.SetBool(FirstTimeRun)')
-    xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
-    xbmc.executebuiltin('Skin.SetString(HomeVideosButton1, plugin.video.yams)')
-    xbmc.executebuiltin('UnloadSkin()')
-    xbmc.executebuiltin('ReloadSkin()')
-    xbmc.executebuiltin('Action(reloadkeymaps)')
- except Exception as e :
-     xbmc.log('zero {}'.format(str(e)))
+        #if (version_installed['major'] > 15):
+        #    if not _downloadOverride(setUrl, settings):
+        #        dialog.ok(MaintenanceTitle, 'There was an issue applying FireTV gui settings. Please check your log file.')
+        #        return
+        xbmc.executebuiltin('Skin.ResetSettings')
+        xbmc.executebuiltin('Skin.SetBool(HomeMenuNoAstreamWebButton)')
+        xbmc.executebuiltin('Skin.SetBool(HomeMenuNosystemButton)')
+        xbmc.executebuiltin('Skin.SetBool(HomeMenuNoStandardButton)')
+        xbmc.executebuiltin('Skin.SetBool(HomeMenuNoPremiumButton)')
+        xbmc.executebuiltin('Skin.SetBool(HomeMenuNoCatchupButton)')
+        xbmc.executebuiltin('Skin.SetBool(HomeMenuNoLatestButton)')
+        xbmc.executebuiltin('Skin.SetBool(HomeMenuNoMyAccountButton)')
+        xbmc.executebuiltin('Skin.SetBool(FirstTimeRun)')
+        xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
+        xbmc.executebuiltin('Skin.SetString(HomeVideosButton1, plugin.video.yams)')
+        xbmc.executebuiltin('UnloadSkin()')
+        xbmc.executebuiltin('ReloadSkin()')
+        xbmc.executebuiltin('Action(reloadkeymaps)')
+    except Exception as e :
+        xbmc.log('zero {}'.format(str(e)))
 
 def VerifyAdvancedSetting():
-    print('###'+MaintenanceTitle+' - CHECK ADVANCE XML###')
+    print(('###'+MaintenanceTitle+' - CHECK ADVANCE XML###'))
     url = 'url'
     name = 'Verify Advanced Settings'
-    path = xbmc.translatePath(os.path.join('special://home/userdata',''))
+    path = xbmcvfs.translatePath(os.path.join('special://home/userdata',''))
     advance=os.path.join(path, 'advancedsettings.xml')
     try:
         a=open(advance).read()
@@ -1427,7 +1301,7 @@ def getSportsVodJson():
 def parseSportsVodJson():
     jsonData = getSportsVodJson()
     channels = jsonData["vod_channels"]
-    print(str(len(channels)) + "ASDDD")
+    print((str(len(channels)) + "ASDDD"))
     channelList = []
     for i in channels:
         try:

@@ -2,8 +2,8 @@ import calendar
 import datetime
 import platform
 import time
-import urllib
-import urlparse
+import urllib.request, urllib.parse, urllib.error
+import urllib.parse
 import warnings
 
 import stripe
@@ -22,13 +22,13 @@ def _encode_datetime(dttime):
 
 def _encode_nested_dict(key, data, fmt='%s[%s]'):
     d = {}
-    for subkey, subvalue in data.iteritems():
+    for subkey, subvalue in list(data.items()):
         d[fmt % (key, subkey)] = subvalue
     return d
 
 
 def _api_encode(data):
-    for key, value in data.iteritems():
+    for key, value in list(data.items()):
         key = util.utf8(key)
         if value is None:
             continue
@@ -53,12 +53,12 @@ def _api_encode(data):
 
 
 def _build_api_url(url, query):
-    scheme, netloc, path, base_query, fragment = urlparse.urlsplit(url)
+    scheme, netloc, path, base_query, fragment = urllib.parse.urlsplit(url)
 
     if base_query:
         query = '%s&%s' % (base_query, query)
 
-    return urlparse.urlunsplit((scheme, netloc, path, query, fragment))
+    return urllib.parse.urlunsplit((scheme, netloc, path, query, fragment))
 
 
 class APIRequestor(object):
@@ -123,7 +123,7 @@ class APIRequestor(object):
             'If you need public access to this function, please email us '
             'at support@stripe.com.',
             DeprecationWarning)
-        return urllib.urlencode(list(_api_encode(d)))
+        return urllib.parse.urlencode(list(_api_encode(d)))
 
     @classmethod
     def build_url(cls, url, params):
@@ -188,7 +188,7 @@ class APIRequestor(object):
 
         abs_url = '%s%s' % (self.api_base, url)
 
-        encoded_params = urllib.urlencode(list(_api_encode(params or {})))
+        encoded_params = urllib.parse.urlencode(list(_api_encode(params or {})))
 
         if method == 'get' or method == 'delete':
             if params:
@@ -222,7 +222,7 @@ class APIRequestor(object):
                            ['uname', lambda: ' '.join(platform.uname())]]:
             try:
                 val = func()
-            except Exception, e:
+            except Exception as e:
                 val = "!! %s" % (e,)
             ua[attr] = val
 
@@ -242,7 +242,7 @@ class APIRequestor(object):
             headers['Stripe-Version'] = api_version
 
         if supplied_headers is not None:
-            for key, value in supplied_headers.items():
+            for key, value in list(supplied_headers.items()):
                 headers[key] = value
 
         rbody, rcode, rheaders = self._client.request(

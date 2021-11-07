@@ -1,13 +1,13 @@
 import xbmc, xbmcaddon, xbmcgui
 import resources.modules.scraper as scraper
-import urllib, urllib2
+import urllib.request, urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse
 import json,requests
 
 try:
     from simplejson import loads as json_loads
 except:
-     print('Plugin Error', 'simplejson import error: limited functionality')
-     pass
+    print(('Plugin Error', 'simplejson import error: limited functionality'))
+    pass
 
 # Ideally do not use username & password when there is a valid session to kill
 # But cannot guarantee valid session
@@ -38,7 +38,7 @@ for device in devices["mobiles"]:
         url = "https://geoip.maxmind.com/geoip/v2.1/city/{0}".format(ip)
 
         georesp = requests.get(url,headers=headers)
-        georesp = json_loads(georesp.text)       
+        georesp = json_loads(georesp.text)
         if georesp["city"]["names"]["en"] != "":
             location = georesp["city"]["names"]["en"]
         elif georesp["country"]["names"]["en"] != "":
@@ -52,6 +52,5 @@ for device in devices["mobiles"]:
         elif k == 2:
             third = "{0} {1}".format(ip, location.encode('ascii', 'ignore').decode('ascii'))
             k = 3
-if k ==0 : dialog.ok("Active mobile devices", ' No mobile device active' ) 
+if k ==0 : dialog.ok("Active mobile devices", ' No mobile device active' )
 else : dialog.ok("Active mobile devices", first, second, third)
-

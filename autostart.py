@@ -7,9 +7,9 @@ D:\00-Costin\Python\WinPython-64bit-2.7.6.4\settings\.spyder2\.temp.py
 """
 import xbmc, xbmcaddon, xbmcgui
 
-xbmc.executebuiltin("UpdateAddonRepos") 
+xbmc.executebuiltin("UpdateAddonRepos")
 
-xbmc.executebuiltin("UpdateLocalAddons") 
+xbmc.executebuiltin("UpdateLocalAddons")
 
 autostart  = xbmcaddon.Addon(id='plugin.video.yams').getSetting("autostart")
 

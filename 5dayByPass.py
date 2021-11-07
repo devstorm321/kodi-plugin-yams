@@ -30,7 +30,7 @@ if password == "" or password is None:
 
 if dialog.yesno("Day Pass", "Would you like to activate day pass for 5 days"):
     bypass = scraper.get5DayBypass(username, password)
-    print bypass
+    print(bypass)
     if bypass["success"]:
         dialog.ok("Success", "You are using {0} out of 3, 5 Day passes.".format(bypass["bypasses"]))
         dialog.ok("Restart Required", "Please restart your device for day pass to take effect (shutdown icon -> exit)")

@@ -1,13 +1,13 @@
 import xbmc, xbmcaddon, xbmcgui
 import resources.modules.scraper as scraper
-import urllib, urllib2, requests
+import urllib.request, urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, requests
 import json
 
 try:
     from simplejson import loads as json_loads
 except:
-     print('Plugin Error', 'simplejson import error: limited functionality')
-     pass
+    print(('Plugin Error', 'simplejson import error: limited functionality'))
+    pass
 
 # Ideally do not use username & password when there is a valid session to kill
 # But cannot guarantee valid session
@@ -57,7 +57,7 @@ for device in devices["boxes"]:
         url = "https://geoip.maxmind.com/geoip/v2.1/city/{0}".format(ip)
 
         georesp = requests.get(url,headers=headers)
-        georesp = json_loads(georesp.text)       
+        georesp = json_loads(georesp.text)
         if georesp["city"]["names"]["en"] != "":
             location = georesp["city"]["names"]["en"]
         elif georesp["country"]["names"]["en"] != "":
@@ -97,7 +97,7 @@ for device in devices["mobiles"]:
         url = "https://geoip.maxmind.com/geoip/v2.1/city/{0}".format(ip)
 
         georesp = requests.get(url,headers=headers)
-        georesp = json_loads(georesp.text)           
+        georesp = json_loads(georesp.text)
         if georesp["city"]["names"]["en"] != "":
             location = georesp["city"]["names"]["en"]
         elif georesp["country"]["names"]["en"] != "":
@@ -122,7 +122,7 @@ for device in devices["mobiles"]:
             k = 6
 
 
-if k ==0 : dialog.ok("Active devices", ' No device active' ) 
+if k ==0 : dialog.ok("Active devices", ' No device active' )
 else :
     dev_rem = dialog.multiselect("Select the devices you want to remove ", dev)
     if dev_rem != None   :
@@ -134,5 +134,3 @@ else :
                     rem_suc,rem_rea = remove_device(username, password,dev[i].split(',')[-1])
                     if rem_suc : dialog.ok('remove device success',rem_rea)
                     else  : dialog.ok('remove device not success',rem_rea)
-
-    

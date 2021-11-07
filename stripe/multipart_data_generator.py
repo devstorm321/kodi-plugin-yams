@@ -11,7 +11,7 @@ class MultipartDataGenerator(object):
         self.chunk_size = chunk_size
 
     def add_params(self, params):
-        for key, value in params.iteritems():
+        for key, value in list(params.items()):
             if value is None:
                 continue
 

@@ -10,8 +10,8 @@ Python CLI-tool (without need for a GUI) to measure Internet speed with fast.com
 
 import os
 import json
-import urllib
-import urllib2
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
 import sys
 #import jsbeautifier
 import time
@@ -25,7 +25,7 @@ def gethtmlresult(url,result,index):
     get the stuff from url in chuncks of size CHUNK, and keep writing the number of bytes retrieved into result[index]
     '''
     #print url, index, result[index]
-    req = urllib2.urlopen(url)
+    req = urllib.request.urlopen(url)
     CHUNK = 100 * 1024
     i=1
     while True:
@@ -62,24 +62,24 @@ def fast_com(verbose=False, maxtime=15, forceipv4=False, forceipv6=False):
 
     pDialog = xbmcgui.DialogProgress()
     pDialog.create("[COLOR white]FAST.com[/COLOR]", "", "[COLOR white]Start speedtest against fast.com ...[/COLOR]")
-    
+
     '''
         verbose: print debug output
-        maxtime: max time in seconds to monitor speedtest 
+        maxtime: max time in seconds to monitor speedtest
         forceipv4: force speed test over IPv4
         forceipv6: force speed test over IPv6
     '''
     # go to fast.com to get the javascript file
     url = 'https://fast.com/'
     try:
-        urlresult = urllib.urlopen(url)
+        urlresult = urllib.request.urlopen(url)
     except:
         # no connection at all?
         return 0
     response = urlresult.read()
     for line in response.split('\n'):
         # We're looking for a line like
-        #           <script src="/app-40647a.js"></script> 
+        #           <script src="/app-40647a.js"></script>
         if line.find('script src') >= 0:
             #print line
             jsname = line.split('"')[1] # At time of writing: '/app-40647a.js'
@@ -87,9 +87,9 @@ def fast_com(verbose=False, maxtime=15, forceipv4=False, forceipv6=False):
 
     # From that javascript file, get the token:
     url = 'https://fast.com' + jsname
-    if verbose: print("javascript url is", url)
-    urlresult = urllib.urlopen(url)
-    allJSstuff = urlresult.read()   # this is a obfuscated Javascript file 
+    if verbose: print(("javascript url is", url))
+    urlresult = urllib.request.urlopen(url)
+    allJSstuff = urlresult.read()   # this is a obfuscated Javascript file
     '''
     # OLD STUFF ... beautiful, but needs the js-beautifier module, which was a non-stardard requirement
     res = jsbeautifier.beautify(allJSstuff) # ... so un-obfuscate it
@@ -105,9 +105,9 @@ def fast_com(verbose=False, maxtime=15, forceipv4=False, forceipv6=False):
     '''
     for line in allJSstuff.split(','):
         if line.find('token:') >= 0:
-            if verbose: print("line is", line)
+            if verbose: print(("line is", line))
             token = line.split('"')[1]
-            if verbose: print("token is", token)
+            if verbose: print(("token is", token))
             if token:
                 break
 
@@ -124,14 +124,14 @@ def fast_com(verbose=False, maxtime=15, forceipv4=False, forceipv6=False):
         ipv4 = findipv4('api.fast.com')
         baseurl = 'http://' + ipv4 + '/'    # HTTPS does not work IPv4 addresses, thus use HTTP
     elif forceipv6:
-        # force IPv6 
+        # force IPv6
         ipv6 = findipv6('api.fast.com')
         baseurl = 'http://[' + ipv6 + ']/'
 
     url = baseurl + 'netflix/speedtest?https=true&token=' + token + '&urlCount=3'   # Not more than 3 possible
-    if verbose: print("API url is", url)
+    if verbose: print(("API url is", url))
     try:
-        urlresult = urllib2.urlopen(url, None, 2)   # 2 second time-out
+        urlresult = urllib.request.urlopen(url, None, 2)   # 2 second time-out
     except:
         # not good
         if verbose: print("No connection possible" ) # probably IPv6, or just no network
@@ -142,14 +142,14 @@ def fast_com(verbose=False, maxtime=15, forceipv4=False, forceipv6=False):
 
     # Prepare for getting those URLs in a threaded way:
     amount = len(parsedjson)
-    if verbose: print("Number of URLs:", amount)
+    if verbose: print(("Number of URLs:", amount))
     threads = [None] * amount
     results = [0] * amount
     urls = [None] * amount
     i = 0
     for jsonelement in parsedjson:
         urls[i] = jsonelement['url']    # fill out speed test url from the json format
-        if verbose: print(jsonelement['url'])
+        if verbose: print((jsonelement['url']))
         i = i+1
 
     # Let's check whether it's IPv6:
@@ -169,7 +169,7 @@ def fast_com(verbose=False, maxtime=15, forceipv4=False, forceipv6=False):
         threads[i].daemon=True
         threads[i].start()
 
-    # Monitor the amount of bytes (and speed) of the threads 
+    # Monitor the amount of bytes (and speed) of the threads
     time.sleep(1)
     sleepseconds = 3    # 3 seconds sleep
     lasttotal = 0
@@ -188,7 +188,7 @@ def fast_com(verbose=False, maxtime=15, forceipv4=False, forceipv6=False):
         percent += upd
         pDialog.update(percent, "[COLOR white]Running speedtest against fast.com ...[/COLOR]", "", "[COLOR white]Speed: %s kBps[/COLOR]" % (speedkBps))
         if verbose:
-            print("Loop", loop, "Total MB", total/(1024*1024), "Delta MB", delta/(1024*1024), "Speed kB/s:", speedkBps, "aka Mbps %.1f" % (application_bytes_to_networkbits(speedkBps)/1024))
+            print(("Loop", loop, "Total MB", total/(1024*1024), "Delta MB", delta/(1024*1024), "Speed kB/s:", speedkBps, "aka Mbps %.1f" % (application_bytes_to_networkbits(speedkBps)/1024)))
         '''
         if total/(1024*1024) > maxdownload:
             break
@@ -197,12 +197,12 @@ def fast_com(verbose=False, maxtime=15, forceipv4=False, forceipv6=False):
         if speedkBps > highestspeedkBps:
             highestspeedkBps = speedkBps
         time.sleep(sleepseconds)
-        
-        if pDialog.iscanceled(): 
+
+        if pDialog.iscanceled():
             print("DOWNLOAD CANCELLED") # need to get this part working
             pDialog.close()
             break
-        
+
     '''
     print "Now wait for threads to end:"
     for i in range(len(threads)):
@@ -211,10 +211,10 @@ def fast_com(verbose=False, maxtime=15, forceipv4=False, forceipv6=False):
 
     Mbps = (application_bytes_to_networkbits(highestspeedkBps)/1024)
     Mbps = float("%.1f" % Mbps)
-    if verbose: print("Highest Speed (kB/s):", highestspeedkBps,  "aka Mbps ", Mbps)
+    if verbose: print(("Highest Speed (kB/s):", highestspeedkBps,  "aka Mbps ", Mbps))
 
     #print "Debug: total in bytes", total
-    
+
     pDialog.close()
 
     return Mbps
@@ -223,18 +223,16 @@ def fast_com(verbose=False, maxtime=15, forceipv4=False, forceipv6=False):
 ######## MAIN #################
 
 
-if __name__ == "__main__": 
+if __name__ == "__main__":
     print("let's speed test:")
     print("\nSpeed test, without logging:")
-    print(fast_com())
+    print((fast_com()))
     print("\nSpeed test, with logging:")
-    print(fast_com(verbose=True))
+    print((fast_com(verbose=True)))
     print("\nSpeed test, IPv4, with verbose logging:")
-    print(fast_com(verbose=True, maxtime=18, forceipv4=True))
+    print((fast_com(verbose=True, maxtime=18, forceipv4=True)))
     print("\nSpeed test, IPv6:")
-    print(fast_com(maxtime=12, forceipv6=True))
+    print((fast_com(maxtime=12, forceipv6=True)))
     #fast_com(verbose=True, maxtime=25)
 
     print("\ndone")
-
-

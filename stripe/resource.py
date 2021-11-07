@@ -1,4 +1,4 @@
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import warnings
 import sys
 
@@ -24,7 +24,7 @@ def convert_to_stripe_object(resp, api_key, account):
     elif isinstance(resp, dict) and not isinstance(resp, StripeObject):
         resp = resp.copy()
         klass_name = resp.get('object')
-        if isinstance(klass_name, basestring):
+        if isinstance(klass_name, str):
             klass = types.get(klass_name, StripeObject)
         else:
             klass = StripeObject
@@ -98,7 +98,7 @@ class StripeObject(dict):
 
         try:
             return self[k]
-        except KeyError, err:
+        except KeyError as err:
             raise AttributeError(*err.args)
 
     def __setitem__(self, k, v):
@@ -120,7 +120,7 @@ class StripeObject(dict):
     def __getitem__(self, k):
         try:
             return super(StripeObject, self).__getitem__(k)
-        except KeyError, err:
+        except KeyError as err:
             if k in self._transient_values:
                 raise KeyError(
                     "%r.  HINT: The %r attribute was set in the past."
@@ -128,7 +128,7 @@ class StripeObject(dict):
                     "the result returned by Stripe's API, probably as a "
                     "result of a save().  The attributes currently "
                     "available on this object are: %s" %
-                    (k, k, ', '.join(self.keys())))
+                    (k, k, ', '.join(list(self.keys()))))
             else:
                 raise err
 
@@ -164,7 +164,7 @@ class StripeObject(dict):
 
         self._transient_values = self._transient_values - set(values)
 
-        for k, v in values.iteritems():
+        for k, v in list(values.items()):
             super(StripeObject, self).__setitem__(
                 k, convert_to_stripe_object(v, api_key, stripe_account))
 
@@ -187,10 +187,10 @@ class StripeObject(dict):
     def __repr__(self):
         ident_parts = [type(self).__name__]
 
-        if isinstance(self.get('object'), basestring):
+        if isinstance(self.get('object'), str):
             ident_parts.append(self.get('object'))
 
-        if isinstance(self.get('id'), basestring):
+        if isinstance(self.get('id'), str):
             ident_parts.append('id=%s' % (self.get('id'),))
 
         unicode_repr = '<%s at %s> JSON: %s' % (
@@ -222,7 +222,7 @@ class StripeObject(dict):
         unsaved_keys = self._unsaved_values or set()
         previous = previous or self._previous or {}
 
-        for k, v in self.items():
+        for k, v in list(self.items()):
             if k == 'id' or (isinstance(k, str) and k.startswith('_')):
                 continue
             elif isinstance(v, APIResource):
@@ -267,7 +267,7 @@ class APIResource(StripeObject):
             raise NotImplementedError(
                 'APIResource is an abstract class.  You should perform '
                 'actions on its subclasses (e.g. Charge, Customer)')
-        return str(urllib.quote_plus(cls.__name__.lower()))
+        return str(urllib.parse.quote_plus(cls.__name__.lower()))
 
     @classmethod
     def class_url(cls):
@@ -282,7 +282,7 @@ class APIResource(StripeObject):
                 'has invalid ID: %r' % (type(self).__name__, id), 'id')
         id = util.utf8(id)
         base = self.class_url()
-        extn = urllib.quote_plus(id)
+        extn = urllib.parse.quote_plus(id)
         return "%s/%s" % (base, extn)
 
 
@@ -298,7 +298,7 @@ class ListObject(StripeObject):
     def retrieve(self, id, **params):
         base = self.get('url')
         id = util.utf8(id)
-        extn = urllib.quote_plus(id)
+        extn = urllib.parse.quote_plus(id)
         url = "%s/%s" % (base, extn)
 
         return self.request('get', url, params)
@@ -381,7 +381,7 @@ class Account(CreateableAPIResource, ListableAPIResource,
             return "/v1/account"
         id = util.utf8(id)
         base = self.class_url()
-        extn = urllib.quote_plus(id)
+        extn = urllib.parse.quote_plus(id)
         return "%s/%s" % (base, extn)
 
 
@@ -400,26 +400,26 @@ class Card(UpdateableAPIResource, DeletableAPIResource):
 
     def instance_url(self):
         self.id = util.utf8(self.id)
-        extn = urllib.quote_plus(self.id)
+        extn = urllib.parse.quote_plus(self.id)
         if (hasattr(self, 'customer')):
             customer = util.utf8(self.customer)
 
             base = Customer.class_url()
-            owner_extn = urllib.quote_plus(customer)
+            owner_extn = urllib.parse.quote_plus(customer)
             class_base = "sources"
 
         elif (hasattr(self, 'recipient')):
             recipient = util.utf8(self.recipient)
 
             base = Recipient.class_url()
-            owner_extn = urllib.quote_plus(recipient)
+            owner_extn = urllib.parse.quote_plus(recipient)
             class_base = "cards"
 
         elif (hasattr(self, 'account')):
             account = util.utf8(self.account)
 
             base = Account.class_url()
-            owner_extn = urllib.quote_plus(account)
+            owner_extn = urllib.parse.quote_plus(account)
             class_base = "external_accounts"
 
         else:
@@ -443,19 +443,19 @@ class BankAccount(UpdateableAPIResource, DeletableAPIResource):
 
     def instance_url(self):
         self.id = util.utf8(self.id)
-        extn = urllib.quote_plus(self.id)
+        extn = urllib.parse.quote_plus(self.id)
         if (hasattr(self, 'customer')):
             customer = util.utf8(self.customer)
 
             base = Customer.class_url()
-            owner_extn = urllib.quote_plus(customer)
+            owner_extn = urllib.parse.quote_plus(customer)
             class_base = "sources"
 
         elif (hasattr(self, 'account')):
             account = util.utf8(self.account)
 
             base = Account.class_url()
-            owner_extn = urllib.quote_plus(account)
+            owner_extn = urllib.parse.quote_plus(account)
             class_base = "external_accounts"
 
         else:
@@ -608,8 +608,8 @@ class Subscription(UpdateableAPIResource, DeletableAPIResource):
         self.customer = util.utf8(self.customer)
 
         base = Customer.class_url()
-        cust_extn = urllib.quote_plus(self.customer)
-        extn = urllib.quote_plus(self.id)
+        cust_extn = urllib.parse.quote_plus(self.customer)
+        extn = urllib.parse.quote_plus(self.id)
 
         return "%s/%s/subscriptions/%s" % (base, cust_extn, extn)
 
@@ -633,8 +633,8 @@ class Refund(UpdateableAPIResource):
         self.id = util.utf8(self.id)
         self.charge = util.utf8(self.charge)
         base = Charge.class_url()
-        cust_extn = urllib.quote_plus(self.charge)
-        extn = urllib.quote_plus(self.id)
+        cust_extn = urllib.parse.quote_plus(self.charge)
+        extn = urllib.parse.quote_plus(self.id)
         return "%s/%s/refunds/%s" % (base, cust_extn, extn)
 
     @classmethod
@@ -671,8 +671,8 @@ class Reversal(UpdateableAPIResource):
         self.id = util.utf8(self.id)
         self.charge = util.utf8(self.transfer)
         base = Transfer.class_url()
-        cust_extn = urllib.quote_plus(self.transfer)
-        extn = urllib.quote_plus(self.id)
+        cust_extn = urllib.parse.quote_plus(self.transfer)
+        extn = urllib.parse.quote_plus(self.id)
         return "%s/%s/reversals/%s" % (base, cust_extn, extn)
 
     @classmethod
@@ -731,8 +731,8 @@ class ApplicationFeeRefund(UpdateableAPIResource):
         self.id = util.utf8(self.id)
         self.fee = util.utf8(self.fee)
         base = ApplicationFee.class_url()
-        cust_extn = urllib.quote_plus(self.fee)
-        extn = urllib.quote_plus(self.id)
+        cust_extn = urllib.parse.quote_plus(self.fee)
+        extn = urllib.parse.quote_plus(self.id)
         return "%s/%s/refunds/%s" % (base, cust_extn, extn)
 
     @classmethod
@@ -747,12 +747,12 @@ class BitcoinReceiver(CreateableAPIResource, UpdateableAPIResource,
 
     def instance_url(self):
         self.id = util.utf8(self.id)
-        extn = urllib.quote_plus(self.id)
+        extn = urllib.parse.quote_plus(self.id)
 
         if (hasattr(self, 'customer')):
             self.customer = util.utf8(self.customer)
             base = Customer.class_url()
-            cust_extn = urllib.quote_plus(self.customer)
+            cust_extn = urllib.parse.quote_plus(self.customer)
             return "%s/%s/sources/%s" % (base, cust_extn, extn)
         else:
             base = BitcoinReceiver.class_url()
