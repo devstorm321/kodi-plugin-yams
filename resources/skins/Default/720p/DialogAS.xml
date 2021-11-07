@@ -1,0 +1,65 @@
+<window id="30000">
+	<defaultcontrol always="true">30001</defaultcontrol>
+	<coordinates>
+		<system>1</system>
+		<posx>135</posx>
+		<posy>130</posy>
+	</coordinates>
+	<controls>
+		<control type="image">
+			<posx>0</posx>
+			<posy>0</posy>
+			<width>1010</width>
+			<height>440</height>
+			<texture border="40">DialogBack.png</texture>
+		</control>
+		<control type="image">
+			<description>Dialog Header image</description>
+			<posx>40</posx>
+			<posy>16</posy>
+			<width>930</width>
+			<height>40</height>
+			<texture>dialogheader.png</texture>
+		</control>
+		<control type="label">
+			<description>header label</description>
+			<posx>40</posx>
+			<posy>20</posy>
+			<width>930</width>
+			<height>30</height>
+			<font>font13_title</font>
+			<label>AStreamWeb News</label>
+			<align>center</align>
+			<aligny>center</aligny>
+			<textcolor>selected</textcolor>
+			<shadowcolor>black</shadowcolor>
+		</control>
+		<control type="TextBox" id="30002">
+			<description>text</description>
+			<posx>30</posx>
+			<posy>90</posy>
+			<width>950</width>
+			<height>390</height>
+			<align>left</align>
+			<aligny>center</aligny>
+			<font>font14</font>
+            <textcolor>white</textcolor>
+		</control>
+		<control type="button" id="30001">
+			<description>OK button</description>
+			<posx>405</posx>
+			<posy>375</posy>
+			<width>200</width>
+			<height>40</height>
+			<label>186</label>
+			<font>font12_title</font>
+			<textcolor>white</textcolor>
+			<focusedcolor>white</focusedcolor>
+			<align>center</align>
+			<onleft>30001</onleft>
+			<onright>30001</onright>
+			<onup>30001</onup>
+			<ondown>30001</ondown>
+		</control>
+	</controls>
+</window>
