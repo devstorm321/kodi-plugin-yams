@@ -80,7 +80,7 @@ def app_active():
         ip = urllib.request.urlopen("https://astreamweb.com/kodi/ip.php").read()
     except Exception as e:
         dialog = xbmcgui.Dialog()
-        dialog.ok('Failure', 'Astreamweb.com is not responding')
+        dialog.notification('Connection Failure', 'Cannot connect to Astreamweb Services. Please ensure your internet is working or try again later.', xbmcgui.NOTIFICATION_ERROR)
         xbmc.log('No response from https://astreamweb.com/kodi/ip.php')
         return
                         
@@ -116,7 +116,7 @@ def run():
         ip = urllib.request.urlopen("https://astreamweb.com/kodi/ip.php").read()
     except Exception as e:
         dialog = xbmcgui.Dialog()
-        dialog.ok('Failure', 'Astreamweb.com is not responding')
+        dialog.notification('Connection Failure', 'Cannot connect to Astreamweb Services. Please ensure your internet is working or try again later.', xbmcgui.NOTIFICATION_ERROR)
         xbmc.log('No response from https://astreamweb.com/kodi/ip.php')
         return
         
