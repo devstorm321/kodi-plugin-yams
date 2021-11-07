@@ -1,7 +1,7 @@
 import xbmc, xbmcaddon, xbmcgui
 import resources.modules.scraper as scraper
 import urllib.request, urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, requests
-import json
+import json, sys
 
 try:
     from simplejson import loads as json_loads
@@ -9,6 +9,7 @@ except:
     print(('Plugin Error', 'simplejson import error: limited functionality'))
     pass
 
+dialog = xbmcgui.Dialog()
 # Ideally do not use username & password when there is a valid session to kill
 # But cannot guarantee valid session
 __settings__ = xbmcaddon.Addon(id='plugin.video.yams')

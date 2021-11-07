@@ -1,7 +1,7 @@
 import re
 import sys, io
-import urllib.request, urllib.parse, urllib.error
-import urllib.request, urllib.error, urllib.parse
+import urllib.error, urllib.parse
+from urllib.request import Request as request
 
 from datetime import date
 import calendar
@@ -476,30 +476,7 @@ def codeverification(username):
         return False
 
     return True
-
-def request(method, url, headers, post_data=None):
-    if post_data:
-        post_data = post_data.encode('utf-8')
-    req = urllib.request.Request(url, post_data, headers)
-
-    if method not in ('get', 'post', 'put'):
-        req.get_method = lambda: method.upper()
-
-    try:
-        response = urllib.request.urlopen(req)
-        rbody = response.read()
-        rcode = response.code
-        headers = dict(response.info())
-        return rbody
-    except urllib.error.HTTPError as e:
-        rcode = e.code
-        rbody = e.read()
-        headers = dict(e.info())
-    except (urllib.error.URLError, ValueError) as e:
-        self._handle_request_error(e)
-        lh = dict((k.lower(), v) for k, v in list(dict(headers).items()))
-        return rbody, rcode, lh
-
+    
 def fetchStorage():
     with io.open(storage, 'r') as data_file:
         data = json.load(data_file)

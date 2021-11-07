@@ -8,8 +8,12 @@ from urllib.request import urlopen
 import xbmcgui, xbmc, xbmcplugin
 import resources.modules.scraper as scraper
 from resources.modules.utils import ApiError, log
-import plugintools,time
 
+import time
+try:
+    from resources.modules import plugintools
+except:
+    xbmcgui.Dialog().ok('Import error', "Module plugintools not found!")
 
 params = plugintools.get_params()
 #plugin = sys.modules["__main__"].plugin

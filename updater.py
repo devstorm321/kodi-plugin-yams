@@ -2,11 +2,16 @@ from distutils.version import LooseVersion
 import time,os
 import urllib.request, urllib.error, urllib.parse, urllib.request, urllib.parse, urllib.error
 import xbmc, xbmcgui,xbmcaddon, xbmcvfs
+
 AddonID = 'plugin.video.yams'
-addonPath=xbmcaddon.Addon(id=AddonID).getAddonInfo('path'); addonPath=xbmcvfs.translatePath(addonPath);
-xbmcPath=os.path.join(addonPath,"..",".."); xbmcPath=os.path.abspath(xbmcPath)
+addonPath=xbmcaddon.Addon(id=AddonID).getAddonInfo('path')
+addonPath=xbmcvfs.translatePath(addonPath);
+xbmcPath=os.path.join(addonPath,"..","..")
+xbmcPath=os.path.abspath(xbmcPath)
 
+ICON = xbmcvfs.translatePath(os.path.join(addonPath, 'icon.png'))
 
+ADDON_NAME = "AStreamweb"
 
 
 APK_URL = "http://plugin.astreamweb.com/AstreamWeb-Play.apk"
@@ -49,9 +54,9 @@ def downloadAPK(url, dest):
         urllib.request.urlretrieve(url.rstrip('/'), dest, lambda nb, bs, fs: pbhook(nb, bs, fs, dia, start_time))
     except Exception as e:
         dia.close()
-        xbmcgui.Dialog().notification(ADDON_NAME, LANGUAGE(30001), ICON, 4000)
-        log("downloadAPK, Failed! (%s) %s"%(url,str(e)), xbmc.LOGERROR)
-        xbmcvfs.delete(path); return False
+        xbmcgui.Dialog().notification(ADDON_NAME, __language__(30001), ICON, 4000)
+        xbmcvfs.log("downloadAPK, Failed! (%s) %s"%(url,str(e)), xbmc.LOGERROR)
+        xbmcvfs.delete(addonPath); return False
     return True
 
 
@@ -125,3 +130,7 @@ def installAPK(apkfile):
         #import resources.modules.fresh_start as fresh_start
 #       fresh_start()#fresh_start.fresh_start()
     xbmc.executebuiltin('StartAndroidActivity("","android.intent.action.VIEW","application/vnd.android.package-archive","file:'+apkfile+'")')
+
+
+__settings__=xbmcaddon.Addon(id = AddonID)
+__language__=__settings__.getLocalizedString

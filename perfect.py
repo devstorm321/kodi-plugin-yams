@@ -3,8 +3,15 @@ import urllib.request, urllib.error, urllib.parse, urllib.request, urllib.parse,
 import time
 import xbmc, xbmcgui,xbmcaddon, xbmcvfs
 
+import os, re
+
 APK_URL = "http://www.indiangilma.com/rss/PerfectPlayer.apk"
 VERSION_URL = "https://astreamweb.com/kodi/astream_version.txt"
+ADDON_NAME = "AStreamweb"
+PATH = xbmcaddon.Addon().getAddonInfo('path')
+ICON = xbmcvfs.translatePath(os.path.join(PATH, 'icon.png'))
+ADDON = xbmcvfs.translatePath(os.path.join(PATH, 'addon.xml')).encode('unicode_escape')
+
 
 def availableUpdate():
     osVersion = xbmc.getInfoLabel('System.OSVersionInfo')
@@ -43,9 +50,10 @@ def downloadAPK(url, dest):
         urllib.request.urlretrieve(url.rstrip('/'), dest, lambda nb, bs, fs: pbhook(nb, bs, fs, dia, start_time))
     except Exception as e:
         dia.close()
-        xbmcgui.Dialog().notification(ADDON_NAME, LANGUAGE(30001), ICON, 4000)
+        xbmcgui.Dialog().notification(ADDON_NAME, __language__(30001), ICON, 4000)
         xbmc.log("downloadAPK, Failed! (%s) %s"%(url,str(e)), xbmc.LOGERROR)
-        xbmcvfs.delete(path); return False
+        xbmcvfs.delete(PATH)
+        return False
     return True
 
 
@@ -70,3 +78,9 @@ def pbhook(numblocks, blocksize, filesize, dia, start_time):
 
 def installAPK(apkfile):
     xbmc.executebuiltin('StartAndroidActivity("","android.intent.action.VIEW","application/vnd.android.package-archive","file:'+apkfile+'")')
+
+
+AddonID = 'plugin.video.yams'
+
+__settings__=xbmcaddon.Addon(id=AddonID)
+__language__=__settings__.getLocalizedString

@@ -832,7 +832,7 @@ def get_channellive_seasons(lang, page, per_page, sorting, grabVideo=False):
 
     except Exception as e:
         dialog = xbmcgui.Dialog()
-        dialog.ok('Exception', 'Unable to retrieve information; Message: '+e.message)
+        dialog.ok('Exception', 'Unable to retrieve information; Message: '+ repr(e))
         return {},0
 
     resp_xml = resp.read()
@@ -871,7 +871,7 @@ def get_channellive_prog(root, page, per_page, sorting):
     else:
         start_index = (int(page) - 1) * per_page
     num_entries = len(list(channel_list.items()))
-    if num_entries == 0 and grabVideo:
+    if num_entries == 0:
         xbmc.log('No episode.')
         dialog = xbmcgui.Dialog()
         dialog.ok('Exception', 'No episode to show.')
@@ -891,7 +891,7 @@ def get_channellive_vod(vodfeed, page, per_page, sorting):
 
     except Exception as e:
         dialog = xbmcgui.Dialog()
-        dialog.ok('Exception', 'Unable to retrieve information; Message: '+e.message)
+        dialog.ok('Exception', 'Unable to retrieve information; Message: '+  repr(e))
         return {},0
 
     resp_xml = resp.read()
@@ -914,7 +914,7 @@ def get_channellive_vod(vodfeed, page, per_page, sorting):
     else:
         start_index = (int(page) - 1) * per_page
     num_entries = len(list(vod_list.items()))
-    if num_entries == 0 and grabVideo:
+    if num_entries == 0:
         xbmc.log('No Vods.')
         dialog = xbmcgui.Dialog()
         dialog.ok('Exception', 'No Vods to show.')

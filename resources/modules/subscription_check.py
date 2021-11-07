@@ -56,8 +56,8 @@ def skin_update(category):
     # selecting skin Languages
     __settings__   = xbmcaddon.Addon(id='plugin.video.yams')
     langs = __settings__.getSetting('channellanguage').lower()
-    config1 = "https://astreamweb.com/kodi/skin/{0}/skin.estuary-mainmenu.DATA.xml".format(langs.lower(), category)
-    config2 = "https://astreamweb.com/kodi/skin/{0}/skin.estuary-videosubmenu.DATA.xml".format(langs.lower(), category)
+    config1 = "https://astreamweb.com/kodi/skin/{0}/skin.estuary-mainmenu.DATA.xml".format(langs.lower())
+    config2 = "https://astreamweb.com/kodi/skin/{0}/skin.estuary-videosubmenu.DATA.xml".format(langs.lower())
     path = xbmcvfs.translatePath(os.path.join('special://home/userdata/addon_data/script.skinshortcuts/', '')).encode('unicode_escape')
     settingsFile1 = os.path.join(path, 'mainmenu.DATA.xml')
     settingsFile2 = os.path.join(path, 'videosubmenu.DATA.xml')

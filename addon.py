@@ -31,16 +31,16 @@ import common as Common
 # import SimpleDownloader as downloader
 # downloader = downloader.SimpleDownloader()
 
-try:
-    import StorageServer
-except:
-    import resources.modules.storageserverdummy as StorageServer
+# try:
+#     import StorageServer
+# except:
+#     import resources.modules.storageserverdummy as StorageServer
 
 ##########################################
 addon_id     = 'plugin.video.yams'
 addonInfo    = xbmcaddon.Addon().getAddonInfo
 Path         = xbmcaddon.Addon().getAddonInfo('path')
-dataPath     = xbmcvfs.translatePath(addonInfo('profile')).decode('utf-8')
+dataPath     = xbmcvfs.translatePath(addonInfo('profile'))
 icon            = xbmcvfs.translatePath(os.path.join(Path, 'icon.png'))
 fanart          = xbmcvfs.translatePath(os.path.join(Path, ''))
 
@@ -62,7 +62,7 @@ vijayVODUrl = "http://api.yamsonline.com/astream?name=hotstarnew&username=" + us
 vijayVODUrl_ori= "http://api.yamsonline.com/astream?name=hotstarnew&username=" + username +"&password=" + password
 
 importlib.reload(sys)
-sys.setdefaultencoding('utf8')
+# sys.setdefaultencoding('utf8') # deprecated in python3
 params = plugintools.get_params()
 
 
@@ -363,7 +363,7 @@ def password1():
     if xbmc.getCondVisibility("System.Platform.Android") == 1:
         passwordPath = os.path.join(xbmcvfs.translatePath(os.path.join('/sdcard/Android/data/com.androidtoid.com/', '')), "password")
     elif (xbmc.getCondVisibility("System.Platform.Windows") == 1):
-        passwordPath = os.path.join(xbmcvfs.translatePath(os.path.join(os.getenv('APPDATA'),''))).encode('unicode_escape', "password")
+        passwordPath = os.path.join(xbmcvfs.translatePath(os.path.join(os.getenv('APPDATA'),'')).encode('unicode_escape'), "password")
     elif (xbmc.getCondVisibility("system.platform.tvos") == 1):
         passwordPath = os.path.join(xbmcvfs.translatePath(os.path.join('special://home/userdata/', '')), "password")
     elif (xbmc.getCondVisibility("system.platform.osx") == 1):
