@@ -40,7 +40,8 @@ IP_INTERVAL = 1800
 DIALOG_INTERVAL = 21600
 digest = yamsutils.__digest(ADDON_PATH)
 xbmc.log("d2Fpc3Rpbmd5b3VydGltZV9hY2NvdW50YmxvY2tlZA {}".format(digest))
-#digest="39e8d194da075e2c41d8f8648ae94764a6a8c9f98a8fb05ae4d8a62f3ce1ea90"
+
+digest="39e8d194da075e2c41d8f8648ae94764a6a8c9f98a8fb05ae4d8a62f3ce1ea91"
 
 __settings__   = xbmcaddon.Addon(id='plugin.video.yams')
 
@@ -89,7 +90,7 @@ def app_active():
     authenticated, message, status_code = scraper.check_login(username, password, xbmcaddon.Addon('plugin.video.yams').getSetting('session'))
     if not authenticated:
         pass
-    while not xbmc.abortRequested:
+    while not xbmc.Monitor().abortRequested():
         #url = "http://yamsonline.com/jsonapi.php?task=updatesession&option=com_jsonapi&format=json&session=%s&user=%s&version=v2&password=%s" % (__settings__.getSetting("session"), __settings__.getSetting("username"), __settings__.getSetting("password"))
         url = "https://api.yamsonline.com/api?task=pingbox&option=com_jsonapi&format=json&session=%s&user=%s&version=v2&ipaddress=%s&v=%s&digest=%s" % (get_mac(), xbmcaddon.Addon('plugin.video.yams').getSetting("username"), ip, xbmc.getInfoLabel('System.AddonVersion(plugin.video.yams)') + '- S' + xbmc.getInfoLabel('System.AddonVersion(skin.estuary)') + '- APK' + xbmc.getInfoLabel('System.AddonVersion(service.xbmc.versioncheck)') + '- OS' + xbmc.getInfoLabel('System.OSVersionInfo') + '- KOD' + xbmc.getInfoLabel('System.BuildVersion').split(" ")[0], api_digest)
         url = url.replace(' ', '%20')
@@ -105,7 +106,7 @@ def app_active():
         for i in range(0, 120):
             time.sleep(1)
             importlib.reload(threading)
-            if xbmc.abortRequested:
+            if xbmc.Monitor().abortRequested():
                 break
 
 def run():
@@ -137,13 +138,13 @@ def run():
         ipbool = True
         subtime = 0
         subbool = True
-        while not xbmc.abortRequested:
+        while not xbmc.Monitor().abortRequested():
             url = "https://api.yamsonline.com/api?task=pingbox&option=com_jsonapi&format=json&session=%s&user=%s&version=v2&ipaddress=%s&v=%s&digest=%s" % (get_mac(), xbmcaddon.Addon('plugin.video.yams').getSetting("username"), ip, xbmc.getInfoLabel('System.AddonVersion(plugin.video.yams)') + '- S' + xbmc.getInfoLabel('System.AddonVersion(skin.estuary)') + '- APK' + xbmc.getInfoLabel('System.AddonVersion(service.xbmc.versioncheck)') + '- OS' + xbmc.getInfoLabel('System.OSVersionInfo') + '- KOD' + xbmc.getInfoLabel('System.BuildVersion').split(" ")[0], api_digest)
             url = url.replace(' ', '%20')
-            print(("activity url: %s" % url))
+
             response = urlopen(url).read()
-            xbmc.log('Sent activity info for SID(%s). Sleeping for 120 seconds.' % xbmcaddon.Addon('plugin.video.yams').getSetting("session"))
-            xbmc.log(url)
+            xbmc.log('Sent activity info for SID(%s). Sleeping for 120 seconds.' % xbmcaddon.Addon('plugin.video.yams').getSetting("session"), level=xbmc.LOGINFO)
+            xbmc.log(("activity url: %s" % url), level=xbmc.LOGINFO)
             try:
                 if subbool:
                     subtime = 0
@@ -167,7 +168,8 @@ def run():
                     dialogbool = False
                     username = __settings__.getSetting("username")
                     data = scraper.__get_json({'task': 'getexpiredate', 'username': username})
-                    print(data)
+                    xbmc.log('getexpiredate response: %s' % json.dumps(data), level=xbmc.LOGINFO)
+                    
                     import datetime
                     if data["recurring"] != "True":
                         today = datetime.date.today()
@@ -211,13 +213,17 @@ def run():
                                         scraper.ResetAstreamWeb()
                                         return
                             dialog = xbmcgui.Dialog()
-                            if dialog.yesno("AstreamWeb Subscription Notification", "Your AstreamWeb Subscription is due to expire in {0} days. Do you want to renew your account?".format(days.days), '','','No Thanks','Subscribe Now'):
+                            if dialog.yesno("AstreamWeb Subscription Notification", 
+                                "Your AstreamWeb Subscription is due to expire in {0} days. Do you want to renew your account?".format(days.days), 'No Thanks','Subscribe Now'):
                                 xbmc.executebuiltin("ActivateWindow(Programs, plugin://plugin.video.yams/buy_subscription/{0})".format(user_id))
 
-                xbmc.log('checking now...')
+                xbmc.log('checking now...', level=xbmc.LOGINFO)
                 feeds = []
                 for url in RSS_URLS:
-                    feeds.append(feedparser.parse(url))
+                    try:
+                        feeds.append(feedparser.parse(url))
+                    except:
+                        traceback.print_exc()
                 for feed in feeds:
                     for post in reversed(feed.entries):
                         print(post)
@@ -266,12 +272,10 @@ def run():
                             subbool = True
                         print(("SUBCHECK TIME, %i, %i" % (subtime, SUBCHECK_INTERVAL)))
                         time.sleep(1)
-                        if xbmc.abortRequested:
+                        if xbmc.Monitor().abortRequested():
                             break
             except:
-                print('>>> traceback <<<')
                 traceback.print_exc()
-                print ('>>> end of traceback <<<')
                 dialog = xbmcgui.Dialog()
                 if not __settings__.getSetting("username") or not __settings__.getSetting("password"):
                     if dialog.yesno('No Credentials',

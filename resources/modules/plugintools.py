@@ -64,7 +64,7 @@ ADDONTITLE     = 'AStreamWeb'
 PATH           = xbmcaddon.Addon().getAddonInfo('path')
 HOME             = xbmcvfs.translatePath('special://home/')
 
-ADDON           = xbmcvfs.translatePath(os.path.join(PATH, 'addon.xml')).encode('unicode_escape')
+ADDON           = xbmcvfs.translatePath(os.path.join(PATH, 'addon.xml'))
 
 #reload(sys)
 #sys.setdefaultencoding('utf8')

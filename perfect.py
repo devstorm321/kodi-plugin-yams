@@ -10,7 +10,7 @@ VERSION_URL = "https://astreamweb.com/kodi/astream_version.txt"
 ADDON_NAME = "AStreamweb"
 PATH = xbmcaddon.Addon().getAddonInfo('path')
 ICON = xbmcvfs.translatePath(os.path.join(PATH, 'icon.png'))
-ADDON = xbmcvfs.translatePath(os.path.join(PATH, 'addon.xml')).encode('unicode_escape')
+ADDON = xbmcvfs.translatePath(os.path.join(PATH, 'addon.xml'))
 
 
 def availableUpdate():

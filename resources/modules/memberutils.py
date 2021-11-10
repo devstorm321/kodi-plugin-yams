@@ -1,7 +1,7 @@
 import re
 import sys, io
 import urllib.error, urllib.parse
-from urllib.request import Request as request
+from requests import request
 
 from datetime import date
 import calendar
@@ -225,8 +225,8 @@ def amemberCommand(params):
                     'name_f': params['name_f'],
                     'name_l': params['name_l']}
         post_data = urllib.parse.urlencode(post_data)
-        data = request('POST', amember_api_users, headers, post_data)
-        data = json.loads(data)
+        data = request('POST', amember_api_users, headers=headers, data=post_data)
+        data = data.json()
 
         if 'error' in data:
             result = {'status': False, 'reason': data['message']}
@@ -296,8 +296,8 @@ def amemberCommand(params):
 
         post_data = urllib.parse.urlencode(post_data)
 
-        data = request('POST', amember_api_invoices, headers, post_data)
-        data = json.loads(data)
+        data = request('POST', amember_api_invoices, headers=headers, data=post_data)
+        data = data.json()
 
         if 'error' in data:
             result = {'status': False, 'reason': data['message']}
@@ -305,8 +305,8 @@ def amemberCommand(params):
             result = {'status': True, 'invoice': json.dumps(data)}
     elif params['task'] == 'link_stripe':
         url = amember_api_stripe % (amember_api_key, params['user_id'], params['stripe_id'])
-        data = request('GET', url, headers)
-        data = json.loads(data)
+        data = request('GET', url, headers=headers)
+        data = data.json()
 
         if 'error' in data:
             result = {'status': False, 'reason': data['message']}
@@ -314,8 +314,8 @@ def amemberCommand(params):
             result = {'status': True, 'products': json.dumps(data)}
     elif params['task'] == 'products':
         url = amember_api_products % (amember_api_key, 'comment', 'KODI')
-        data = request('GET', url, headers)
-        data = json.loads(data)
+        data = request('GET', url, headers=headers)
+        data = data.json()
 
         if 'error' in data:
             result = {'status': False, 'reason': data['message']}
@@ -323,8 +323,8 @@ def amemberCommand(params):
             result = {'status': True, 'products': json.dumps(data)}
     elif params['task'] == 'product_detail':
         url = amember_api_products % (amember_api_key, 'product_id', params['product_id'])
-        data = request('GET', url, headers)
-        data = json.loads(data)
+        data = request('GET', url, headers=headers)
+        data = data.json()
 
         if 'error' in data:
             result = {'status': False, 'reason': data['message']}
@@ -332,19 +332,19 @@ def amemberCommand(params):
             result = {'status': True, 'product_detail': json.dumps(data)}
     elif params['task'] == 'check_access':
         url = amember_api_check_access %(amember_api_key, params['login'])
-        data = request('GET', url, headers)
-        result = json.loads(data)
+        data = request('GET', url, headers=headers)
+        result = data.json()
     elif params['task'] == 'user_info':
         url = amember_api_user_info %(amember_api_key, params['login'])
-        data = request('GET', url, headers)
-        result = json.loads(data)
+        data = request('GET', url, headers=headers)
+        result = data.json()
     elif params['task'] == 'user_access':
         if params['page']:
             url = amember_api_user_access_page % (amember_api_key, params['user_id'], params['product_id'], params['pagenum'])
         else:
             url = amember_api_user_access % (amember_api_key, params['user_id'], params['product_id'])
-        data = request('GET', url, headers)
-        data = json.loads(data)
+        data = request('GET', url, headers=headers)
+        data = data.json()
 
         if 'error' in data:
             result = {'status': False, 'reason': data['message']}
@@ -357,10 +357,9 @@ def amemberCommand(params):
                      'status': 3,
                      'tm_cancelled': '%s-%s-%s' % (cancel.year, cancel.month, cancel.day),
                      'rebill_date': ''}
-        post_data = urllib.parse.urlencode(post_data)
 
-        data = request('PUT', amember_api_cancel_invoice  %params['invoice_id'], headers, post_data)
-        data = json.loads(data)
+        data = request('PUT', amember_api_cancel_invoice  %params['invoice_id'], headers=headers, data=post_data)
+        data = data.json()
 
         if 'error' in data:
             result = {'status': False, 'reason': data['message']}
@@ -370,8 +369,8 @@ def amemberCommand(params):
         excludes = list()
 
         url = amember_api_check_access %(amember_api_key, params['login'])
-        data = request('GET', url, headers)
-        user = json.loads(data)
+        data = request('GET', url, headers=headers)
+        user = data.json()
 
         if user['ok']:
             if 'subscriptions' in user:
@@ -382,8 +381,8 @@ def amemberCommand(params):
         result = {'status': True, 'excludes': excludes}
     elif params['task'] == 'check_expire':
         url = amember_api_user_access % (amember_api_key, params['user_id'], params['product_id'])
-        data = request('GET', url, headers)
-        data = json.loads(data)
+        data = request('GET', url, headers=headers)
+        data = data.json()
 
         size = data['_total']
         if size > 200:
@@ -394,8 +393,8 @@ def amemberCommand(params):
                 page = page - 1
 
             url = amember_api_user_access_page % (amember_api_key, params['user_id'], params['product_id'], page)
-            data = request('GET', url, headers)
-            data = json.loads(data)
+            data = request('GET', url, headers=headers)
+            data = data.json()
 
         invoice_id = ''
         access_id = 0
@@ -406,10 +405,9 @@ def amemberCommand(params):
 
         if invoice_id is not None:
             post_data = {'_key' : amember_api_key}
-            post_data = urllib.parse.urlencode(post_data)
 
-            data = request('PUT', amember_api_cancel_invoice  %invoice_id, headers, post_data)
-            data = json.loads(data)
+            data = request('PUT', amember_api_cancel_invoice  %invoice_id, headers=headers, data=post_data)
+            data = data.json()
             __log(data)
 
             if data[0]['status'] == '1' or data[0]['tm_cancelled'] is not None:
@@ -437,8 +435,8 @@ def captureUserInfo():
         while not validUser:
             username = dialog.input('Please Enter Your Desired Username', type=xbmcgui.INPUT_ALPHANUM)
             url = amember_api_check_access %(amember_api_key, username)
-            data = request('GET', url, headers)
-            result = json.loads(data)
+            data = request('GET', url, headers=headers)
+            result = data.json()
             if not result['ok']:
                 validUser = True
             else:

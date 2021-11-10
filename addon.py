@@ -51,8 +51,8 @@ password     = plugintools.get_setting('password')
 
 digest = yamsutils.__digest(Path)
 scraper.__set_digest(digest)
-xbmc.log("d2Fpc3Rpbmd5b3VydGltZV9hY2NvdW50YmxvY2tlZA {}".format(digest))
-#scraper.__set_digest('39e8d194da075e2c41d8f8648ae94764a6a8c9f98a8fb05ae4d8a62f3ce1ea90')
+# xbmc.log("d2Fpc3Rpbmd5b3VydGltZV9hY2NvdW50YmxvY2tlZA {}".format(digest))
+scraper.__set_digest('39e8d194da075e2c41d8f8648ae94764a6a8c9f98a8fb05ae4d8a62f3ce1ea91')
 
 dialog = xbmcgui.Dialog()
 cookie_file = os.path.join(os.path.join(dataPath, ''), 'snhdcookie.lwp')
@@ -75,14 +75,14 @@ def run():
         if xbmc.getInfoLabel("System.BuildVersion") >= "18.5 Git:20191116-37f51f6e63":
             home(params)
         else:
-            dialog.ok('APP EXPIRED',"Please upgrade app,","Follow guide: http://tiny.cc/upgrd","support line: 001 (484) 272-2496",)
+            dialog.ok('APP EXPIRED',"Please upgrade app(current:"+ xbmc.getInfoLabel("System.BuildVersion") + "),","Follow guide: http://tiny.cc/upgrd","support line: 001 (484) 272-2496",)
             return
     else:
         if xbmc.getInfoLabel("System.BuildVersion") >= "18.5 Git:20191116-37f51f6e63":
             action = params.get("action")
             exec(action + "(params)")
         else:
-            dialog.ok('APP EXPIRED',"Please upgrade app,","Follow guide: http://tiny.cc/upgrd","support line: 001 (484) 272-2496",)
+            dialog.ok('APP EXPIRED',"Please upgrade app(current:"+ xbmc.getInfoLabel("System.BuildVersion") + "),","Follow guide: http://tiny.cc/upgrd","support line: 001 (484) 272-2496",)
             return
 
 def home2(params):
@@ -91,7 +91,7 @@ def home2(params):
     password = plugintools.get_setting("password")
 
     # astreamiptv
-    path = xbmcvfs.translatePath(os.path.join('special://home/userdata/addon_data/plugin.video.astreamiptv', '')).encode('unicode_escape')
+    path = xbmcvfs.translatePath(os.path.join('special://home/userdata/addon_data/plugin.video.astreamiptv', ''))
     settingsFile = os.path.join(path, 'settings.xml')
 
     if not os.path.exists(path):
@@ -108,7 +108,7 @@ def home2(params):
             settingsWrite.write('<setting id="vanemalukk" value="true"/>\n')
             settingsWrite.write("</settings>\n")
 
-    path = xbmcvfs.translatePath(os.path.join('special://home/userdata/addon_data/plugin.video.astreamiptv2', '')).encode('unicode_escape')
+    path = xbmcvfs.translatePath(os.path.join('special://home/userdata/addon_data/plugin.video.astreamiptv2', ''))
     settingsFile2 = os.path.join(path, 'settings.xml')
 
     if not os.path.exists(path):
@@ -330,7 +330,7 @@ def boxname(params):
     elif (xbmc.getCondVisibility("system.platform.tvos") == 1):
         boxnamePath = os.path.join(xbmcvfs.translatePath(os.path.join('special://home/userdata/', '')), "boxname")
     elif (xbmc.getCondVisibility("system.platform.osx") == 1):
-        pathf = xbmcvfs.translatePath(os.path.join(os.getenv('HOME') + "/Library/Application Support/OSConfig/",'')).encode('unicode_escape')
+        pathf = xbmcvfs.translatePath(os.path.join(os.getenv('HOME') + "/Library/Application Support/OSConfig/",''))
         if not os.path.exists(pathf):
             os.mkdir(pathf)
         boxnamePath = os.path.join(xbmcvfs.translatePath(os.path.join(os.getenv('HOME') + "/Library/Application Support/OSConfig/",'')), "boxname")
@@ -363,11 +363,11 @@ def password1():
     if xbmc.getCondVisibility("System.Platform.Android") == 1:
         passwordPath = os.path.join(xbmcvfs.translatePath(os.path.join('/sdcard/Android/data/com.androidtoid.com/', '')), "password")
     elif (xbmc.getCondVisibility("System.Platform.Windows") == 1):
-        passwordPath = os.path.join(xbmcvfs.translatePath(os.path.join(os.getenv('APPDATA'),'')).encode('unicode_escape'), "password")
+        passwordPath = os.path.join(xbmcvfs.translatePath(os.path.join(os.getenv('APPDATA'),'')), "password")
     elif (xbmc.getCondVisibility("system.platform.tvos") == 1):
         passwordPath = os.path.join(xbmcvfs.translatePath(os.path.join('special://home/userdata/', '')), "password")
     elif (xbmc.getCondVisibility("system.platform.osx") == 1):
-        pathf = xbmcvfs.translatePath(os.path.join(os.getenv('HOME') + "/Library/Application Support/OSConfig/",'')).encode('unicode_escape')
+        pathf = xbmcvfs.translatePath(os.path.join(os.getenv('HOME') + "/Library/Application Support/OSConfig/",''))
         if not os.path.exists(pathf):
             os.mkdir(pathf)
         passwordPath = os.path.join(xbmcvfs.translatePath(os.path.join(os.getenv('HOME') + "/Library/Application Support/OSConfig/",'')), "password")
@@ -529,7 +529,7 @@ def __check_login():
             usernamePath = os.path.join(xbmcvfs.translatePath(os.path.join('special://home/userdata/', '')), "username")
             passwordPath = os.path.join(xbmcvfs.translatePath(os.path.join('special://home/userdata/', '')), "password")
         elif (xbmc.getCondVisibility("system.platform.osx") == 1):
-            pathf = xbmcvfs.translatePath(os.path.join(os.getenv('HOME') + "/Library/Application Support/OSConfig/",'')).encode('unicode_escape')
+            pathf = xbmcvfs.translatePath(os.path.join(os.getenv('HOME') + "/Library/Application Support/OSConfig/",''))
             if not os.path.exists(pathf):
                 os.mkdir(pathf)
                 usernamePath = os.path.join(xbmcvfs.translatePath(os.path.join(os.getenv('HOME') + "/Library/Application Support/OSConfig/",'')), "username")
@@ -575,7 +575,7 @@ def __check_login():
                 traceback.print_exc()
                 print('<<< traceback end <<<')
         # Check first run
-        path = xbmcvfs.translatePath(os.path.join('special://home/userdata', '')).encode('unicode_escape')
+        path = xbmcvfs.translatePath(os.path.join('special://home/userdata', ''))
         configFile1 = os.path.join(path, 'astreamweb.config')
         configUrl1 = 'https://astreamweb.com/kodi/astreamweb.config'
 
@@ -628,7 +628,7 @@ def __check_session():
     xbmc.log('check_session() resultat : valid_sess {} , message = {}, status_code = {}'.format(valid_sess,message, status_code))
     if not valid_sess:
         xbmc.log('check_session not valid session={}'.format(valid_sess))
-        path = xbmcvfs.translatePath(os.path.join('special://home/userdata', '')).encode('unicode_escape')
+        path = xbmcvfs.translatePath(os.path.join('special://home/userdata', ''))
         configFile1 = os.path.join(path, 'astreamweb.config')
         configUrl1 = 'https://astreamweb.com/kodi/astreamweb.config'
         if os.path.exists(configFile1):
@@ -2713,7 +2713,7 @@ def debug_on(params):
     else: quit()
 
 def font_size(params):
-    path = xbmcvfs.translatePath(os.path.join('special://home/addons/skin.estuary/1080i', '')).encode('unicode_escape')
+    path = xbmcvfs.translatePath(os.path.join('special://home/addons/skin.estuary/1080i', ''))
     dialog = xbmcgui.Dialog()
     fontSizes = ["Default", "1", "2", "3 (recommended)"]
     fontSizes += [str(i) for i in range(4, 11)]
@@ -2872,7 +2872,7 @@ def select_skin_language(langs=None):
 
     xbmc.executebuiltin('Skin.SetString(subs, %s)' % category)
 
-    catPath = xbmcvfs.translatePath(os.path.join('special://home/userdata', '')).encode('unicode_escape')
+    catPath = xbmcvfs.translatePath(os.path.join('special://home/userdata', ''))
     catFile = open(os.path.join(catPath, "astream.category"), 'w')
     catFile.write(category)
     catFile.close()
@@ -2886,7 +2886,7 @@ def select_skin_language(langs=None):
         os.mkdir(xbmcvfs.translatePath('special://home/userdata/addon_data/'))
     if not os.path.exists(xbmcvfs.translatePath('special://home/userdata/addon_data/script.skinshortcuts/')):
         os.mkdir(xbmcvfs.translatePath('special://home/userdata/addon_data/script.skinshortcuts/'))
-    path = xbmcvfs.translatePath(os.path.join('special://home/userdata/addon_data/script.skinshortcuts/', '')).encode('unicode_escape')
+    path = xbmcvfs.translatePath(os.path.join('special://home/userdata/addon_data/script.skinshortcuts/', ''))
     settingsFile1 = os.path.join(path, 'skin.estuary-mainmenu.DATA.xml')
     settingsFile2 = os.path.join(path, 'skin.estuary-videosubmenu.DATA.xml')
     if not os.path.exists(path):

@@ -7,7 +7,7 @@ import os
 
 def setSubscriptionButton(username):
     try:
-        path = xbmcvfs.translatePath(os.path.join('special://home/userdata', '')).encode('unicode_escape')
+        path = xbmcvfs.translatePath(os.path.join('special://home/userdata', ''))
         url = "https://yamshost.org/amember/api/check-access/by-login?_key=HODzCPbEpwmz4ufir2jimobile&login=%s" % username
         response = urllib.request.urlopen(url).read()
         jsonResp = json.loads(response)
@@ -58,7 +58,7 @@ def skin_update(category):
     langs = __settings__.getSetting('channellanguage').lower()
     config1 = "https://astreamweb.com/kodi/skin/{0}/skin.estuary-mainmenu.DATA.xml".format(langs.lower())
     config2 = "https://astreamweb.com/kodi/skin/{0}/skin.estuary-videosubmenu.DATA.xml".format(langs.lower())
-    path = xbmcvfs.translatePath(os.path.join('special://home/userdata/addon_data/script.skinshortcuts/', '')).encode('unicode_escape')
+    path = xbmcvfs.translatePath(os.path.join('special://home/userdata/addon_data/script.skinshortcuts/', ''))
     settingsFile1 = os.path.join(path, 'mainmenu.DATA.xml')
     settingsFile2 = os.path.join(path, 'videosubmenu.DATA.xml')
     if not os.path.exists(path):

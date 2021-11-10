@@ -120,7 +120,7 @@ def get_mac():
             xbmcvfs.translatePath(os.path.join('special://home/userdata/', '')), "config.uuid")
     elif (xbmc.getCondVisibility("system.platform.osx") == 1):
         pathf = xbmcvfs.translatePath(
-            os.path.join(os.getenv('HOME') + "/Library/Application Support/OSConfig/",'')).encode('unicode_escape')
+            os.path.join(os.getenv('HOME') + "/Library/Application Support/OSConfig/",''))
         if not os.path.exists(pathf):
             os.mkdir(pathf)
         uuidPath = os.path.join(xbmcvfs.translatePath(os.path.join(os.getenv('HOME') + "/Library/Application Support/OSConfig/",'')), "config.uuid")
@@ -931,8 +931,11 @@ def check_login(username, password, session=None):
         'session': get_mac(),
         'device': get_deviceType()
     }
-    json_data = __get_json(request_dict, raiseError=False)
-    xbmc.log('check_login result: "%s"' % json_data)
+
+    #xbmc.log('login request data: "%s"' % json.dumps(request_dict), level=xbmc.LOGINFO)  # to be removed request data
+
+    json_data = __get_json(request_dict, raiseError=True)
+    xbmc.log('check_login result: "%s"' % json_data, level=xbmc.LOGINFO)
     if json_data.get('status') == 'success':
         return True, json_data.get('session'), json_data.get('status_code', '')
     else:
@@ -1025,19 +1028,23 @@ def delete_sessions(username, password):
 
 def __get_json(data, raiseError=True ):
     try:
-        xbmc.log('get_json:' + digest)
+        xbmc.log('get_json:' + digest, level=xbmc.LOGINFO)
         data['option'] = 'com_jsonapi'
         data['format'] = 'json'
         data['digest'] = digest
         data['version'] = 'v2'
         url = '%s?%s' % (MAIN_URL, urlencode(data))
-        xbmc.log('__get_json opening url: %s' % url)
+        
+        # xbmc.log('__get_json opening url: %s' % url, level=xbmc.LOGINFO)
         response = urlopen(url).read()
+        # xbmc.log('response: ' + response.decode('utf-8'), level=xbmc.LOGINFO)
+
         json_data = json_loads(response)
-        xbmc.log('__get_json got %d bytes from url: %s' % (len(response), url))
+        # xbmc.log('__get_json got %d bytes from url: %s' % (len(response), url))
         #log('response: ' + response )
         #log('JSON SESSION DATA: %s' % json_data.get('session'))
         if json_data.get('status') == 'error' and raiseError:
+            xbmc.log('__get_json opening url: %s' % url, level=xbmc.LOGINFO)
             dialog = xbmcgui.Dialog()
             dialog.ok('Access Error', json_data.get('reason'))
             raise ApiError('AccessError')
@@ -1141,7 +1148,7 @@ def _downloadOverride(url, oFile):
         # Getting new file
         link = Net.get(url).content
         nFile = open(oFile, 'w')
-        nFile.write(link)
+        nFile.write(link.decode('utf-8'))
         nFile.close()
 
         # Check write with cache
@@ -1164,7 +1171,7 @@ def ZeroCachingSetting():
     try :
         dialog = xbmcgui.Dialog()
 
-        path = xbmcvfs.translatePath(os.path.join('special://home/','')).encode('unicode_escape')
+        path = xbmcvfs.translatePath(os.path.join('special://home/',''))
 
         if xbmc.getCondVisibility('System.Platform.Android'):
             advUrl = 'https://astreamweb.com/kodi/android/advancedsettings.xml'

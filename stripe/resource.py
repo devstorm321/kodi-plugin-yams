@@ -1,4 +1,5 @@
-import urllib.request, urllib.parse, urllib.error
+import urllib.parse, urllib.error
+from requests import request
 import warnings
 import sys
 
@@ -258,7 +259,7 @@ class APIResource(StripeObject):
         return instance
 
     def refresh(self):
-        self.refresh_from(self.request('get', self.instance_url()))
+        self.refresh_from(request(self.instance_url()))
         return self
 
     @classmethod
@@ -289,11 +290,11 @@ class APIResource(StripeObject):
 class ListObject(StripeObject):
 
     def all(self, **params):
-        return self.request('get', self['url'], params)
+        return request(self['url'], params)
 
     def create(self, idempotency_key=None, **params):
         headers = populate_headers(idempotency_key)
-        return self.request('post', self['url'], params, headers)
+        return request(self['url'], params, headers)
 
     def retrieve(self, id, **params):
         base = self.get('url')
@@ -301,7 +302,7 @@ class ListObject(StripeObject):
         extn = urllib.parse.quote_plus(id)
         url = "%s/%s" % (base, extn)
 
-        return self.request('get', url, params)
+        return request(url, params)
 
 
 class SingletonAPIResource(APIResource):
@@ -352,7 +353,7 @@ class UpdateableAPIResource(APIResource):
         headers = populate_headers(idempotency_key)
 
         if updated_params:
-            self.refresh_from(self.request('post', self.instance_url(),
+            self.refresh_from(request(self.instance_url(),
                                            updated_params, headers))
         else:
             util.logger.debug("Trying to save already saved object %r", self)
@@ -479,13 +480,13 @@ class Charge(CreateableAPIResource, ListableAPIResource,
     def refund(self, idempotency_key=None, **params):
         url = self.instance_url() + '/refund'
         headers = populate_headers(idempotency_key)
-        self.refresh_from(self.request('post', url, params, headers))
+        self.refresh_from(request(url, params, headers))
         return self
 
     def capture(self, idempotency_key=None, **params):
         url = self.instance_url() + '/capture'
         headers = populate_headers(idempotency_key)
-        self.refresh_from(self.request('post', url, params, headers))
+        self.refresh_from(request(url, params, headers))
         return self
 
     def update_dispute(self, idempotency_key=None, **params):
@@ -512,7 +513,7 @@ class Charge(CreateableAPIResource, ListableAPIResource,
         }
         url = self.instance_url()
         headers = populate_headers(idempotency_key)
-        self.refresh_from(self.request('post', url, params, headers))
+        self.refresh_from(request(url, params, headers))
         return self
 
     def mark_as_safe(self, idempotency_key=None):
@@ -521,7 +522,7 @@ class Charge(CreateableAPIResource, ListableAPIResource,
         }
         url = self.instance_url()
         headers = populate_headers(idempotency_key)
-        self.refresh_from(self.request('post', url, params, headers))
+        self.refresh_from(request(url, params, headers))
         return self
 
 
@@ -580,7 +581,7 @@ class Invoice(CreateableAPIResource, ListableAPIResource,
 
     def pay(self, idempotency_key=None):
         headers = populate_headers(idempotency_key)
-        return self.request('post', self.instance_url() + '/pay', {}, headers)
+        return request(self.instance_url() + '/pay', {}, headers)
 
     @classmethod
     def upcoming(cls, api_key=None, stripe_account=None, **params):
@@ -661,8 +662,7 @@ class Transfer(CreateableAPIResource, UpdateableAPIResource,
                ListableAPIResource):
 
     def cancel(self):
-        self.refresh_from(self.request('post',
-                          self.instance_url() + '/cancel'))
+        self.refresh_from(request(                          self.instance_url() + '/cancel'))
 
 
 class Reversal(UpdateableAPIResource):
@@ -721,7 +721,7 @@ class ApplicationFee(ListableAPIResource):
     def refund(self, idempotency_key=None, **params):
         headers = populate_headers(idempotency_key)
         url = self.instance_url() + '/refund'
-        self.refresh_from(self.request('post', url, params, headers))
+        self.refresh_from(request(url, params, headers))
         return self
 
 

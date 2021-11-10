@@ -1,12 +1,12 @@
 import datetime as dt
-import os, urllib.request, urllib.parse, urllib.error, requests
+import os, urllib.parse, urllib.error, requests
 import xbmc
 import xbmcgui
 
 def log(text):
     print((dt.datetime.now(), 'AstreamWeb : {}'.format(text)))
 
-class ApiError:
+class ApiError(Exception):
     def __init__(self, exception):
         self.exception = exception
 
