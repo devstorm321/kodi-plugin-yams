@@ -3483,9 +3483,9 @@ def latestMovieshome(params):
                                     label2=re.sub('\([ 0-9]*?\)', '', item['title']),
                                     path=path)
 
-        listitem.setArt(icon=item['cover'].replace(' ', '%20'),
-                thumb=item['cover'].replace(' ', '%20'),
-                poster=item['cover'].replace(' ', '%20'))
+        listitem.setArt({'icon': item['cover'].replace(' ', '%20'),
+                'thumb': item['cover'].replace(' ', '%20'),
+                'poster': item['cover'].replace(' ', '%20')})
         listitems.append((path,listitem, False))
     listitems.insert(0, listitems.pop())
     listitems.insert(0, listitems.pop())

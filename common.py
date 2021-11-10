@@ -145,7 +145,9 @@ DefaultSplitter="|||";
 DefaultUrl="http://astreamweb.com/intronews.txt";
 
 class MyWindow(xbmcgui.WindowDialog): #xbmcgui.Window): ##xbmcgui.Window
+    
     scr={}; scr['L']=0; scr['T']=0; scr['W']=1280; scr['H']=720;
+
     def __init__(self,noteType='t',noteMessage='',noteImage='',L=140,T=110,W=1000,H=500,Font='font14',TxtColor='0xFF64d1ff'):
         if len(noteImage)==0: 
             noteImage=DefaultNoteImage
@@ -198,8 +200,10 @@ class MyWindow(xbmcgui.WindowDialog): #xbmcgui.Window): ##xbmcgui.Window
             #z.setAnimations([('WindowOpen','effect=slide delay=0 time=5000 start=0,-1800 end=0'),('WindowClose','effect=slide delay=0 time=5000 start=0 end=0,-1800')]);
             z.setAnimations([('WindowOpen','effect=fade delay=0 time=2000 start=0 end=100'),('WindowClose','effect=slide delay=0 time=2000 start=0 end=0,'+str(0-(H+T+10)))])
         ## ### ##
-        self.buttonRemindMe.controlLeft(self.buttonDismiss); self.buttonRemindMe.controlRight(self.buttonDismiss)
-        self.buttonDismiss.controlLeft(self.buttonRemindMe); self.buttonDismiss.controlRight(self.buttonRemindMe)
+        self.buttonRemindMe.controlLeft(self.buttonDismiss)
+        self.buttonRemindMe.controlRight(self.buttonDismiss)
+        self.buttonDismiss.controlLeft(self.buttonRemindMe)
+        self.buttonDismiss.controlRight(self.buttonRemindMe)
         ## ### ##
         self.TxtMessage.setText(self.noteMessage)
         self.setFocus(self.buttonRemindMe)
@@ -213,26 +217,31 @@ class MyWindow(xbmcgui.WindowDialog): #xbmcgui.Window): ##xbmcgui.Window
         self.CloseWindow1st()
     def doDismiss(self):
         try:
-            SettingS("noteType",self.noteType)
-            SettingS("noteImage",self.noteImage)
-            SettingS("noteMessage",self.noteMessage)
+            SettingS("noteType", self.noteType)
+            SettingS("noteImage", self.noteImage)
+            SettingS("noteMessage", self.noteMessage)
         except: pass
         ##CODE HERE##
         self.CloseWindow1st()
     def onAction(self,action):
         try: F=self.getFocus()
         except: F=False
-        if   action == ACTION_PREVIOUS_MENU: self.doRemindMeLater()
-        elif action == ACTION_NAV_BACK: self.doRemindMeLater()
-        elif action == ACTION_SELECT_ITEM: self.doDismiss()
+        if   action == ACTION_PREVIOUS_MENU: 
+            self.doRemindMeLater()
+        elif action == ACTION_NAV_BACK: 
+            self.doRemindMeLater()
+        elif action == ACTION_SELECT_ITEM: 
+            self.doDismiss()
         else:
             try:
                 if not F==self.buttonRemindMe:
                     self.setFocus(self.buttonDismiss);
             except: pass
     def onControl(self,control):
-        if   control==self.buttonRemindMe: self.doRemindMeLater()
-        elif control== self.buttonDismiss: self.doDismiss()
+        if   control==self.buttonRemindMe: 
+            self.doRemindMeLater()
+        elif control== self.buttonDismiss: 
+            self.doDismiss()
         else:
             try:
                 self.setFocus(self.buttonRemindMe);

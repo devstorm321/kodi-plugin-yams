@@ -294,13 +294,13 @@ class NoRedirectHandler(urllib.request.HTTPRedirectHandler):
 def add_item(action="",title="",plot="",url="",thumbnail="",fanart="",iconImage="",show="",episode="",extra="",page="",info_labels=None,isPlayable=False,folder=True):
     _log("add_item action=["+action+"] title=["+title+"] url=["+url+"] thumbnail=["+thumbnail+"] fanart=["+fanart+"] show=["+show+"] episode=["+episode+"] extra=["+extra+"] page=["+page+"] isPlayable=["+str(isPlayable)+"] folder=["+str(folder)+"]")
     listitem = xbmcgui.ListItem(title)
-    listitem.setArt(icon="DefaultVideo.png",thumb=thumbnail)
+    listitem.setArt({'icon':"DefaultVideo.png", 'thumb':thumbnail})
 
     if info_labels is None: 
         info_labels={"Title":title,"FileName":title,"Plot":plot}
         listitem.setInfo( "video", info_labels )
     if thumbnail != "":
-        listitem.setArt(poster=thumbnail, icon=thumbnail) #,"fanart" : thumbnail if not fanart else fanart})
+        listitem.setArt({'poster':thumbnail, 'icon':thumbnail}) #,"fanart" : thumbnail if not fanart else fanart})
 
     #if fanart!="": listitem.setProperty('fanart_image',fanart)#
     xbmcplugin.setPluginFanart(int(sys.argv[1]),fanart)
@@ -346,12 +346,12 @@ def add_item(action="",title="",plot="",url="",thumbnail="",fanart="",iconImage=
 def add_itemcontext(action="",title="",plot="",url="",thumbnail="",fanart="",iconImage="",show="",episode="",extra="",page="",info_labels=None,contextmenu=None,isPlayable=False,folder=True):
     _log("add_item action=["+action+"] title=["+title+"] url=["+url+"] thumbnail=["+thumbnail+"] fanart=["+fanart+"] show=["+show+"] episode=["+episode+"] extra=["+extra+"] page=["+page+"] isPlayable=["+str(isPlayable)+"] folder=["+str(folder)+"]")
     listitem=xbmcgui.ListItem(title)
-    listitem.setArt(icon="DefaultVideo.png",thumb=thumbnail)
+    listitem.setArt({'icon':"DefaultVideo.png", 'thumb':thumbnail})
     if info_labels is None: 
         info_labels={"Title":title,"FileName":title,"Plot":plot}
         listitem.setInfo( "video", info_labels )
     if thumbnail != "":
-        listitem.setArt(poster=thumbnail, icon=thumbnail) #,"fanart" : thumbnail if not fanart else fanart})
+        listitem.setArt({'poster': thumbnail, 'icon': thumbnail}) #,"fanart" : thumbnail if not fanart else fanart})
 
     #if fanart!="": listitem.setProperty('fanart_image',fanart)#
     xbmcplugin.setPluginFanart(int(sys.argv[1]),fanart)
@@ -408,10 +408,10 @@ def direct_play(url,title=""):
     _log("direct_play ["+url+"]")
     try: 
         xlistitem=xbmcgui.ListItem(title, path=url)
-        xlistitem.setArt(icon="DefaultVideo.png")
     except: 
         xlistitem=xbmcgui.ListItem(title)
-        xlistitem.setArt(icon="DefaultVideo.png")
+    
+    xlistitem.setArt({'icon':"DefaultVideo.png"})
     #xlistitem.setInfo("video",{"Title":title})
     playlist=xbmc.PlayList(xbmc.PLAYLIST_VIDEO)
     playlist.clear()
