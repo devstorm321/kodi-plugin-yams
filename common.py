@@ -147,25 +147,33 @@ DefaultUrl="http://astreamweb.com/intronews.txt";
 class MyWindow(xbmcgui.WindowDialog): #xbmcgui.Window): ##xbmcgui.Window
     scr={}; scr['L']=0; scr['T']=0; scr['W']=1280; scr['H']=720;
     def __init__(self,noteType='t',noteMessage='',noteImage='',L=140,T=110,W=1000,H=500,Font='font14',TxtColor='0xFF64d1ff'):
-        if len(noteImage)==0: noteImage=DefaultNoteImage
-        if   (noteType.lower()=='text')  or (noteType.lower()=='t'): noteType='t'
-        elif (noteType.lower()=='image') or (noteType.lower()=='i'): noteType='i'
-        self.noteType=noteType; self.noteMessage=noteMessage; self.noteImage=noteImage; self.Font=Font; self.TxtColor=TxtColor;
+        if len(noteImage)==0: 
+            noteImage=DefaultNoteImage
+        if   (noteType.lower()=='text')  or (noteType.lower()=='t'): 
+            noteType='t'
+        elif (noteType.lower()=='image') or (noteType.lower()=='i'): 
+            noteType='i'
+        self.noteType=noteType
+        self.noteMessage=noteMessage
+        self.noteImage=noteImage
+        self.Font=Font
+        self.TxtColor=TxtColor;
         ## ### ##
-        self.background=OverlayBackground; #artp('black1');
-        self.BG=xbmcgui.ControlImage(L,T,W,H,self.background,aspectRatio=0,colorDiffuse='0xFF3030FF');
+        self.background=OverlayBackground
+        #artp('black1');
+        self.BG=xbmcgui.ControlImage( L,T,W,H,self.background,aspectRatio=0,colorDiffuse='0xFF3030FF' )
         #self.OlayBrdr=xbmcgui.ControlImage(L,T,W,H,OverlayBorder,aspectRatio=0);
         #self.OlaySplash=xbmcgui.ControlImage(L,T,W,H,icon,aspectRatio=0);
         iLogoW=85; iLogoH=80;
-        self.iLogo=xbmcgui.ControlImage((L+(W/2))-(iLogoW/2),T+10,iLogoW,iLogoH,hubLogo,aspectRatio=0);
+        self.iLogo=xbmcgui.ControlImage( int(L + W/2  - iLogoW / 2 ), T + 10, iLogoW, iLogoH, hubLogo, aspectRatio=0 )
         ## ### ##
         ###L2=L+110; T2=T+130; W2=W-(T2-T)-90; H2=H-(L2-L)-110; #L3=L2+5; T3=T2+5; W3=W2-18; H3=H2-10;
         ##L2=L+87; T2=T+80; W2=W-(T2-T)-96; H2=H-(L2-L)-74; L3=L2+5; T3=T2+60; W3=W2-18; H3=H2-5-60;
         #L2=L+67; T2=T+60; W2=W-(T2-T)-96; H2=H-(L2-L)-74;
         L2=200; T2=200; W2=880; H2=340;
         L3=L2+5; T3=T2+60; W3=W2-18; H3=H2-5-60;
-        self.ImgMessage=xbmcgui.ControlImage(L2,T2,W2,H2,self.noteImage,aspectRatio=0);
-        self.TxtMessage=xbmcgui.ControlTextBox(L2+5,T2,W2-10,H2,font=self.Font,textColor=self.TxtColor);
+        self.ImgMessage=xbmcgui.ControlImage(L2,T2,W2,H2,self.noteImage,aspectRatio=0)
+        self.TxtMessage=xbmcgui.ControlTextBox(L2+5,T2,W2-10,H2,font=self.Font,textColor=self.TxtColor)
         #self.TxtMessage=xbmcgui.ControlTextBox(L3,T3,W3,H3,font=self.Font,textColor=self.TxtColor);
         #print [self.background,OverlayBorder,self.noteImage]
         ## ### ##
@@ -173,10 +181,11 @@ class MyWindow(xbmcgui.WindowDialog): #xbmcgui.Window): ##xbmcgui.Window
         w1=120; h1=35; w2=160; h2=35; spacing1=20;
         l2=L+W-spacing1-w2; t2=T+H-h2-spacing1;
         l1=L+W-spacing1-w2-spacing1-w1; t1=T+H-h1-spacing1;
-        self.buttonDismiss=xbmcgui.ControlButton(l1,t1,w1,h1,"Dismiss",textColor="0xFF000000",focusedColor="0xFF000000",alignment=2,focusTexture=focus,noFocusTexture=nofocus);
-        self.buttonRemindMe=xbmcgui.ControlButton(l2,t2,w2,h2,"Remind Later",textColor="0xFF000000",focusedColor="0xFF000000",alignment=2,focusTexture=focus,noFocusTexture=nofocus);
+        self.buttonDismiss=xbmcgui.ControlButton(l1,t1,w1,h1,"Dismiss",textColor="0xFF000000",focusedColor="0xFF000000",alignment=2,focusTexture=focus,noFocusTexture=nofocus)
+        self.buttonRemindMe=xbmcgui.ControlButton(l2,t2,w2,h2,"Remind Later",textColor="0xFF000000",focusedColor="0xFF000000",alignment=2,focusTexture=focus,noFocusTexture=nofocus)
         #self.OlaySplash
-        for z in [self.BG,self.ImgMessage,self.TxtMessage,self.iLogo,self.buttonRemindMe,self.buttonDismiss]: self.addControl(z);
+        for z in [self.BG,self.ImgMessage,self.TxtMessage,self.iLogo,self.buttonRemindMe,self.buttonDismiss]: 
+            self.addControl(z);
         #for z in [self.BG,self.ImgMessage,self.TxtMessage,self.OlayBrdr,self.buttonRemindMe,self.buttonDismiss]: self.addControl(z);
         #for z in [self.BG,self.OlayBrdr,self.ImgMessage,self.TxtMessage,self.buttonRemindMe,self.buttonDismiss]: self.addControl(z);
         #self.OlayBrdr.setAnimations([('WindowOpen','effect=fade delay=0 time=0 start=0 end=70')]);
@@ -187,26 +196,26 @@ class MyWindow(xbmcgui.WindowDialog): #xbmcgui.Window): ##xbmcgui.Window
         #for z in [self.BG,self.ImgMessage,self.TxtMessage,self.OlayBrdr,self.buttonRemindMe,self.buttonDismiss]:
         for z in [self.BG,self.ImgMessage,self.TxtMessage,self.iLogo,self.buttonRemindMe,self.buttonDismiss]:
             #z.setAnimations([('WindowOpen','effect=slide delay=0 time=5000 start=0,-1800 end=0'),('WindowClose','effect=slide delay=0 time=5000 start=0 end=0,-1800')]);
-            z.setAnimations([('WindowOpen','effect=fade delay=0 time=2000 start=0 end=100'),('WindowClose','effect=slide delay=0 time=2000 start=0 end=0,'+str(0-(H+T+10)))]);
+            z.setAnimations([('WindowOpen','effect=fade delay=0 time=2000 start=0 end=100'),('WindowClose','effect=slide delay=0 time=2000 start=0 end=0,'+str(0-(H+T+10)))])
         ## ### ##
-        self.buttonRemindMe.controlLeft(self.buttonDismiss); self.buttonRemindMe.controlRight(self.buttonDismiss);
-        self.buttonDismiss.controlLeft(self.buttonRemindMe); self.buttonDismiss.controlRight(self.buttonRemindMe);
+        self.buttonRemindMe.controlLeft(self.buttonDismiss); self.buttonRemindMe.controlRight(self.buttonDismiss)
+        self.buttonDismiss.controlLeft(self.buttonRemindMe); self.buttonDismiss.controlRight(self.buttonRemindMe)
         ## ### ##
-        self.TxtMessage.setText(self.noteMessage);
-        self.setFocus(self.buttonRemindMe);
+        self.TxtMessage.setText(self.noteMessage)
+        self.setFocus(self.buttonRemindMe)
     def doRemindMeLater(self):
         try:
-            SettingS("noteType",self.noteType);
-            SettingS("noteImage","");
-            SettingS("noteMessage","");
+            SettingS("noteType",self.noteType)
+            SettingS("noteImage","")
+            SettingS("noteMessage","")
         except: pass
         ##CODE HERE##
         self.CloseWindow1st()
     def doDismiss(self):
         try:
-            SettingS("noteType",self.noteType);
-            SettingS("noteImage",self.noteImage);
-            SettingS("noteMessage",self.noteMessage);
+            SettingS("noteType",self.noteType)
+            SettingS("noteImage",self.noteImage)
+            SettingS("noteMessage",self.noteMessage)
         except: pass
         ##CODE HERE##
         self.CloseWindow1st()
@@ -243,7 +252,7 @@ def FetchNews():
     NewImage=""
     NewMessage=""
     info_location = addonPath("test.txt")
-    info_location3 = addonPath("url.txt");
+    info_location3 = addonPath("url.txt")
     info_location2 = DefaultUrl;
     if os.path.isfile(info_location)==True:
         try:
@@ -268,25 +277,38 @@ def FetchNews():
             return DefaultReturn
 
     if DefaultSplitter in html:
-        NewImage  =html.split(DefaultSplitter)[0].strip();
-        NewMessage=html.split(DefaultSplitter)[1].strip();
+        NewImage  =html.split(DefaultSplitter)[0].strip()
+        NewMessage=html.split(DefaultSplitter)[1].strip()
     return (NewImage,NewMessage)
 
 def CheckNews(TypeOfMessage,NewImage,NewMessage,DoFromService=True):
     if (len(NewImage) > 0) or (len(NewMessage) > 0):
         debob(["notifications-on-startup",tfalse(SettingG("notifications-on-startup")),"DoFromService",DoFromService])
         if (tfalse(SettingG("notifications-on-startup"))==False) or (DoFromService==False):
-            if NewImage.lower()=="none": NewImage=""
-            if NewMessage.lower()=="none": NewMessage=""
-            OldnoteType=SettingG("noteType"); OldnoteImage=SettingG("noteImage"); OldnoteMessage=SettingG("noteMessage");
+            if NewImage.lower()=="none": 
+                NewImage=""
+            if NewMessage.lower()=="none": 
+                NewMessage=""
+            OldnoteType=SettingG("noteType")
+            OldnoteImage=SettingG("noteImage")
+            OldnoteMessage=SettingG("noteMessage")
             OldnoteImage=OldnoteImage.replace(DefaultNoteImage,'')
-            if OldnoteImage.lower()=="none": OldnoteImage=""
-            if OldnoteMessage.lower()=="none": OldnoteMessage=""
-            print(['OLD',OldnoteType,OldnoteImage,OldnoteMessage]); print(['NEW',TypeOfMessage,NewImage,NewMessage]);
+            if OldnoteImage.lower()=="none": 
+                OldnoteImage=""
+            if OldnoteMessage.lower()=="none": 
+                OldnoteMessage=""
+            print(['OLD',OldnoteType,OldnoteImage,OldnoteMessage]) 
+            print(['NEW',TypeOfMessage,NewImage,NewMessage])
             if (not OldnoteImage==NewImage) or (not OldnoteMessage==NewMessage):
-                TempWindow=MyWindow(noteType=TypeOfMessage,noteMessage=NewMessage,noteImage=NewImage); TempWindow.doModal(); del TempWindow;
-            elif DoFromService==True: return
-            else: TempWindow=MyWindow(noteType=TypeOfMessage,noteMessage=NewMessage,noteImage=NewImage); TempWindow.doModal(); del TempWindow;
+                TempWindow=MyWindow(noteType=TypeOfMessage,noteMessage=NewMessage,noteImage=NewImage)
+                TempWindow.doModal()
+                del TempWindow;
+            elif DoFromService==True: 
+                return
+            else: 
+                TempWindow=MyWindow(noteType=TypeOfMessage,noteMessage=NewMessage,noteImage=NewImage)
+                TempWindow.doModal()
+                del TempWindow;
 
 
 ## ################################################## ##
