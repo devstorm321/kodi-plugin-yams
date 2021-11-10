@@ -3,7 +3,8 @@ addonHandle   = int(sys.argv[1])
 baseUrl       = sys.argv[0]
 
 def addDirectory(name, image, build_url, is_folder=True):
-    li = xbmcgui.ListItem(name , thumbnailImage = str(image))
+    li = xbmcgui.ListItem(name)
+    li.setArt(thumb=str(image))
     li.setProperty('IsPlayable', 'True')
     xbmcplugin.addDirectoryItem(handle=addonHandle, url=build_url, listitem=li, isFolder = is_folder)
 

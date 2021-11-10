@@ -108,7 +108,8 @@ def OPEN_URL_NORMAL(url):
 def addItem(name,url,mode,iconimage,fanart,description):
     u=sys.argv[0]+"?url="+urllib.parse.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.parse.quote_plus(name)+"&fanart="+urllib.parse.quote_plus(fanart)
     ok=True
-    liz=xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
+    liz=xbmcgui.ListItem(name)
+    liz.setArt(icon="DefaultFolder.png", thumb=iconimage)
     liz.setInfo( type="Video", infoLabels={ "Title": name } )
     liz.setProperty( "Fanart_Image", fanart )
     ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=False)

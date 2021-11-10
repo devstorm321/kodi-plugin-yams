@@ -1001,7 +1001,8 @@ def play_iptv_favourite(params):#url, label, cid):
     else:
         username = plugintools.get_setting('username')
         password = plugintools.get_setting('password')
-        liz = xbmcgui.ListItem(label, iconImage='DefaultVideo.png', thumbnailImage='DefaultVideo.png')
+        liz = xbmcgui.ListItem(label)
+        liz.setArt(icon='DefaultVideo.png', thumb='DefaultVideo.png')
         liz.setInfo('Video', infoLabels={'Title':label})
         liz.setProperty("IsPlayable","true")
         liz.setPath(base64.b64decode(url))
@@ -3507,11 +3508,12 @@ def latestMovieshome(params):
     for item in items:
         path = 'plugin://plugin.video.yams/?action=list_home_movie&title={}&url={}&thumbnail={}&plot={}&extra={}&page={}'.format(item['title'],item['id'],'','','','0')
         listitem = xbmcgui.ListItem(label=item["title"],
-                                                                label2=re.sub('\([ 0-9]*?\)', '', item['title']),
-                                                                iconImage=item['cover'].replace(' ', '%20'),
-                                                                thumbnailImage=item['cover'].replace(' ', '%20'),
-                                                                path=path)
-        listitem.setArt({"poster": item['cover'].replace(' ', '%20')})
+                                    label2=re.sub('\([ 0-9]*?\)', '', item['title']),
+                                    path=path)
+
+        listitem.setArt(icon=item['cover'].replace(' ', '%20'),
+                thumb=item['cover'].replace(' ', '%20'),
+                poster=item['cover'].replace(' ', '%20'))
         listitems.append((path,listitem, False))
     listitems.insert(0, listitems.pop())
     listitems.insert(0, listitems.pop())

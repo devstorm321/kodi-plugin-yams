@@ -131,7 +131,8 @@ def asiptvs_vod_videos2l(category_id,let):
 def asiptvs_play_stream(params):#url, label):
     url = params.get('url')
     label = params.get('title')
-    liz = xbmcgui.ListItem(label, iconImage='DefaultVideo.png', thumbnailImage='DefaultVideo.png')
+    liz = xbmcgui.ListItem(label)
+    liz.setArt(icon='DefaultVideo.png', thumb='DefaultVideo.png')
     liz.setInfo(type='Video', infoLabels={'Title':label})
     liz.setProperty("IsPlayable","true")
     liz.setPath(url)
