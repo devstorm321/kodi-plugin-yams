@@ -290,20 +290,6 @@ class NoRedirectHandler(urllib.request.HTTPRedirectHandler):
     http_error_303 = http_error_302
     http_error_307 = http_error_302
 
-def find_multiple_matches(text, pattern): 
-    _log("find_multiple_matches pattern="+pattern)
-    matches=re.findall(pattern,text,re.DOTALL)
-    return matches # Parse string and extracts multiple matches using regular expressions
-def find_single_match(text, pattern): # Parse string and extracts first match as a string
-    _log("find_single_match pattern="+pattern)
-    result=""
-    try: 
-        matches=re.findall(pattern,text,flags=re.DOTALL)
-        result=matches[0]
-    except: 
-        result=""
-    return result
-
 
 def add_item(action="",title="",plot="",url="",thumbnail="",fanart="",iconImage="",show="",episode="",extra="",page="",info_labels=None,isPlayable=False,folder=True):
     _log("add_item action=["+action+"] title=["+title+"] url=["+url+"] thumbnail=["+thumbnail+"] fanart=["+fanart+"] show=["+show+"] episode=["+episode+"] extra=["+extra+"] page=["+page+"] isPlayable=["+str(isPlayable)+"] folder=["+str(folder)+"]")
@@ -693,15 +679,5 @@ def platform():
 ################################################################################
 
 
-f=open(ADDON)
-data=f.read()
-f.close()
-
-
-addon_id=find_single_match(data,'id="([^"]+)"')
-
-if addon_id=="": 
-    addon_id=find_single_match(data,"id='([^']+)'")
-
-__settings__=xbmcaddon.Addon(id=addon_id)
+__settings__=xbmcaddon.Addon(id=ADDON_ID)
 __language__=__settings__.getLocalizedString
