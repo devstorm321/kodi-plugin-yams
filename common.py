@@ -74,11 +74,12 @@ def popOK(msg="",title="",line2="",line3=""):
     dialog=xbmcgui.Dialog()
     #ok=dialog.ok(title, msg, line2, line3)
     dialog.ok(title, msg, line2, line3)
+
 def OPEN_URL(url):
     req=urllib.request.Request(url)
     req.add_header('User-Agent','Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3')
     response=urllib.request.urlopen(req)
-    link=response.read()
+    link=response.read().decode('utf-8')
     response.close()
     return link
 def File_Save(path,data):
@@ -142,6 +143,7 @@ hubLogo=artp('logo-rectangular3');
 DefaultNoteImage=artp('blank1');
 DefaultSplitter="|||";
 DefaultUrl="http://astreamweb.com/intronews.txt";
+
 class MyWindow(xbmcgui.WindowDialog): #xbmcgui.Window): ##xbmcgui.Window
     scr={}; scr['L']=0; scr['T']=0; scr['W']=1280; scr['H']=720;
     def __init__(self,noteType='t',noteMessage='',noteImage='',L=140,T=110,W=1000,H=500,Font='font14',TxtColor='0xFF64d1ff'):
@@ -238,26 +240,33 @@ class MyWindow(xbmcgui.WindowDialog): #xbmcgui.Window): ##xbmcgui.Window
 ## ################################################## ##
 DefaultReturn=["",""]
 def FetchNews():
-    NewImage=""; NewMessage=""; info_location=addonPath("test.txt"); info_location3=addonPath("url.txt");
-    info_location2=DefaultUrl;
+    NewImage=""
+    NewMessage=""
+    info_location = addonPath("test.txt")
+    info_location3 = addonPath("url.txt");
+    info_location2 = DefaultUrl;
     if os.path.isfile(info_location)==True:
         try:
-            html=File_Open(info_location)
+            html = File_Open(info_location)
             print(info_location)
-        except: return DefaultReturn
+        except: 
+            return DefaultReturn
     elif os.path.isfile(info_location3)==True:
         try:
             info_location3B=File_Open(info_location3).strip()
             if (info_location3B) > 0:
-                html=OPEN_URL(info_location3B)
+                html = OPEN_URL(info_location3B)
                 print(info_location3B)
             else: return DefaultReturn
-        except: return DefaultReturn
+        except: 
+            return DefaultReturn
     else:
         try:
-            html=OPEN_URL(info_location2)
+            html = OPEN_URL(info_location2)
             print(info_location2)
-        except: return DefaultReturn
+        except: 
+            return DefaultReturn
+
     if DefaultSplitter in html:
         NewImage  =html.split(DefaultSplitter)[0].strip();
         NewMessage=html.split(DefaultSplitter)[1].strip();

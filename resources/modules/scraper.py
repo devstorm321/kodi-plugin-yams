@@ -502,7 +502,7 @@ def get_seasons(movie_id, username, password,seasn):
         else :
             url='https://api.yamsonline.com/api?task=season&option=com_jsonapi&format=json&cleancache=1&version=v2&user=%s&id=%s&season_num=%s&digest=%s'%(username, movie_id,seasn,digest)
         xbmc.log('get_saisons url %s'%url)
-        response = urlopen(url).read()
+        response = urlopen(url).read().decode('utf-8')
         json_data = json.loads(response)#;print(json_data)
     except :
         pass
@@ -934,7 +934,7 @@ def check_login(username, password, session=None):
 
     #xbmc.log('login request data: "%s"' % json.dumps(request_dict), level=xbmc.LOGINFO)  # to be removed request data
 
-    json_data = __get_json(request_dict, raiseError=True)
+    json_data = __get_json(request_dict, raiseError=False)
     xbmc.log('check_login result: "%s"' % json_data, level=xbmc.LOGINFO)
     if json_data.get('status') == 'success':
         return True, json_data.get('session'), json_data.get('status_code', '')
@@ -1035,8 +1035,8 @@ def __get_json(data, raiseError=True ):
         data['version'] = 'v2'
         url = '%s?%s' % (MAIN_URL, urlencode(data))
         
-        # xbmc.log('__get_json opening url: %s' % url, level=xbmc.LOGINFO)
-        response = urlopen(url).read()
+        xbmc.log('__get_json opening url: %s' % url, level=xbmc.LOGINFO)
+        response = urlopen(url).read().decode('utf-8')
         # xbmc.log('response: ' + response.decode('utf-8'), level=xbmc.LOGINFO)
 
         json_data = json_loads(response)
@@ -1257,7 +1257,7 @@ def VerifyAdvancedSetting():
     path = xbmcvfs.translatePath(os.path.join('special://home/userdata',''))
     advance=os.path.join(path, 'advancedsettings.xml')
     try:
-        a=open(advance).read()
+        a=open(advance).read().decode('utf-8')
         if 'zero' in a:
             name='AstreamWeb'
         elif 'tuxen' in a:
@@ -1301,7 +1301,7 @@ def getBypassActive(username):
 
 def getSportsVodJson():
     import json
-    resp = urlopen(SPORTS_VOD_URL).read()
+    resp = urlopen(SPORTS_VOD_URL).read().decode('utf-8')
     jsonData = json.loads(resp)
     return jsonData
 

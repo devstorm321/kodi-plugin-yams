@@ -28,7 +28,7 @@ NOVELAS_CATEGORY_ID = '117'
 def asiptvs_vod():
     items = []
     url = base + "?" + login_infos + "&action=get_vod_categories"
-    response = urlopen(url).read()
+    response = urlopen(url).read().decode('utf-8')
     json_data = json.loads(response)
     if len(json_data):
         items = sorted(json_data, key=lambda k: k["category_name"], reverse=False)
@@ -45,7 +45,7 @@ def asiptvs_vod_videos(params):#category_id):
     title = params.get('title')
     items = []
     url = base + "?" + login_infos + "&action=get_vod_streams&category_id=" + category_id
-    response = urlopen(url).read()
+    response = urlopen(url).read().decode('utf-8')
     json_data = json.loads(response)
     xbmc.log('jsondata {}'.format(json_data))
     if len(json_data):
@@ -70,7 +70,7 @@ def asiptvs_vod_eng(params):#category_id):
     let = params.get('title').lower()
     items = []
     url = base + "?" + login_infos + "&action=get_vod_streams&category_id=" + category_id
-    response = urlopen(url).read()
+    response = urlopen(url).read().decode('utf-8')
     json_data = json.loads(response)
     xbmc.log('jsondata {}'.format(json_data))
     if len(json_data):
@@ -91,7 +91,7 @@ def asiptvs_vod_eng(params):#category_id):
 def asiptvs_vod_videos2(category_id):
     items = []
     url = base + "?" + login_infos + "&action=get_vod_streams&category_id=" + category_id
-    response = urlopen(url).read()
+    response = urlopen(url).read().decode('utf-8')
     json_data = json.loads(response)
     xbmc.log('jsondata {}'.format(json_data))
     if len(json_data):
@@ -111,7 +111,7 @@ def asiptvs_vod_videos2(category_id):
 def asiptvs_vod_videos2l(category_id,let):
     items = []
     url = base + "?" + login_infos + "&action=get_vod_streams&category_id=" + category_id
-    response = urlopen(url).read()
+    response = urlopen(url).read().decode('utf-8')
     json_data = json.loads(response)
     xbmc.log('jsondata {}'.format(json_data))
     if len(json_data):

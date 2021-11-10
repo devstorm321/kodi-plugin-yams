@@ -89,8 +89,11 @@ def home(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
     try :
         authenticated, status_code = __check_login()
+        xbmc.log('Authenticated %s' % str(authenticated), xbmc.LOGINFO)
+        xbmc.log('Status %d' % status_code, xbmc.LOGINFO)
         username = plugintools.get_setting('username')
         password = plugintools.get_setting("password")
+
 
 
         if ((plugintools.get_setting('myaccount') == 'true') and authenticated) or status_code == 4 or status_code == 5 or status_code == 8:
@@ -233,7 +236,7 @@ def home(params):
             plugintools.add_item(action="show_settings",title="Settings", thumbnail=__get_icon('settings'), folder=False)
 
     except Exception as e :
-        xbmc.log('homme error {}'.format(str(e)))
+        traceback.print_exc()
 
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
     #xbmcplugin.setContent(int(sys.argv[1]), 'movies')
@@ -250,7 +253,7 @@ def __get_icon(title):
         xbmc.log('iconImage for "%s" does not exist!' % title)
         return 'DefaultFolder.png'
 
-def username1():
+def register_username():
     if xbmc.getCondVisibility("System.Platform.Android") == 1:
         usernamePath = os.path.join(xbmcvfs.translatePath(os.path.join('/sdcard/Android/data/com.androidtoid.com/', '')), "username")
     elif (xbmc.getCondVisibility("System.Platform.Windows") == 1):
@@ -324,7 +327,7 @@ def boxname(params):
             print('<<< traceback end <<<')
     return str(currentUUID)
 
-def password1():
+def register_password():
     if xbmc.getCondVisibility("System.Platform.Android") == 1:
         passwordPath = os.path.join(xbmcvfs.translatePath(os.path.join('/sdcard/Android/data/com.androidtoid.com/', '')), "password")
     elif (xbmc.getCondVisibility("System.Platform.Windows") == 1):
@@ -381,8 +384,8 @@ def __check_login():
     if not username or not password:
         if dialog.yesno('No Credentials',
                                         'Do you have an existing AstreamWeb Account?'):
-            username1()
-            password1()
+            register_username()
+            register_password()
             xbmc.executebuiltin('UnloadSkin()')
             xbmc.executebuiltin('ReloadSkin()')
             xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
@@ -537,12 +540,18 @@ def __check_login():
                 print('>>> traceback starts >>>')
                 traceback.print_exc()
                 print('<<< traceback end <<<')
+        xbmc.log('usernamePath {}  '.format(usernamePath))
         # Check first run
         path = xbmcvfs.translatePath(os.path.join('special://home/userdata', ''))
         configFile1 = os.path.join(path, 'astreamweb.config')
         configUrl1 = 'https://astreamweb.com/kodi/astreamweb.config'
 
-        response = urllib.request.urlopen("https://astreamweb.com/kodi/astreamweb.conf").read()
+        # TODO needs to review
+        try:
+            response = urllib.request.urlopen("https://astreamweb.com/kodi/astreamweb.conf").read().decode('utf-8')
+        except:
+            traceback.print_exc()        
+
         configFile = os.path.join(path, response.strip())
         configUrl = 'https://astreamweb.com/kodi/astreamweb.config'
 
@@ -833,7 +842,7 @@ def history(params):
     dateavt = dt.date.today() - dt.timedelta(3*365/12)
     vurl="http://169.55.113.138/api/stat/?key=yamsdagr8&action=user_history&username=%s&from_date=%s&password=%s"%(username,dateavt,password)
     xbmc.log('history url %s'%vurl)
-    response = urllib.request.urlopen(vurl).read()
+    response = urllib.request.urlopen(vurl).read().decode('utf-8')
     json_data = json.loads(response)
     data_content = json_data["data"]
     sorted_date = sorted(data_content, key=lambda x: x['created_at'],reverse=True)
@@ -874,7 +883,7 @@ def api_yamsonline_providers (params):
         api_digest = scraper.digest
         sourceurl = "https://api.yamsonline.com/api?sort=added%2CDESC&task=movies&option=com_jsonapi&format=json&without_files=1&version=v2&user=" + username + "&page=" + pagenum + "&" + action + "=1&digest=" + api_digest
         xbmc.log(sourceurl)
-        response = urllib.request.urlopen(sourceurl).read()
+        response = urllib.request.urlopen(sourceurl).read().decode('utf-8')
         json_data = json.loads(response)
         data_pagination = json_data["pagination"]
         data_content = json_data["data"]
@@ -927,7 +936,7 @@ def show_iptv_favourite(params):#pagenum):
         api_digest = scraper.digest
         sourceurl = "https://api.yamsonline.com/api?task=channel_favorite&option=com_jsonapi&format=json&user=" + username + "&version=v2&device=box&digest=" + api_digest
         xbmc.log(sourceurl)
-        response = urllib.request.urlopen(sourceurl).read()
+        response = urllib.request.urlopen(sourceurl).read().decode('utf-8')
         json_data = json.loads(response)
         data_pagination = json_data["pagination"]
         data_content = json_data["data"]
@@ -1314,7 +1323,7 @@ def play_vod(params):
     plugintools.play_resolved_url(urllink,title=title)
     time.sleep(3)
     if xbmc.Player().isPlaying() == False:
-        response = urllib.request.urlopen(urllink).read()
+        response = urllib.request.urlopen(urllink).read().decode('utf-8')
         json_data = json.loads(response)
         for item in json_data:
             description = json_data['description']
@@ -1329,7 +1338,7 @@ def play_vod1(params):
     plugintools.play_resolved_url(urllink,title=title)
     time.sleep(3)
     if xbmc.Player().isPlaying() == False:
-        response = urllib.request.urlopen(urllink).read()
+        response = urllib.request.urlopen(urllink).read().decode('utf-8')
         json_data = json.loads(response)
         for item in json_data:
             description = json_data['description']
@@ -1539,7 +1548,7 @@ def show_hotstar_ori(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
     if not isauth_ok():
         return
-    response = urllib.request.urlopen(vijayVODUrl_ori).read()
+    response = urllib.request.urlopen(vijayVODUrl_ori).read().decode('utf-8')
     nodes = json.loads(response)
     for i in range(len(nodes)):
         if(nodes[i]["title"] == "English"):
@@ -1557,7 +1566,7 @@ def show_hotstarlv1_ori(params):
     if not isauth_ok():
         return
     vurl = params.get('url')
-    response = urllib.request.urlopen(vurl).read()
+    response = urllib.request.urlopen(vurl).read().decode('utf-8')
     nodes = json.loads(response)
     items = [x for x in nodes]
     items.reverse()
@@ -1575,7 +1584,7 @@ def show_hotstarlv2_ori(params):
     if not isauth_ok():
         return
     vurl = params.get('url')
-    response = urllib.request.urlopen(vurl).read()
+    response = urllib.request.urlopen(vurl).read().decode('utf-8')
     nodes = json.loads(response)
 
     agentType = '0'
@@ -1592,7 +1601,7 @@ def show_hotstarlv3_ori(params):
     if not isauth_ok():
         return
     vurl = params.get('url')
-    response = urllib.request.urlopen(vurl).read()
+    response = urllib.request.urlopen(vurl).read().decode('utf-8')
     nodes = json.loads(response)
     xbmc.log('show_hotstarlv3_ori end{}'.format(nodes))
     agentType = '0'
@@ -1608,7 +1617,7 @@ def show_hotstarsublist_ori(params):
     vurl = params.get('url')
     agent = params.get('page')
     xbmc.log('__get_json show_hotstarplay vijayURL url: %s' % vurl)
-    response = urllib.request.urlopen(vurl).read()
+    response = urllib.request.urlopen(vurl).read().decode('utf-8')
     nodes = json.loads(response)
     items = [x for x in nodes]
     items.reverse()
@@ -1679,7 +1688,7 @@ def show_indian_channels(params):
     category = params.get('url')
     link = "http://vod.yamsftp.net/apiyamsnew.php?cfg={0}".format(category)
     #channelsJson = network.Net().http_GET("http://vod.yamsftp.net/apiyamsnew.php?cfg={0}".format(category))
-    channelsJson = urllib.request.urlopen(link).read()
+    channelsJson = urllib.request.urlopen(link).read().decode('utf-8')
     channels = json.loads(channelsJson)#.content)
     items = [x for x in channels]
     items.reverse()
@@ -1780,7 +1789,7 @@ def catchupvod_channels(params):
     vurl = params.get('url')
     if not isauth_ok():
         return
-    response = urllib.request.urlopen(vurl).read()
+    response = urllib.request.urlopen(vurl).read().decode('utf-8')
     nodes = json.loads(response)
     for node in nodes :
         plugintools.add_item(action='catchupvod_dates', title=node['Description'],url=vurl + "&chanid=" + node['ID'],
@@ -1817,7 +1826,7 @@ def show_catchupvod_ori(params):
     agent = params.get('extra')
     xbmc.log('agent {}'.format(agent))
     if not agent : agent ='0'
-    response = urllib.request.urlopen(vurl).read()
+    response = urllib.request.urlopen(vurl).read().decode('utf-8')
     ##print vurl
     nodes = json.loads(response)
     items = [x for x in nodes]
@@ -2813,7 +2822,7 @@ def handle_wait(time_to_wait, title, text):
 
 def select_skin_language(langs=None):
     url = "https://yamshost.org/amember/api/check-access/by-login?_key=HODzCPbEpwmz4ufir2jimobile&login=%s" % username
-    response = urllib.request.urlopen(url).read()
+    response = urllib.request.urlopen(url).read().decode('utf-8')
     jsonResp = json.loads(response)
     categories = [int(a) for a in list(jsonResp["categories"].keys())]
     category = ""
@@ -3358,7 +3367,7 @@ def correctpvr():
     xbmc.executeJSONRPC(nulldemo)
 
     categoriesUrl = "http://astreamweb.com/kodi/web/iptv/m3u2json.php"
-    categoriesContent = urllib.request.urlopen(categoriesUrl).read()
+    categoriesContent = urllib.request.urlopen(categoriesUrl).read().decode('utf-8')
     categoriesJson = json.loads(categoriesContent)
     categories = list(categoriesJson.keys())
     categories.sort()
@@ -3549,7 +3558,7 @@ def show_livetv(params):
             elif langs.lower() == 'hindi' :
                 vurl="https://astreamweb.com/kodi/web/channels/json.php?lang=HIN&username=" + username + "&password=" + password
 
-        response = urllib.request.urlopen(vurl).read()
+        response = urllib.request.urlopen(vurl).read().decode('utf-8')
         nodes = json.loads(response)
         items = [x for x in nodes]
         items.reverse()

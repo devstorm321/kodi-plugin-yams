@@ -27,7 +27,7 @@ def availableUpdate():
     print(("[updater] Current build version: {0}".format(buildVersion)))
     buildVersion = LooseVersion(buildVersion)
     try:
-        availVersion = urllib.request.urlopen(VERSION_URL).read()
+        availVersion = urllib.request.urlopen(VERSION_URL).read().decode('utf-8')
         availVersion = LooseVersion(availVersion)
         return buildVersion < availVersion
     except:

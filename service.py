@@ -78,7 +78,7 @@ def app_active():
     scraper.__set_digest(digest)
     api_digest = scraper.digest
     try:
-        ip = urllib.request.urlopen("https://astreamweb.com/kodi/ip.php").read()
+        ip = urllib.request.urlopen("https://astreamweb.com/kodi/ip.php").read().decode('utf-8')
     except Exception as e:
         dialog = xbmcgui.Dialog()
         dialog.notification('Connection Failure', 'Cannot connect to Astreamweb Services. Please ensure your internet is working or try again later.', xbmcgui.NOTIFICATION_ERROR)
@@ -94,7 +94,7 @@ def app_active():
         #url = "http://yamsonline.com/jsonapi.php?task=updatesession&option=com_jsonapi&format=json&session=%s&user=%s&version=v2&password=%s" % (__settings__.getSetting("session"), __settings__.getSetting("username"), __settings__.getSetting("password"))
         url = "https://api.yamsonline.com/api?task=pingbox&option=com_jsonapi&format=json&session=%s&user=%s&version=v2&ipaddress=%s&v=%s&digest=%s" % (get_mac(), xbmcaddon.Addon('plugin.video.yams').getSetting("username"), ip, xbmc.getInfoLabel('System.AddonVersion(plugin.video.yams)') + '- S' + xbmc.getInfoLabel('System.AddonVersion(skin.estuary)') + '- APK' + xbmc.getInfoLabel('System.AddonVersion(service.xbmc.versioncheck)') + '- OS' + xbmc.getInfoLabel('System.OSVersionInfo') + '- KOD' + xbmc.getInfoLabel('System.BuildVersion').split(" ")[0], api_digest)
         url = url.replace(' ', '%20')
-        response = urlopen(url).read()
+        response = urlopen(url).read().decode('utf-8')
         json_data = json.loads(response)
         message = json_data['reason']
         if json_data['status']== 'error' and  'logged out' in json_data['reason']:
@@ -114,7 +114,7 @@ def run():
     api_digest = scraper.digest
     
     try:
-        ip = urllib.request.urlopen("https://astreamweb.com/kodi/ip.php").read()
+        ip = urllib.request.urlopen("https://astreamweb.com/kodi/ip.php").read().decode('utf-8')
     except Exception as e:
         dialog = xbmcgui.Dialog()
         dialog.notification('Connection Failure', 'Cannot connect to Astreamweb Services. Please ensure your internet is working or try again later.', xbmcgui.NOTIFICATION_ERROR)
@@ -142,7 +142,7 @@ def run():
             url = "https://api.yamsonline.com/api?task=pingbox&option=com_jsonapi&format=json&session=%s&user=%s&version=v2&ipaddress=%s&v=%s&digest=%s" % (get_mac(), xbmcaddon.Addon('plugin.video.yams').getSetting("username"), ip, xbmc.getInfoLabel('System.AddonVersion(plugin.video.yams)') + '- S' + xbmc.getInfoLabel('System.AddonVersion(skin.estuary)') + '- APK' + xbmc.getInfoLabel('System.AddonVersion(service.xbmc.versioncheck)') + '- OS' + xbmc.getInfoLabel('System.OSVersionInfo') + '- KOD' + xbmc.getInfoLabel('System.BuildVersion').split(" ")[0], api_digest)
             url = url.replace(' ', '%20')
 
-            response = urlopen(url).read()
+            response = urlopen(url).read().decode('utf-8')
             xbmc.log('Sent activity info for SID(%s). Sleeping for 120 seconds.' % xbmcaddon.Addon('plugin.video.yams').getSetting("session"), level=xbmc.LOGINFO)
             xbmc.log(("activity url: %s" % url), level=xbmc.LOGINFO)
             try:
@@ -227,14 +227,14 @@ def run():
                 for feed in feeds:
                     for post in reversed(feed.entries):
                         print(post)
-                        if not hasattr(post, 'date'):
-                            xbmc.log('skip item - no date')
+                        if not hasattr(post, 'pubDate'):
+                            xbmc.log('skip item - no pubDate')
                             continue
                         if not hasattr(post, 'title'):
                             xbmc.log('skip item - no title')
                             continue
-                        if not hasattr(post, 'summary'):
-                            xbmc.log('skip item - no summary')
+                        if not hasattr(post, 'description'):
+                            xbmc.log('skip item - no description')
                             continue
                         if hasattr(post, 'user'):
                             if post.user.lower() != __settings__.getSetting("username").lower():
@@ -242,14 +242,14 @@ def run():
                         if hasattr(post, 'package'):
                             if xbmc.getCondVisibility('!Skin.HasSetting(HomeMenuNo%sButton)' % post.package):
                                 continue
-                        date = post.date
+                        date = post.pubDate
                         import datetime
-                        date1 = datetime.datetime.strptime(date, '%Y-%m-%d %H:%M:%S')
+                        cur_time = datetime.datetime.strptime(date, '%Y-%m-%d %H:%M:%S')
                         now = datetime.datetime.now()
                         dt_string = now.strftime("%Y-%m-%d %H:%M:%S")
                         orig_date = str(dt_string)
                         dt_string = datetime.datetime.strptime(orig_date, '%Y-%m-%d %H:%M:%S')
-                        tdiff = dt_string - date1
+                        tdiff = dt_string - cur_time
                         hours = tdiff.days * 24
                         total_hours = hours + tdiff.seconds/3600
                         xbmc.log("Difference is %d Hours" % (total_hours))
@@ -257,7 +257,7 @@ def run():
                             add_shown_item(date)
                             msg = '\n'.join(['', date,
                                              '', ''.join(['[B]', post.title, '[/B]']),
-                                             '', post.summary])
+                                             '', post.description])
                             show_msg(msg)
                     xbmc.log('will now sleep for: %d seconds' % (CHECK_INTERVAL))
                     for i in range(0, CHECK_INTERVAL):

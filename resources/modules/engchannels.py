@@ -30,7 +30,7 @@ def show_english_channels(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies4')
     items = []
     url = base
-    response = urlopen(url).read()
+    response = urlopen(url).read().decode('utf-8')
     json_data = json.loads(response)
     if len(json_data):
         for item in json_data:
@@ -58,7 +58,7 @@ def show_english_channels_items(params):
         if adult_pword == '' :
             return
         xbmc.log('Getting current password')
-        response = urlopen("https://astreamweb.com/kodi/passcode.txt").read()
+        response = urlopen("https://astreamweb.com/kodi/passcode.txt").read().decode('utf-8')
 
         if str(adult_pword) != response.strip():
             dialog = xbmcgui.Dialog()
@@ -66,7 +66,7 @@ def show_english_channels_items(params):
             return False
     items = []
     url = base
-    response = urlopen(url).read()
+    response = urlopen(url).read().decode('utf-8')
     json_data = json.loads(response)
     if len(json_data):
         for item in json_data[category_id]:

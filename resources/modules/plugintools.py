@@ -138,7 +138,7 @@ def log(message):
     xbmc.log(message) # Write something on XBMC log
 def _log(message): # Write this module messages on XBMC log
     if Module_log_enabled: 
-        xbmc.log(""+message)
+        xbmc.log("" + message, xbmc.LOGINFO)
 def get_params(): # Parse XBMC params - based on script.module.parsedom addon
     _log("get_params")
     param_string=sys.argv[2]
@@ -293,7 +293,7 @@ class NoRedirectHandler(urllib.request.HTTPRedirectHandler):
 
 def add_item(action="",title="",plot="",url="",thumbnail="",fanart="",iconImage="",show="",episode="",extra="",page="",info_labels=None,isPlayable=False,folder=True):
     _log("add_item action=["+action+"] title=["+title+"] url=["+url+"] thumbnail=["+thumbnail+"] fanart=["+fanart+"] show=["+show+"] episode=["+episode+"] extra=["+extra+"] page=["+page+"] isPlayable=["+str(isPlayable)+"] folder=["+str(folder)+"]")
-    listitem=xbmcgui.ListItem(title)
+    listitem = xbmcgui.ListItem(title)
     listitem.setArt(icon="DefaultVideo.png",thumb=thumbnail)
 
     if info_labels is None: 
@@ -305,7 +305,7 @@ def add_item(action="",title="",plot="",url="",thumbnail="",fanart="",iconImage=
     #if fanart!="": listitem.setProperty('fanart_image',fanart)#
     xbmcplugin.setPluginFanart(int(sys.argv[1]),fanart)
     if url.startswith("plugin://"):
-        itemurl=url
+        itemurl = url
         listitem.setProperty('IsPlayable','true')
     elif isPlayable:
         listitem.setProperty("Video","true")
@@ -323,9 +323,10 @@ def add_item(action="",title="",plot="",url="",thumbnail="",fanart="",iconImage=
                 itemurl ='%s?action=%s'%(sys.argv[0],action)
     else:
         try :
-            itemurl='%s?action=%s&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s'%(sys.argv[0],action,urllib.parse.quote_plus(title),urllib.parse.quote_plus(url),urllib.parse.quote_plus(thumbnail),urllib.parse.quote_plus(plot),
+            itemurl = '%s?action=%s&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s'%(sys.argv[0],action,urllib.parse.quote_plus(title),urllib.parse.quote_plus(url),urllib.parse.quote_plus(thumbnail),urllib.parse.quote_plus(plot),
                 urllib.parse.quote_plus(extra),urllib.parse.quote_plus(page))
         except Exception as e :
+            raise e
             if 'KeyError' in str(e):
                 xbmc.log('erreur excep {}'.format(e))
                 urllib.parse.quote_plus(title.encode('utf-8'), safe=':/'.encode('utf-8'))
@@ -339,7 +340,8 @@ def add_item(action="",title="",plot="",url="",thumbnail="",fanart="",iconImage=
                 urllib.parse.quote_plus(extra.encode('utf-8'), safe=':/'.encode('utf-8'))
                 itemurl='%s?action=%s&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s'%(sys.argv[0],action,title,url,urllib.parse.quote_plus(thumbnail),urllib.parse.quote_plus(plot),extra,urllib.parse.quote_plus(page))
                 xbmc.log('erreur itemurl {}'.format(itemurl))
-    xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=itemurl,listitem=listitem,isFolder=folder)
+    _log('Item url: %s' % url)
+    xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=itemurl, listitem=listitem, isFolder=folder)
 
 def add_itemcontext(action="",title="",plot="",url="",thumbnail="",fanart="",iconImage="",show="",episode="",extra="",page="",info_labels=None,contextmenu=None,isPlayable=False,folder=True):
     _log("add_item action=["+action+"] title=["+title+"] url=["+url+"] thumbnail=["+thumbnail+"] fanart=["+fanart+"] show=["+show+"] episode=["+episode+"] extra=["+extra+"] page=["+page+"] isPlayable=["+str(isPlayable)+"] folder=["+str(folder)+"]")
