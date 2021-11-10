@@ -85,41 +85,6 @@ def run():
             dialog.ok('APP EXPIRED',"Please upgrade app(current:"+ xbmc.getInfoLabel("System.BuildVersion") + "),","Follow guide: http://tiny.cc/upgrd","support line: 001 (484) 272-2496",)
             return
 
-def home2(params):
-    authenticated, status_code = __check_login()
-    username = plugintools.get_setting('username')
-    password = plugintools.get_setting("password")
-
-    # astreamiptv
-    path = xbmcvfs.translatePath(os.path.join('special://home/userdata/addon_data/plugin.video.astreamiptv', ''))
-    settingsFile = os.path.join(path, 'settings.xml')
-
-    if not os.path.exists(path):
-        os.mkdir(path)
-
-    if not os.path.exists(settingsFile):
-        with io.open(settingsFile, 'w') as settingsWrite:
-            settingsWrite.write("<settings>\n")
-            settingsWrite.write('<setting id="kasutajanimi" value="{0}"/>\n'.format(username))
-            settingsWrite.write('<setting id="salasona" value="{0}"/>\n'.format(password))
-            settingsWrite.write('<setting id="improve" value="false"/>\n')
-            settingsWrite.write('<setting id="striimiv2ljund" value="false"/>\n')
-            settingsWrite.write('<setting id="vanemakood" value="2080"/>\n')
-            settingsWrite.write('<setting id="vanemalukk" value="true"/>\n')
-            settingsWrite.write("</settings>\n")
-
-    path = xbmcvfs.translatePath(os.path.join('special://home/userdata/addon_data/plugin.video.astreamiptv2', ''))
-    settingsFile2 = os.path.join(path, 'settings.xml')
-
-    if not os.path.exists(path):
-        os.mkdir(path)
-
-    if not os.path.exists(settingsFile2):
-        with open(settingsFile2, 'w') as settingsWrite:
-            settingsWrite.write("<settings>\n")
-            settingsWrite.write('<setting id="username" value="{0}"/>\n'.format(username))
-            settingsWrite.write('<setting id="password" value="{0}"/>\n'.format(password))
-            settingsWrite.write("</settings>\n")
 def home(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
     try :
