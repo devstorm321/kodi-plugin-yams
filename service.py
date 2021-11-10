@@ -218,7 +218,7 @@ def run():
                                 xbmc.executebuiltin("ActivateWindow(Programs, plugin://plugin.video.yams/buy_subscription/{0})".format(user_id))
 
                 xbmc.log('checking now...', level=xbmc.LOGINFO)
-                feeds = []
+                feeds = []; return
                 for url in RSS_URLS:
                     try:
                         feeds.append(feedparser.parse(url))
@@ -227,14 +227,14 @@ def run():
                 for feed in feeds:
                     for post in reversed(feed.entries):
                         print(post)
-                        if not hasattr(post, 'pubDate'):
-                            xbmc.log('skip item - no pubDate')
+                        if not hasattr(post, 'published'):
+                            xbmc.log('skip item - no published')
                             continue
                         if not hasattr(post, 'title'):
                             xbmc.log('skip item - no title')
                             continue
-                        if not hasattr(post, 'description'):
-                            xbmc.log('skip item - no description')
+                        if not hasattr(post, 'summary'):
+                            xbmc.log('skip item - no summary')
                             continue
                         if hasattr(post, 'user'):
                             if post.user.lower() != __settings__.getSetting("username").lower():
@@ -242,7 +242,7 @@ def run():
                         if hasattr(post, 'package'):
                             if xbmc.getCondVisibility('!Skin.HasSetting(HomeMenuNo%sButton)' % post.package):
                                 continue
-                        date = post.pubDate
+                        date = post.published
                         import datetime
                         cur_time = datetime.datetime.strptime(date, '%Y-%m-%d %H:%M:%S')
                         now = datetime.datetime.now()

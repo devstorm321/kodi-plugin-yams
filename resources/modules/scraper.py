@@ -1035,7 +1035,7 @@ def __get_json(data, raiseError=True ):
         data['version'] = 'v2'
         url = '%s?%s' % (MAIN_URL, urlencode(data))
         
-        xbmc.log('__get_json opening url: %s' % url, level=xbmc.LOGINFO)
+        xbmc.log('__get_json opening url: %s' % url)
         response = urlopen(url).read().decode('utf-8')
         # xbmc.log('response: ' + response.decode('utf-8'), level=xbmc.LOGINFO)
 
@@ -1044,7 +1044,7 @@ def __get_json(data, raiseError=True ):
         #log('response: ' + response )
         #log('JSON SESSION DATA: %s' % json_data.get('session'))
         if json_data.get('status') == 'error' and raiseError:
-            xbmc.log('__get_json opening url: %s' % url, level=xbmc.LOGINFO)
+            xbmc.log('__get_json opening url: %s' % url)
             dialog = xbmcgui.Dialog()
             dialog.ok('Access Error', json_data.get('reason'))
             raise ApiError('AccessError')
