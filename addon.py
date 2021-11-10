@@ -426,9 +426,8 @@ def __check_login():
         # hash check failes it returns 'down for maintenance' error msg.
         if status_code == 0:
             if dialog.yesno('Error with login',
-                                            message,
-                                            '',
-                                            'Do you want to change the credentials?'):
+                                            message +
+                                            '\nDo you want to change the credentials?'):
                 plugintools.open_settings_dialog()
                 xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
             else:
@@ -455,9 +454,8 @@ def __check_login():
                 xbmc.executebuiltin('ReplaceWindow(Videos, addons://sources/video/)')
         if status_code == 4:
             if dialog.yesno('Plugin Outdated',
-                                            message,
-                                            '',
-                                            'Would you like AstreamWeb To Try Auto Update the plugin?'):
+                                            message +
+                                            '\nWould you like AstreamWeb To Try Auto Update the plugin?'):
                 xbmc.executebuiltin("UpdateAddonRepos")
                 handle_wait(60, "AstreamWeb", "Trying to Update Plugin...please wait!")
                 show_restart()

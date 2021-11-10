@@ -1110,7 +1110,7 @@ def clearCache():
             if file_count > 0:
 
                 dialog = xbmcgui.Dialog()
-                if dialog.yesno("Delete XBMC Cache Files", str(file_count) + " files found", "Do you want to delete them?"):
+                if dialog.yesno("Delete XBMC Cache Files", str(file_count) + " files found\nDo you want to delete them?"):
 
                     for f in files:
                         try:
