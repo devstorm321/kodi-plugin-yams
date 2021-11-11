@@ -1084,10 +1084,11 @@ def __get_server_url(server, path, username, password,
     return url
 
 
-def __decrypt(encoded):
+def __decrypt(encoded): 
     key = ')y4&$G[GHT0Fks=%'
     padded_key = key.ljust(16, '\0')
-    ciphertext = b64decode(encoded).decode('utf-8')
+    ciphertext = b64decode(encoded)
+    # xbmc.log('decode datatype: %s ' % type(ciphertext))
     r = rijndael.rijndael(padded_key, 32)
     padded_text = ''
     for start in range(0, len(ciphertext), 32):

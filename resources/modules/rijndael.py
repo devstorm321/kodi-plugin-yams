@@ -289,10 +289,10 @@ class rijndael:
         t = []
         # plaintext to ints + key
         for i in range(BC):
-            t.append((ord(plaintext[i * 4    ]) << 24 |
-                      ord(plaintext[i * 4 + 1]) << 16 |
-                      ord(plaintext[i * 4 + 2]) <<  8 |
-                      ord(plaintext[i * 4 + 3])        ) ^ Ke[0][i])
+            t.append((plaintext[i * 4    ] << 24 |
+                      plaintext[i * 4 + 1] << 16 |
+                      plaintext[i * 4 + 2] <<  8 |
+                      plaintext[i * 4 + 3]        ) ^ Ke[0][i])
         # apply round transforms
         for r in range(1, ROUNDS):
             for i in range(BC):
@@ -332,10 +332,10 @@ class rijndael:
         t = [0] * BC
         # ciphertext to ints + key
         for i in range(BC):
-            t[i] = (ord(ciphertext[i * 4    ]) << 24 |
-                    ord(ciphertext[i * 4 + 1]) << 16 |
-                    ord(ciphertext[i * 4 + 2]) <<  8 |
-                    ord(ciphertext[i * 4 + 3])        ) ^ Kd[0][i]
+            t[i] = (ciphertext[i * 4    ] << 24 |
+                    ciphertext[i * 4 + 1] << 16 |
+                    ciphertext[i * 4 + 2] <<  8 |
+                    ciphertext[i * 4 + 3]        ) ^ Kd[0][i]
         # apply round transforms
         for r in range(1, ROUNDS):
             for i in range(BC):
