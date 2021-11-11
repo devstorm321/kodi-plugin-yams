@@ -980,7 +980,7 @@ def play_iptv_favourite(params):#url, label, cid):
         username = plugintools.get_setting('username')
         password = plugintools.get_setting('password')
         liz = xbmcgui.ListItem(label)
-        liz.setArt(icon='DefaultVideo.png', thumb='DefaultVideo.png')
+        liz.setArt({'icon':'DefaultVideo.png', 'thumb':'DefaultVideo.png'})
         liz.setInfo('Video', infoLabels={'Title':label})
         liz.setProperty("IsPlayable","true")
         liz.setPath(base64.b64decode(url).decode('utf-8'))
