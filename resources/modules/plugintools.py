@@ -69,7 +69,7 @@ ADDON           = xbmcvfs.translatePath(os.path.join(PATH, 'addon.xml'))
 #reload(sys)
 #sys.setdefaultencoding('utf8')
 
-Module_log_enabled=True
+Module_log_enabled=False
 Http_debug_log_enabled=False
 LIST="list"
 THUMBNAIL="thumbnail"

@@ -851,8 +851,10 @@ def history(params):
         label = item["folder"]
         if label in listm : continue
         listm.append(label)
-        if '/' in label : title = label.split('/')[-2]
-        else : title = label
+        if '/' in label : 
+            title = label.split('/')[-2]
+        else : 
+            title = label
         if item['film_id'] == 0 :
             if 'mp4' in label :
                 vod = label.replace('\\','')
@@ -864,8 +866,12 @@ def history(params):
 
 
         else :
-            plugintools.add_item(action='show_movie_files',title=title,isPlayable=True,url=str(item['film_id']),
-            thumbnail="",page='0')
+            plugintools.add_item(
+                action='show_movie_files',
+                title=title,
+                isPlayable=True,
+                url=str(item['film_id']),
+                thumbnail="",page='0')
 
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=False)
 
@@ -1006,7 +1012,7 @@ def personal2(params):
         json_data = json.loads(source)["data"]
         xbmc.log('personal %s'%json_data)
     except Exception as e :
-        if 'KeyError' in e :
+        if 'KeyError' in str(e) :
             dialog = xbmcgui.Dialog()
             dialog.ok("AstreamWeb Notice","No Movies found in Watchlist or you have not signed up for On Demand feature")
             return
@@ -1020,7 +1026,7 @@ def personal2(params):
 
         except Exception as e :
             xbmc.log('personal error %s'%e)
-            if 'list index out of range' in e :
+            if 'list index out of range' in str(e) :
                 pass #plugintools.add_item(action='', url='',title=i)
 
     #xbmcplugin.addSortMethod(int(sys.argv[1]), xbmcplugin.SORT_METHOD_LABEL)
@@ -1092,7 +1098,7 @@ def personal(params):
 
         except Exception as e :
             xbmc.log('personal error %s'%e)
-            if 'list index out of range' in e :
+            if 'list index out of range' in str(e) :
                 pass #plugintools.add_item(action='', url='',title=i)
 
     #xbmcplugin.addSortMethod(int(sys.argv[1]), xbmcplugin.SORT_METHOD_LABEL)
