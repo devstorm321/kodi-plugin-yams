@@ -1331,10 +1331,13 @@ def play_vod(params):
     if xbmc.Player().isPlaying() == False:
         response = urllib.request.urlopen(urllink).read().decode('utf-8')
         json_data = json.loads(response)
-        for item in json_data:
-            description = json_data['description']
+        try:
+            for item in json_data:
+                description = json_data['description']
 #                xbmc.log('ooooooooooooooooooooooooooo %s' % label)
-        xbmc.executebuiltin('Notification(%s,,10000,)' % description)
+            xbmc.executebuiltin('Notification(%s,,10000,)' % description)
+        except:
+            xbmc.log('addon > play_vod > response: %s' % repr(json_data), xbmc.LOGINFO)
 
 #
 
@@ -1858,18 +1861,18 @@ def show_catchupvod_ori(params):
 
 
 def secure_catchupvod_url(src_url):
-    secret = "psanni56"
+    # secret = "psanni56"
     #print(src_url)
-    url = urllib.parse.urlparse(src_url).path
+    # url = urllib.parse.urlparse(src_url).path
     #if url[0] == "/": url = url[1:]
 
-    future = dt.datetime.utcnow() + dt.timedelta(minutes=60)
-    expiry = calendar.timegm(future.timetuple())
+    # future = dt.datetime.utcnow() + dt.timedelta(minutes=60)
+    # expiry = calendar.timegm(future.timetuple())
 
-    secure_link = "{key}{url}{expiry}".format(key=secret,url=url,expiry=expiry)
-    hash = hashlib.md5(secure_link).digest()
-    encoded_hash = base64.urlsafe_b64encode(hash).rstrip('=')
-    url = src_url
+    # secure_link = "{key}{url}{expiry}".format(key=secret,url=url,expiry=expiry)
+    # hash = hashlib.md5(secure_link.encode('utf-8')).digest()
+    # encoded_hash = base64.urlsafe_b64encode(hash).rstrip('=')
+    # url = src_url
     #print(src_url)
     return src_url
 
