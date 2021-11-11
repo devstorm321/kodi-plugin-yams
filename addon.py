@@ -766,12 +766,12 @@ def cancel_subscription(params):
                             if check_expire['isExpire']:
                                 url=str(user_id)
                                 package=str(products[str(index)]['product_id'])
-                                title=products[str(index)]['title'].encode('utf-8')
+                                title=products[str(index)]['title']
                                 cancel_item(package,title,url)
                             else:
                                 url=str(user_id)
                                 package=str(products[str(index)]['product_id'])
-                                title=products[str(index)]['title'].encode('utf-8')
+                                title=products[str(index)]['title']
                                 cancel_item(package,title,url)
             else:
                 plugintools.add_item(title='No Active Subscriptions',url='',isPlayable=False,folder=False)
@@ -1056,7 +1056,7 @@ def personal2link(params):
                 xbmc.log('personal sname %s'%sname)
                 if (  ("mkv" == sname ) or ( "mp4" == sname )) or  (("m4v" == sname ) or  ("avi" == sname )) :
                     if i["radarr"]  :
-                        url = 'https://api.yamsonline.com/playpersonal?id=%s&title=%s&username=%s&password=%s&name=%s'%(page,urllib.parse.quote_plus(path11.encode('utf-8')),username,password,urllib.parse.quote_plus(name.encode('utf-8')))
+                        url = 'https://api.yamsonline.com/playpersonal?id=%s&title=%s&username=%s&password=%s&name=%s'%(page,urllib.parse.quote_plus(path11),username,password,urllib.parse.quote_plus(name))
                     else :
                         url = 'https://api.yamsonline.com/playmovie?id=%s&username=%s&password=%s&name=%s'%(page,username,password,urllib.parse.quote(name))
 
@@ -1129,7 +1129,7 @@ def personallink(params):
                 xbmc.log('personal sname %s'%sname)
                 if (  ("mkv" == sname ) or ( "mp4" == sname )) or  (("m4v" == sname ) or  ("avi" == sname ) or  ("ts" == sname )) :
                     if i["radarr"]  :
-                        url = 'https://api.yamsonline.com/playpersonal?id=%s&title=%s&username=%s&password=%s&name=%s'%(page,urllib.parse.quote_plus(path11.encode('utf-8')),username,password,urllib.parse.quote_plus(name.encode('utf-8')) )
+                        url = 'https://api.yamsonline.com/playpersonal?id=%s&title=%s&username=%s&password=%s&name=%s'%(page,urllib.parse.quote_plus(path11),username,password,urllib.parse.quote_plus(name) )
                     else :
                         url = 'https://api.yamsonline.com/playmovie?id=%s&username=%s&password=%s&name=%s'%(page,username,password,urllib.parse.quote(name))
 
@@ -2283,7 +2283,7 @@ def show_series_files(params):
                                 xbmc.log('episode_number {} episode test  {}'.format(c['episode_number'],video['episode']))
                                 if int(c['episode_number']) == int(video['episode']) :
                                     thumbnail = c['poster']
-                                    plot=c['plot'].encode('utf-8')
+                                    plot=c['plot']
                                     break
                                 else :
                                     thumbnail = ''
@@ -2307,7 +2307,7 @@ def show_series_files(params):
                             for c in item['info'] :
                                 if int(c['episode_number']) == int(video['episode']) :
                                     thumbnail = c['poster']
-                                    plot=c['plot'].encode('utf-8')
+                                    plot=c['plot']
                                     break
                                 else :
                                     thumbnail = ''
@@ -3282,7 +3282,7 @@ def play_einthusan(params):
         s = requests.Session()
         subc = False
     else :
-        s, subc = login_info(s, referurl)
+        s, subc = login_info(s, referurl.decode('utf-8'))
 
 
     xbmc.log(' result login s %s subc %s'%(s,subc))

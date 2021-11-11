@@ -59,7 +59,7 @@ def asiptvs_vod_videos(params):#category_id):
                 url = stream_url1 + str(item["stream_id"]) + "&type=" + str(item["container_extension"])
                 iconImage = item["stream_icon"]
                 if item["stream_icon"] == None :  iconImage = ''
-                plugintools.add_item(action="asiptvs_play_stream",title=label.encode("utf-8"),url = url,thumbnail=iconImage,
+                plugintools.add_item(action="asiptvs_play_stream",title=label,url = url,thumbnail=iconImage,
                                      isPlayable=True)
 
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
@@ -82,7 +82,7 @@ def asiptvs_vod_eng(params):#category_id):
             url = stream_url1 + str(item["stream_id"]) + "&type=" + str(item["container_extension"])
             iconImage = item["stream_icon"]
             if item["stream_icon"] == None :  iconImage = ''
-            plugintools.add_item(action="asiptvs_play_stream",title=label.encode("utf-8"),url = url,thumbnail=iconImage,
+            plugintools.add_item(action="asiptvs_play_stream",title=label,url = url,thumbnail=iconImage,
                                  isPlayable=True)
 
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
@@ -101,7 +101,7 @@ def asiptvs_vod_videos2(category_id):
             url = stream_url1 + str(item["stream_id"]) + "&type=" + str(item["container_extension"])
             iconImage = item["stream_icon"]
             if item["stream_icon"] == None :  iconImage = ''
-            plugintools.add_item(action="asiptvs_play_stream",title=label.encode("utf-8"),url = url,thumbnail=iconImage,
+            plugintools.add_item(action="asiptvs_play_stream",title=label,url = url,thumbnail=iconImage,
                                  isPlayable=True)
 
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
@@ -123,7 +123,7 @@ def asiptvs_vod_videos2l(category_id,let):
             url = stream_url1 + str(item["stream_id"]) + "&type=" + str(item["container_extension"])
             iconImage = item["stream_icon"]
             if item["stream_icon"] == None :  iconImage = ''
-            plugintools.add_item(action="asiptvs_play_stream",title=label.encode("utf-8"),url = url,thumbnail=iconImage,
+            plugintools.add_item(action="asiptvs_play_stream",title=label,url = url,thumbnail=iconImage,
                                  isPlayable=True)
 
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)

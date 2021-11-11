@@ -319,8 +319,8 @@ def add_item(action="",title="",plot="",url="",thumbnail="",fanart="",iconImage=
 
         except Exception as e :
             if 'KeyError' in str(e):
-                urllib.parse.quote_plus(title.encode('utf-8'), safe=':/'.encode('utf-8'))
-                urllib.parse.quote_plus(url.encode('utf-8'), safe=':/'.encode('utf-8'))
+                urllib.parse.quote_plus(title, safe=':/')
+                urllib.parse.quote_plus(url, safe=':/')
                 itemurl='%s?action=%s&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s'%(sys.argv[0],action,title,url,urllib.parse.quote_plus(thumbnail),plot,urllib.parse.quote_plus(extra),urllib.parse.quote_plus(page))
             else :
                 itemurl ='%s?action=%s'%(sys.argv[0],action)
@@ -332,15 +332,15 @@ def add_item(action="",title="",plot="",url="",thumbnail="",fanart="",iconImage=
             raise e
             if 'KeyError' in str(e):
                 xbmc.log('erreur excep {}'.format(e))
-                urllib.parse.quote_plus(title.encode('utf-8'), safe=':/'.encode('utf-8'))
-                urllib.parse.quote_plus(url.encode('utf-8'), safe=':/'.encode('utf-8'))
-                urllib.parse.quote_plus(extra.encode('utf-8'), safe=':/'.encode('utf-8'))
+                urllib.parse.quote_plus(title, safe=':/')
+                urllib.parse.quote_plus(url, safe=':/')
+                urllib.parse.quote_plus(extra, safe=':/')
                 itemurl='%s?action=%s&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s'%(sys.argv[0],action,title,url,urllib.parse.quote_plus(thumbnail),urllib.parse.quote_plus(plot),extra,urllib.parse.quote_plus(page))
 
             else :
-                urllib.parse.quote_plus(title.encode('utf-8'), safe=':/'.encode('utf-8'))
-                urllib.parse.quote_plus(url.encode('utf-8'), safe=':/'.encode('utf-8'))
-                urllib.parse.quote_plus(extra.encode('utf-8'), safe=':/'.encode('utf-8'))
+                urllib.parse.quote_plus(title, safe=':/')
+                urllib.parse.quote_plus(url, safe=':/')
+                urllib.parse.quote_plus(extra, safe=':/')
                 itemurl='%s?action=%s&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s'%(sys.argv[0],action,title,url,urllib.parse.quote_plus(thumbnail),urllib.parse.quote_plus(plot),extra,urllib.parse.quote_plus(page))
                 xbmc.log('erreur itemurl {}'.format(itemurl))
     _log('Item url: %s' % url)
@@ -377,8 +377,8 @@ def add_itemcontext(action="",title="",plot="",url="",thumbnail="",fanart="",ico
         except Exception as e :
             if 'KeyError' in str(e):
                 xbmc.log('erreur excep {}'.format(e))
-                urllib.parse.quote_plus(title.encode('utf-8'), safe=':/'.encode('utf-8'))
-                urllib.parse.quote_plus(url.encode('utf-8'), safe=':/'.encode('utf-8'))
+                urllib.parse.quote_plus(title, safe=':/')
+                urllib.parse.quote_plus(url, safe=':/')
                 itemurl='%s?action=%s&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s'%(sys.argv[0],action,title,url,urllib.parse.quote_plus(thumbnail),urllib.parse.quote_plus(plot),urllib.parse.quote_plus(extra),urllib.parse.quote_plus(page))
 
     else:
@@ -388,8 +388,8 @@ def add_itemcontext(action="",title="",plot="",url="",thumbnail="",fanart="",ico
         except Exception as e :
             if 'KeyError' in str(e):
                 xbmc.log('erreur excep {}'.format(e))
-                urllib.parse.quote_plus(title.encode('utf-8'), safe=':/'.encode('utf-8'))
-                urllib.parse.quote_plus(url.encode('utf-8'), safe=':/'.encode('utf-8'))
+                urllib.parse.quote_plus(title, safe=':/')
+                urllib.parse.quote_plus(url, safe=':/')
                 itemurl='%s?action=%s&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s'%(sys.argv[0],action,title,url,urllib.parse.quote_plus(thumbnail),urllib.parse.quote_plus(plot),urllib.parse.quote_plus(extra),urllib.parse.quote_plus(page))
 
     if not contextmenu == None: 
