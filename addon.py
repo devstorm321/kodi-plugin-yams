@@ -1061,7 +1061,7 @@ def personal2link(params):
                         url = 'https://api.yamsonline.com/playmovie?id=%s&username=%s&password=%s&name=%s'%(page,username,password,urllib.parse.quote(name))
 
                     xbmc.log('personallink title %s  url  %s'%(title,url))
-                    plugintools.add_item(action='play_vod', url=url,title=name.encode('ascii',errors='ignore'),thumbnail=thumbnail,isPlayable=True,folder=False)
+                    plugintools.add_item(action='play_vod', url=url,title=name,thumbnail=thumbnail,isPlayable=True,folder=False)
 
 
 
@@ -1134,7 +1134,7 @@ def personallink(params):
                         url = 'https://api.yamsonline.com/playmovie?id=%s&username=%s&password=%s&name=%s'%(page,username,password,urllib.parse.quote(name))
 
                     xbmc.log('personallink title %s  url  %s'%(title,url))
-                    plugintools.add_item(action='play_vod', url=url,title=name.encode('ascii',errors='ignore'),thumbnail=thumbnail,isPlayable=True,folder=False)
+                    plugintools.add_item(action='play_vod', url=url,title=name,thumbnail=thumbnail,isPlayable=True,folder=False)
 
 
 
@@ -2531,7 +2531,7 @@ def searchByName(params):
         keyboard = xbmc.Keyboard('', 'Enter Search String')
         keyboard.doModal()
         if keyboard.isConfirmed() and keyboard.getText():
-            search_string = keyboard.getText().decode('utf8')
+            search_string = keyboard.getText()
             xbmc.log('search gots a string: "%s"' % search_string)
             if '*' not in search_string:
                 search_string = '*%s*' % search_string
