@@ -49,8 +49,10 @@ import os
 import time
 import socket
 import gzip
+import traceback
 from io import StringIO
 from os import path as os_path
+
 
 import xbmc
 import xbmcvfs
@@ -69,7 +71,7 @@ ADDON           = xbmcvfs.translatePath(os.path.join(PATH, 'addon.xml'))
 #reload(sys)
 #sys.setdefaultencoding('utf8')
 
-Module_log_enabled=False
+Module_log_enabled=True
 Http_debug_log_enabled=False
 LIST="list"
 THUMBNAIL="thumbnail"
@@ -140,14 +142,15 @@ def _log(message): # Write this module messages on XBMC log
     if Module_log_enabled: 
         xbmc.log("" + message, xbmc.LOGINFO)
 def get_params(): # Parse XBMC params - based on script.module.parsedom addon
-    _log("get_params")
-    param_string=sys.argv[2]
-    _log("get_params "+str(param_string))
+    # _log("get_params")
+    param_string = sys.argv[2]
+    # param_string = urllib.parse.unquote_plus(param_string)
+    _log("get_params >> param_string : %s" % param_string)
     commands={}
     if param_string:
-        split_commands=param_string[param_string.find('?') + 1:].split('&')
+        split_commands = param_string[param_string.find('?') + 1:].split('&')
         for command in split_commands:
-            _log("get_params command="+str(command))
+            _log("get_params >> command : %s" % command)
             if len(command) > 0:
                 if "=" in command: 
                     split_command=command.split('=')
@@ -156,7 +159,7 @@ def get_params(): # Parse XBMC params - based on script.module.parsedom addon
                     commands[key]=value
                 else: 
                     commands[command]=""
-    _log("get_params "+repr(commands))
+    _log("get_params >> commands: %s" % repr(commands))
     return commands
 
 # Fetch text content from an URL
@@ -341,7 +344,10 @@ def add_item(action="",title="",plot="",url="",thumbnail="",fanart="",iconImage=
                 itemurl='%s?action=%s&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s'%(sys.argv[0],action,title,url,urllib.parse.quote_plus(thumbnail),urllib.parse.quote_plus(plot),extra,urllib.parse.quote_plus(page))
                 xbmc.log('erreur itemurl {}'.format(itemurl))
     _log('Item url: %s' % url)
-    xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=itemurl, listitem=listitem, isFolder=folder)
+    try:
+        xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=itemurl, listitem=listitem, isFolder=folder)
+    except:
+        traceback.print_exc()
 
 def add_itemcontext(action="",title="",plot="",url="",thumbnail="",fanart="",iconImage="",show="",episode="",extra="",page="",info_labels=None,contextmenu=None,isPlayable=False,folder=True):
     _log("add_item action=["+action+"] title=["+title+"] url=["+url+"] thumbnail=["+thumbnail+"] fanart=["+fanart+"] show=["+show+"] episode=["+episode+"] extra=["+extra+"] page=["+page+"] isPlayable=["+str(isPlayable)+"] folder=["+str(folder)+"]")
@@ -389,8 +395,10 @@ def add_itemcontext(action="",title="",plot="",url="",thumbnail="",fanart="",ico
     if not contextmenu == None: 
         listitem.addContextMenuItems(contextmenu)
 
-    xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=itemurl,listitem=listitem,isFolder=folder)
-
+    try:
+        xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=itemurl, listitem=listitem, isFolder=folder)
+    except:
+        traceback.print_exc()
 
 def close_item_list(): 
     _log("close_item_list")

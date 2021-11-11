@@ -218,7 +218,7 @@ def run():
                                 xbmc.executebuiltin("ActivateWindow(Programs, plugin://plugin.video.yams/buy_subscription/{0})".format(user_id))
 
                 xbmc.log('checking now...', level=xbmc.LOGINFO)
-                feeds = []; return
+                feeds = []; return # TODO needs review, to be removed
                 for url in RSS_URLS:
                     try:
                         feeds.append(feedparser.parse(url))

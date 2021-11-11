@@ -197,7 +197,7 @@ def get_genres(force_online=False):
 
 def get_movies(username, path, page, per_page, sorting):
     xbmc.log('get_movies start: path="%s", page="%s", per_page="%s", sorting="%s"'
-          % (path, page, per_page, sorting))
+          % (path, page, per_page, sorting), xbmc.LOGINFO)
     request_dict = {
         'user' : username,
         'task': 'movies',
@@ -1087,7 +1087,7 @@ def __get_server_url(server, path, username, password,
 def __decrypt(encoded):
     key = ')y4&$G[GHT0Fks=%'
     padded_key = key.ljust(16, '\0')
-    ciphertext = b64decode(encoded)
+    ciphertext = b64decode(encoded).decode('utf-8')
     r = rijndael.rijndael(padded_key, 32)
     padded_text = ''
     for start in range(0, len(ciphertext), 32):
