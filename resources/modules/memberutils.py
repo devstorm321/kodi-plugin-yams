@@ -482,7 +482,7 @@ def fetchStorage():
 
 def writeStorage(customer_id=None, user_id=None, email=None):
     data = {'customer_id': customer_id, 'user_id': user_id, 'email': email}
-    with io.open(storage, 'wb') as data_file:
+    with io.open(storage, 'w') as data_file:
         json.dump(data, data_file)
 
 def add_months(sourcedate, months):

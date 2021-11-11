@@ -97,7 +97,7 @@ try:
         ACTRESSES = actorFileSplit[1].split(",")
 except Exception as e:
     print((traceback.print_exc()))
-    ACTOR, ACTRESSES = [[], []]
+    ACTORS, ACTRESSES = [[], []]
 
 
 def get_latesMoviesCategory(language):

@@ -314,7 +314,7 @@ def add_shown_item(item):
     xbmc.log('add_shown_item adding: %s' % repr(item))
     items_already_shown.append(item)
     with open(FILE, mode='w') as f:
-        json.dump(items_already_shown, f, indent=1)
+        json.dump(items_already_shown, f.encode(), indent=1)
 
 def log(text):
     xbmc.log('AstreamWeb msg: %s' % text)
