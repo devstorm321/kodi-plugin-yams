@@ -110,6 +110,7 @@ def app_active():
                 break
 
 def run():
+
     scraper.__set_digest(digest)
     api_digest = scraper.digest
     

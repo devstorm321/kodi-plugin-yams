@@ -68,6 +68,7 @@ params = plugintools.get_params()
 
 #########################################
 def run():
+
     if xbmc.getCondVisibility("System.Platform.Android") == 1:
         if not os.path.exists(xbmcvfs.translatePath('/sdcard/Android/data/com.androidtoid.com/')):
             os.mkdir(xbmcvfs.translatePath('/sdcard/Android/data/com.androidtoid.com/'))
@@ -766,12 +767,12 @@ def cancel_subscription(params):
                             if check_expire['isExpire']:
                                 url=str(user_id)
                                 package=str(products[str(index)]['product_id'])
-                                title=products[str(index)]['title']
+                                title=products[str(index)]['title'].encode('utf-8')
                                 cancel_item(package,title,url)
                             else:
                                 url=str(user_id)
                                 package=str(products[str(index)]['product_id'])
-                                title=products[str(index)]['title']
+                                title=products[str(index)]['title'].encode('utf-8')
                                 cancel_item(package,title,url)
             else:
                 plugintools.add_item(title='No Active Subscriptions',url='',isPlayable=False,folder=False)
@@ -980,7 +981,7 @@ def play_iptv_favourite(params):#url, label, cid):
         username = plugintools.get_setting('username')
         password = plugintools.get_setting('password')
         liz = xbmcgui.ListItem(label)
-        liz.setArt({'icon':'DefaultVideo.png', 'thumb':'DefaultVideo.png'})
+        liz.setArt(icon='DefaultVideo.png', thumb='DefaultVideo.png')
         liz.setInfo('Video', infoLabels={'Title':label})
         liz.setProperty("IsPlayable","true")
         liz.setPath(base64.b64decode(url).decode('utf-8'))
@@ -1056,7 +1057,7 @@ def personal2link(params):
                 xbmc.log('personal sname %s'%sname)
                 if (  ("mkv" == sname ) or ( "mp4" == sname )) or  (("m4v" == sname ) or  ("avi" == sname )) :
                     if i["radarr"]  :
-                        url = 'https://api.yamsonline.com/playpersonal?id=%s&title=%s&username=%s&password=%s&name=%s'%(page,urllib.parse.quote_plus(path11),username,password,urllib.parse.quote_plus(name))
+                        url = 'https://api.yamsonline.com/playpersonal?id=%s&title=%s&username=%s&password=%s&name=%s'%(page,urllib.parse.quote_plus(path11.encode('utf-8')),username,password,urllib.parse.quote_plus(name.encode('utf-8')))
                     else :
                         url = 'https://api.yamsonline.com/playmovie?id=%s&username=%s&password=%s&name=%s'%(page,username,password,urllib.parse.quote(name))
 
@@ -1129,7 +1130,7 @@ def personallink(params):
                 xbmc.log('personal sname %s'%sname)
                 if (  ("mkv" == sname ) or ( "mp4" == sname )) or  (("m4v" == sname ) or  ("avi" == sname ) or  ("ts" == sname )) :
                     if i["radarr"]  :
-                        url = 'https://api.yamsonline.com/playpersonal?id=%s&title=%s&username=%s&password=%s&name=%s'%(page,urllib.parse.quote_plus(path11),username,password,urllib.parse.quote_plus(name) )
+                        url = 'https://api.yamsonline.com/playpersonal?id=%s&title=%s&username=%s&password=%s&name=%s'%(page,urllib.parse.quote_plus(path11.encode('utf-8')),username,password,urllib.parse.quote_plus(name.encode('utf-8')) )
                     else :
                         url = 'https://api.yamsonline.com/playmovie?id=%s&username=%s&password=%s&name=%s'%(page,username,password,urllib.parse.quote(name))
 
@@ -2283,7 +2284,7 @@ def show_series_files(params):
                                 xbmc.log('episode_number {} episode test  {}'.format(c['episode_number'],video['episode']))
                                 if int(c['episode_number']) == int(video['episode']) :
                                     thumbnail = c['poster']
-                                    plot=c['plot']
+                                    plot=c['plot'].encode('utf-8')
                                     break
                                 else :
                                     thumbnail = ''
@@ -2307,7 +2308,7 @@ def show_series_files(params):
                             for c in item['info'] :
                                 if int(c['episode_number']) == int(video['episode']) :
                                     thumbnail = c['poster']
-                                    plot=c['plot']
+                                    plot=c['plot'].encode('utf-8')
                                     break
                                 else :
                                     thumbnail = ''
@@ -3213,11 +3214,11 @@ def show_einthusan_movies(params):
 def decodeEInth(lnk):
     t=10
     r=lnk[0:t]+lnk[-1]+lnk[t+2:-1]
-    return r
+    return r.encode()
 def encodeEInth(lnk):
     t=10
     r=lnk[0:t]+lnk[-1]+lnk[t+2:-1]
-    return r
+    return r.encode()
 
 '''
 def get_einthusanselect():
@@ -3235,7 +3236,7 @@ def einthusan_preferred_server(lnk, mainurl):
             get_einthusanselect()
     '''
     location = get_einthusan_location()
-    xbmc.log(location, level=xbmc.LOGNOTICE)
+    xbmc.log(location, level=xbmc.LOGINFO)
     if location != 'No Preference':
         if location == 'Dallas':
             servers = [23,24,25,29,30,31,35,36,37,38,45]
@@ -3264,8 +3265,8 @@ def einthusan_preferred_server(lnk, mainurl):
         for i in servers:
             urltry = ("https://s" + str(i+SERVER_OFFSET[0]) + ".einthusan.ca/" + vidpath)
             isitworking = requests.get(urltry, headers=new_headers).status_code
-            xbmc.log(urltry, level=xbmc.LOGNOTICE)
-            xbmc.log(str(isitworking), level=xbmc.LOGNOTICE)
+            xbmc.log(urltry, level=xbmc.LOGINFO)
+            xbmc.log(str(isitworking), level=xbmc.LOGINFO)
             if isitworking == 200:
                 lnk = urltry
                 break
@@ -3282,7 +3283,7 @@ def play_einthusan(params):
         s = requests.Session()
         subc = False
     else :
-        s, subc = login_info(s, referurl.decode('utf-8'))
+        s, subc = login_info(s, referurl)
 
 
     xbmc.log(' result login s %s subc %s'%(s,subc))
@@ -3309,14 +3310,14 @@ def play_einthusan(params):
 
     import html.parser
     # htm=getUrl(mainurl,headers=headers,cookieJar=cookieJar)
-    xbmc.log(mainurl, level=xbmc.LOGNOTICE)
-    htm=s.get(mainurl, headers=headers, cookies=s.cookies).text.encode('utf-8')
+    xbmc.log(mainurl, level=xbmc.LOGINFO)
+    htm=s.get(mainurl, headers=headers, cookies=s.cookies).text
 
     if ('SORRY' in htm) and ('Remaining quota is for premium members' in htm) :
         dialog.ok("[COLOR white] Astreamweb[/COLOR]","Sorry Einthusan servers are almost maxed and reserved for Premium members")
         return
 
-    xbmc.log(htm, level=xbmc.LOGNOTICE)
+    xbmc.log(htm, level=xbmc.LOGINFO)
     lnk=re.findall('data-ejpingables=["\'](.*?)["\']',htm)[0]
     r=decodeEInth(lnk)
     jdata='{"EJOutcomes":"%s","NativeHLS":false}'%lnk
@@ -3326,10 +3327,10 @@ def play_einthusan(params):
     postdata={'xEvent':'UIVideoPlayer.PingOutcome','xJson':jdata,'arcVersion':'3','appVersion':'59','gorilla.csrf.Token':gid}
     rdata=s.post(mainurlajax,headers=headers,data=postdata,cookies=s.cookies).text
     r=json.loads(rdata)["Data"]["EJLinks"]
-    xbmc.log(str(decodeEInth(r).decode("base64")), level=xbmc.LOGNOTICE)
-    lnk=json.loads(decodeEInth(r).decode("base64"))["HLSLink"]
+    xbmc.log(base64.b64decode(decodeEInth(r)).decode("utf-8"), level=xbmc.LOGINFO)
+    lnk=json.loads(base64.b64decode(decodeEInth(r)).decode("utf-8"))["HLSLink"]
     lnk = einthusan_preferred_server(lnk, mainurl)
-    xbmc.log(lnk, level=xbmc.LOGNOTICE)
+    xbmc.log(lnk, level=xbmc.LOGINFO)
     urlnew=lnk+('|https://einthusan.ca&Referer=%s&User-Agent=%s'%(mainurl,'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36'))
     plugintools.play_resolved_url(urlnew)
     s.close()
