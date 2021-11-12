@@ -767,12 +767,12 @@ def cancel_subscription(params):
                             if check_expire['isExpire']:
                                 url=str(user_id)
                                 package=str(products[str(index)]['product_id'])
-                                title=products[str(index)]['title'].encode('utf-8')
+                                title=products[str(index)]['title']
                                 cancel_item(package,title,url)
                             else:
                                 url=str(user_id)
                                 package=str(products[str(index)]['product_id'])
-                                title=products[str(index)]['title'].encode('utf-8')
+                                title=products[str(index)]['title']
                                 cancel_item(package,title,url)
             else:
                 plugintools.add_item(title='No Active Subscriptions',url='',isPlayable=False,folder=False)
@@ -2284,7 +2284,7 @@ def show_series_files(params):
                                 xbmc.log('episode_number {} episode test  {}'.format(c['episode_number'],video['episode']))
                                 if int(c['episode_number']) == int(video['episode']) :
                                     thumbnail = c['poster']
-                                    plot=c['plot'].encode('utf-8')
+                                    plot=c['plot']
                                     break
                                 else :
                                     thumbnail = ''
