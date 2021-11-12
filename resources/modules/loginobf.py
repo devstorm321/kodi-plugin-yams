@@ -76,6 +76,6 @@ def login_info(s, refererurl):
         )
     except:
         traceback.print_exc()
-        return s, false
+        return s, False
 
     return s, True
