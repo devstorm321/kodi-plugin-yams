@@ -136,10 +136,10 @@ ACTION_NEXT_ITEM                                =        14     ## ?
 ACTION_BACKSPACE                                =       110     ## ?
 ## ################################################## ##
 ## ################################################## ##
-OverlayBorder=artp('blank1');
-OverlayBackground=artp('ContentPanel');
-hubLogo=artp('logo-rectangular3');
-#hubLogo=artp('logo_notice.png');
+OverlayBorder = artp('blank1');
+OverlayBackground = artp('ContentPanel');
+hubLogo = artp('logo-rectangular3');
+#hubLogo = artp('logo_notice.png');
 DefaultNoteImage=artp('blank1');
 DefaultSplitter="|||";
 DefaultUrl="http://astreamweb.com/intronews.txt";

@@ -1141,6 +1141,7 @@ def get_installedversion():
 ###       Advanced XML       ###
 ################################
 def _downloadOverride(url, oFile):
+    xbmc.log('_downloadOverride %s' % url, xbmc.LOGINFO)
     try:
         # Removing old file
         if os.path.exists(oFile):
@@ -1165,7 +1166,7 @@ def _downloadOverride(url, oFile):
         print('>>> traceback >>>')
         traceback.print_exc()
         print('<<< file error traceback end <<<')
-        xbmc.log('Write Error: %s' % oFile)
+        xbmc.log('Write Error: %s' % oFile, xbmc.LOGINFO)
         return False
 
 def ZeroCachingSetting():
