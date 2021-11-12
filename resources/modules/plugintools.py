@@ -363,7 +363,8 @@ def add_itemcontext(action="",title="",plot="",url="",thumbnail="",fanart="",ico
     xbmcplugin.setPluginFanart(int(sys.argv[1]),fanart)
 
     if plot :
-        plot = plot.replace("’"," ").encode('ascii', 'ignore');xbmc.log('corrige plot {}'.format(plot))
+        plot = plot.replace("’"," ")
+        xbmc.log('corrige plot {}'.format(plot))
     if url.startswith("plugin://"): 
         itemurl = url
         listitem.setProperty('IsPlayable','true')

@@ -47,13 +47,13 @@ for device in devices["mobiles"]:
         elif georesp["country"]["names"]["en"] != "":
             location = georesp["country"]["names"]["en"]
         if k == 0:
-            first = "{0} {1}".format(ip, location.encode('ascii', 'ignore').decode('ascii'))
+            first = "{0} {1}".format(ip, location)
             k = 1
         elif k == 1:
-            second = "{0} {1}".format(ip, location.encode('ascii', 'ignore').decode('ascii'))
+            second = "{0} {1}".format(ip, location)
             k = 2
         elif k == 2:
-            third = "{0} {1}".format(ip, location.encode('ascii', 'ignore').decode('ascii'))
+            third = "{0} {1}".format(ip, location)
             k = 3
 if k ==0 : dialog.ok("Active mobile devices", ' No mobile device active' )
 else : dialog.ok("Active mobile devices", first, second, third)
