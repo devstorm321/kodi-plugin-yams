@@ -87,7 +87,7 @@ def run():
             return
 
 def home(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     try :
         authenticated, status_code = __check_login()
         xbmc.log('Authenticated %s' % str(authenticated), xbmc.LOGINFO)
@@ -677,7 +677,7 @@ def astreamweb_update(params):
     updater.upgrade_astreamweb(xbmcvfs.translatePath(os.path.join(dataPath, "tmp.apk")))
 
 def account(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     xbmc.log('my account started')
     authenticated = __check_session()
     xbmc.log('authenticated de account {}'.format(authenticated))
@@ -734,7 +734,7 @@ def account(params):
 
 #cancel_subscription
 def cancel_subscription(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     xbmc.log('cancel subscription')
     items = list()
     subs = list()
@@ -837,7 +837,7 @@ def processCancelation(subscriptions):
 #########################################
 #########################################
 def history(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     username = plugintools.get_setting('username')
     password = plugintools.get_setting('password')
     dateavt = dt.date.today() - dt.timedelta(3*365/12)
@@ -906,7 +906,7 @@ def api_yamsonline_providers (params):
     xbmc.executebuiltin('Container.SetViewMode(50)')
 
 def show_favourites(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     authenticated = __check_session()
     if not authenticated:
         return  # dialog.ok('AstreamWeb Notice', message)
@@ -932,7 +932,7 @@ def show_favourites(params):
         xbmcplugin.endOfDirectory(int(sys.argv[1]))
 
 def show_iptv_favourite(params):#pagenum):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     authenticated = __check_session()
     if not authenticated:
         return
@@ -1000,7 +1000,7 @@ def play_iptv_favourite(params):#url, label, cid):
 #########################################
 ##############################################################################################################
 def personal2(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     authenticated = __check_session()
     if not authenticated:
         return
@@ -1033,7 +1033,7 @@ def personal2(params):
     #xbmcplugin.addSortMethod(int(sys.argv[1]), xbmcplugin.SORT_METHOD_LABEL)
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
 def personal2link(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     authenticated = __check_session()
     if not authenticated:
         return
@@ -1069,7 +1069,7 @@ def personal2link(params):
     #xbmcplugin.addSortMethod(int(sys.argv[1]), xbmcplugin.SORT_METHOD_LABEL)
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
 def personal(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     authenticated = __check_session()
     if not authenticated:
         return
@@ -1106,7 +1106,7 @@ def personal(params):
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
 
 def personallink(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     authenticated = __check_session()
     if not authenticated:
         return
@@ -1145,7 +1145,7 @@ def personallink(params):
 
 #########################################
 def latestMovies(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     authenticated = __check_session()
     if not authenticated:
         return
@@ -1217,11 +1217,9 @@ def latestMovies(params):
                            thumbnail=item['thumbnail'],fanart=item['fanart'],iconImage=item['iconImage'],page='0',contextmenu=context_men,folder=True)
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
 
-
-
 #
 def show_movie_files(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     id = params.get("url")
     page = params.get("page")
     authenticated = __check_session()
@@ -1322,8 +1320,7 @@ def show_movie_files(params):
         else:
             xbmcplugin.addSortMethod(int(sys.argv[1]), xbmcplugin.SORT_METHOD_EPISODE)
             xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
-            xbmc.sleep(10)
-            xbmc.executebuiltin('Container.SetViewMode(500)')
+
 
 def play_vod(params):
     urllink = params.get("url")
@@ -1358,7 +1355,7 @@ def play_vod1(params):
 
 #
 def show_langs(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     path = params.get('url')
     authenticated = __check_session()
     if not authenticated:
@@ -1393,7 +1390,7 @@ def show_langs(params):
 
 #####
 def show_sorting(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     path = params.get('url') 
     authenticated = __check_session()
     if not authenticated:
@@ -1455,7 +1452,7 @@ def show_sorting(params):
 #
 def show_movies(params):
     try:
-        xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+        xbmcplugin.setContent(int(sys.argv[1]), 'movies')
         path = params.get('url')
         #sorting = 'title,ASC'#
         title = params.get('title')
@@ -1530,7 +1527,7 @@ def show_movies(params):
 
 ####################### LiveTV #####################
 def show_livetv2_server(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     if not isauth_ok():
         return
     xbmc.log('show_livetv2_server started')
@@ -1560,7 +1557,7 @@ def show_livetv2_server(params):
 
 #####
 def show_hotstar_ori(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     if not isauth_ok():
         return
     response = urllib.request.urlopen(vijayVODUrl_ori).read().decode('utf-8')
@@ -1577,7 +1574,7 @@ def show_hotstar_ori(params):
 
 
 def show_hotstarlv1_ori(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     if not isauth_ok():
         return
     vurl = params.get('url')
@@ -1595,7 +1592,7 @@ def show_hotstarlv1_ori(params):
 
 
 def show_hotstarlv2_ori(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     if not isauth_ok():
         return
     vurl = params.get('url')
@@ -1612,7 +1609,7 @@ def show_hotstarlv2_ori(params):
 
 
 def show_hotstarlv3_ori(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     if not isauth_ok():
         return
     vurl = params.get('url')
@@ -1628,7 +1625,7 @@ def show_hotstarlv3_ori(params):
 
 
 def show_hotstarsublist_ori(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     vurl = params.get('url')
     agent = params.get('page')
     xbmc.log('__get_json show_hotstarplay vijayURL url: %s' % vurl)
@@ -1695,7 +1692,7 @@ def show_hotstarplayvideo(params):
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
 
 def show_indian_channels(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     if not isauth_ok():
         return
     username = plugintools.get_setting('username')
@@ -1750,13 +1747,13 @@ def play_indian_channel(params):#id, cat, iconimg, name):
 
 
 def show_eng_channels(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     if not isiptvauth_ok():
         return
     engchannels.show_english_channels(params)
 
 def catchup_providers(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     if not isauth_ok():
         return
     items = []
@@ -1781,7 +1778,7 @@ def catchup_providers(params):
 
 
 def catchupvod_lang(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     if not isauth_ok():
         return
     username = plugintools.get_setting('username')
@@ -1800,7 +1797,7 @@ def catchupvod_lang(params):
 
 
 def catchupvod_channels(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     vurl = params.get('url')
     if not isauth_ok():
         return
@@ -1815,7 +1812,7 @@ def catchupvod_channels(params):
 
 
 def catchupvod_dates(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     vurl = params.get('url')
     if not isauth_ok():
         return
@@ -1836,7 +1833,7 @@ def catchupvod_dates(params):
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
 
 def show_catchupvod_ori(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     vurl = params.get('url')
     agent = params.get('extra')
     xbmc.log('agent {}'.format(agent))
@@ -1881,14 +1878,14 @@ def secure_catchupvod_url(src_url):
 
 #catchup_providers/eng1
 def show_eng1(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     if not isiptvauth_ok():
         return
     asiptvs.asiptvs_vod()
 
 #catchup_providers/eng2
 def show_eng2l(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     for l in ascii_lowercase:
         plugintools.add_item(title=l.upper(),action='show_eng2',url=l)
 
@@ -1897,7 +1894,7 @@ def show_eng2l(params):
 
 #catchup_providers/eng2
 def show_eng2(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     lettre = params.get('url')
     if not isiptvauth_ok():
         return
@@ -1906,7 +1903,7 @@ def show_eng2(params):
 #########################################
 #getseries
 def getseries(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     authenticated = __check_session()
     if not isauth_ok():
         return
@@ -1985,7 +1982,7 @@ def getseries(params):
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
 
 def getseries3(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     authenticated = __check_session()
     if not isauth_ok():
         return
@@ -2064,7 +2061,7 @@ def getseries3(params):
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
 
 def getseries2(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     authenticated = __check_session()
     if not isauth_ok():
         return
@@ -2144,7 +2141,7 @@ def getseries2(params):
 
 #series
 def show_series(params):#(path, sorting, page):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     path = params.get('url')
     sorting = 'title,ASC'#params.get('title')+','+params.get('extra')
     page = params.get('page')
@@ -2217,7 +2214,7 @@ def show_series(params):#(path, sorting, page):
 
 #series_files v1
 def show_series_files(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     idx = params.get("url")
     page = params.get("page")
     authenticated = __check_session()
@@ -2277,7 +2274,7 @@ def show_series_files(params):
                 # show the episode listing for given season (=page)
                 else:
                     if video['season'] == page and not oneUrl:
-                        xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+                        xbmcplugin.setContent(int(sys.argv[1]), 'movies')
                         #xbmc.log('page {} show_series_files episode and not oneUrl{}'.format(page,video))
                         #xbmc.log('page {} show_series_files episode and not oneUrl{}'.format(page,video['episode']))
                         for item in data :
@@ -2356,7 +2353,7 @@ def show_series_files(params):
 ############################################
 #search
 def search(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     plugintools.add_item(title="Search by Movie", action='searchByName')
     plugintools.add_item(title="Search by Actor", action='searchByActor')
     plugintools.add_item(title="Search by Actress", action='searchByActress')
@@ -2368,7 +2365,7 @@ def search(params):
 
 #multiSearch/')
 def multiSearch(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     langs = scraper.get_langs()
     items = []
     plugintools.add_item(title="All", action='multiSearchLangs', url="-", thumbnail= __get_icon("ALL"))
@@ -2380,7 +2377,7 @@ def multiSearch(params):
 
 #multiSearchLangs
 def multiSearchLangs(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     path = params.get('url')
     plugintools.add_item(title='All', action='multiSearchYears', url=path)
     if path == "-":
@@ -2396,7 +2393,7 @@ def multiSearchLangs(params):
 
 #multiSearchYears
 def multiSearchYears(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     path = params.get('url')
     plugintools.add_item(title='All', action='multiSearchGenres', url=path)
     print(path)
@@ -2415,7 +2412,7 @@ def multiSearchYears(params):
 
 #multiSearchGenres
 def multiSearchGenres(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     path = params.get('url')
     plugintools.add_item(title="All", action='multiSearchType', url=path)
     if path == "-":
@@ -2428,7 +2425,7 @@ def multiSearchGenres(params):
 
 #multiSearchType
 def multiSearchType(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     path = params.get('url')
     plugintools.add_item(title="All", action='show_movies', url=path, extra="title,ASC", page="1")
     if path == "-":
@@ -2442,7 +2439,7 @@ def multiSearchType(params):
 
 #multiSearchActor
 def multiSearchActor(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     path = params.get('url')
     actors = scraper.ACTORS
     items = []
@@ -2460,7 +2457,7 @@ def multiSearchActor(params):
 
 #multiSearchActress
 def multiSearchActress(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     path = params.get('url')
     actresses = scraper.ACTRESSES
     items = []
@@ -2478,7 +2475,7 @@ def multiSearchActress(params):
 
 #searchByActor
 def searchByActor(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     actors = scraper.ACTORS
     items = []
     for actor in actors:
@@ -2493,7 +2490,7 @@ def searchByActor(params):
 
 #searchByActress/
 def searchByActress(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     actresses = scraper.ACTRESSES
     items = []
     for actress in actresses:
@@ -2505,7 +2502,7 @@ def searchByActress(params):
 
 
 def searchByName(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     authenticated = __check_session()
     if not authenticated:
         return  # dialog.ok('AstreamWeb Notice', message)
@@ -2567,7 +2564,7 @@ def searchByName(params):
 
 
 def show_letters(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     path = params.get('url')
     authenticated = __check_session()
     if not authenticated:
@@ -2601,7 +2598,7 @@ def show_letters(params):
 
 ###########################################
 def show_maintenance(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     plugintools.add_item(action="show_clearcache",title='Clear Cache',
                               thumbnail=__get_icon('clearcache'))
     plugintools.add_item(action="show_checkforupdate",title='Check For Updates',
@@ -2941,7 +2938,7 @@ def __get_per_page():
 #       return plugintools.get_setting('download_location') != ''
 
 #def show_downloads(params):
-#        xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+#        xbmcplugin.setContent(int(sys.argv[1]), 'movies')
 #       authenticated = __check_session()
 #       if not authenticated:
 #               return  # dialog.ok('AstreamWeb Notice', message)
@@ -3029,7 +3026,7 @@ def get_einthusan():
 
 #show_einthusan_categories
 def show_einthusan_categories(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     items = []
     languages = ["Hindi", "Tamil", "Telugu", "Malayalam", "Kannada", "Bengali", "Marathi", "Punjabi"]
     for lang in languages:
@@ -3041,7 +3038,7 @@ def show_einthusan_categories(params):
 
 #show_einthusan_inner_cats/<lang>/')
 def show_einthusan_inner_cats(params):#lang, bluray=False):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     lang = params.get("url")
     postUrl = 'lang=' + lang
     plugintools.add_item(action="show_einthusan_a_z",title='A-Z',thumbnail=__get_icon("einthusan_a_z"),url=lang,extra=postUrl)
@@ -3057,7 +3054,7 @@ def show_einthusan_inner_cats(params):#lang, bluray=False):
 
 #show_einthusan_a_z/<lang>/<post>")
 def show_einthusan_a_z(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     lang = params.get("url")
     post = params.get("extra")
 
@@ -3074,7 +3071,7 @@ def show_einthusan_a_z(params):
 
 #show_einthusan_years
 def show_einthusan_years(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     lang = params.get("url")
     post = params.get("extra")
     from datetime import date
@@ -3089,7 +3086,7 @@ def show_einthusan_years(params):
 
 #show_einthusan_featured
 def show_einthusan_featured(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     lang = params.get("url")
     post = params.get("extra")
     page_url = 'https://einthusan.ca/movie/browse/?lang=' + lang
@@ -3116,7 +3113,7 @@ def show_einthusan_featured(params):
 
 #show_einthusan_search
 def show_einthusan_search(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     lang = params.get("url")
     post = params.get("extra")
 
@@ -3154,7 +3151,7 @@ def get_einthusan_location():
 
 #show_einthusan_movies
 def show_einthusan_movies(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movie')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     page = params.get("page")
     post = params.get("extra")
     page=int(page)
