@@ -835,7 +835,7 @@ def processCancelation(subscriptions):
 #########################################
 #########################################
 def history(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
     username = plugintools.get_setting('username')
     password = plugintools.get_setting('password')
     dateavt = dt.date.today() - dt.timedelta(3*365/12)
@@ -1217,7 +1217,7 @@ def latestMovies(params):
 
 #
 def show_movie_files(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
     # xbmcplugin.setPluginCategory(int(sys.argv[1]), 'Folders')
     id = params.get("url")
     page = params.get("page")
