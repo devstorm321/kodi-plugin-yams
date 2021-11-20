@@ -233,8 +233,8 @@ def home(params):
             plugintools.add_item(action="show_maintenance",title="Maintenance Tools", thumbnail=__get_icon('maintenance'), folder=True)
 
         # 20 Add Link to Addon Settings
-        if plugintools.get_setting('settings') == 'true':
-            plugintools.add_item(action="show_settings",title="Settings", thumbnail=__get_icon('settings'), folder=False)
+        # if plugintools.get_setting('settings') == 'true':
+        #     plugintools.add_item(action="show_settings",title="Settings", thumbnail=__get_icon('settings'), folder=False)
 
     except Exception as e :
         traceback.print_exc()
@@ -1769,8 +1769,6 @@ def catchup_providers(params):
         plugintools.add_item(action='getseries3',title='Premium Indian TV series',thumbnail=__get_icon('hindi_movies_tv'),folder=True)
     if xbmc.getCondVisibility('Skin.HasSetting(HomeMenuNoPremiumButton)'):
         plugintools.add_item(action='show_eng1',title='Premium English VOD (Movies only)',thumbnail=__get_icon('evodm'),folder=True)
-    if xbmc.getCondVisibility('Skin.HasSetting(HomeMenuNoPremiumButton)'):
-        plugintools.add_item(action='show_eng2l',title='IPTV Provider TV series',url="70",thumbnail=__get_icon('evod'),folder=True)
     #if xbmc.getCondVisibility('!Skin.HasSetting(HomeMenuNoBasicButton)'):
         #plugintools.add_item(action='show_hotstar_ori',title='HotStar (US & CA Only)',thumbnail=__get_icon('hotstar'),url='HotStar',folder=True)
 
@@ -1879,7 +1877,7 @@ def secure_catchupvod_url(src_url):
 
 #catchup_providers/eng1
 def show_eng1(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
     if not isiptvauth_ok():
         return
     asiptvs.asiptvs_vod()
