@@ -448,13 +448,12 @@ def __check_login():
             authenticated, message, status_code = scraper.check_login(username, password, None)
         if status_code == 8:
             if dialog.ok('Subscription Status',
-                                     message,
-                                     'Please go to https://member.yamsonline.com login and signup for a package'):
+                                     message +
+                                     '\nPlease go to https://member.yamsonline.com login and signup for a package'):
                 xbmc.executebuiltin('ReplaceWindow(Videos, addons://sources/video/)')
         if status_code == 5:
             if dialog.ok('Attention Please',
-                                     message,
-                                     ''):
+                                     message):
                 xbmc.executebuiltin('ReplaceWindow(Videos, addons://sources/video/)')
         if status_code == 4:
             if dialog.yesno('Plugin Outdated',
@@ -468,9 +467,8 @@ def __check_login():
                 return False
         if status_code == 2 or status_code == 3:
             if dialog.ok('Invalid Device',
-                                            message,
-                                            '',
-                                            'Please remove a device from settings -> device specific'):
+                                            message +
+                                            '\nPlease remove a device from settings -> device specific'):
                 plugintools.open_settings_dialog()
                 exit()
             else:
