@@ -7,9 +7,9 @@ import xbmc, xbmcaddon, xbmcgui, xbmcplugin, xbmcvfs
 
 #import common
 ADDON_ID = 'plugin.video.yams'
-try: 
+try:
     ADDON_HANDLE = int(sys.argv[1])
-except: 
+except:
     ADDON_HANDLE = 0
 
 settings = xbmcaddon.Addon(id = ADDON_ID)
@@ -17,15 +17,15 @@ settings = xbmcaddon.Addon(id = ADDON_ID)
 ## ################################################## ##
 
 def gAI(t):
-    try: 
+    try:
         return settings.getAddonInfo(t)
-    except: 
+    except:
         return ""
 
-def show_settings(): 
+def show_settings():
     settings.openSettings()
 
-def eod(): 
+def eod():
     xbmcplugin.endOfDirectory(ADDON_HANDLE)
 ## ################################################## ##
 ## ################################################## ##
@@ -51,9 +51,9 @@ def note(title='', msg='', delay=5000, image=''):
     xbmc.executebuiltin( 'XBMC.Notification("%s","%s",%d,"%s")' % (title, msg, delay, image) )
 
 def SettingG(setting):
-    try: 
+    try:
         return settings.getSetting(setting)
-    except: 
+    except:
         return ""
 
 def SettingS(setting,value):
@@ -66,19 +66,19 @@ def art(f, fe=''):
     fe3='.gif'
     fe4='.wav'
     fe5='.txt'
-    if   fe1 in f: 
+    if   fe1 in f:
         f=f.replace(fe1,'')
         fe=fe1
-    elif fe2 in f: 
+    elif fe2 in f:
         f=f.replace(fe2,'')
         fe=fe2
-    elif fe3 in f: 
+    elif fe3 in f:
         f=f.replace(fe3,'')
         fe=fe3
-    elif fe4 in f: 
+    elif fe4 in f:
         f=f.replace(fe4,'')
         fe=fe4
-    elif fe5 in f: 
+    elif fe5 in f:
         f=f.replace(fe5,'')
         fe=fe5
     return xbmcvfs.translatePath(os.path.join(artPath,f + fe))
@@ -99,19 +99,19 @@ def OPEN_URL(url):
     return link
 
 def File_Open(path):
-    if os.path.isfile(path): ## File found.
+    if os.path.isfile(path):## File found.
         file = open(path, 'r')
         contents = file.read()
         file.close()
         return contents
     return '' ## File not found.
 
-def tfalse(r,d=False): ## Get True / False
+def tfalse(r,d=False):## Get True / False
     if (r.lower()=='true' ) or (r.lower()=='t') or (r.lower()=='y') or (r.lower()=='1') or (r.lower()=='yes'):
         return True
     elif (r.lower()=='false') or (r.lower()=='f') or (r.lower()=='n') or (r.lower()=='0') or (r.lower()=='no'):
         return False
-    else: return d
+    else:return d
 
 ## ################################################## ##
 ## ################################################## ##
@@ -142,7 +142,7 @@ DEFAULT_SPLITTER = "|||"
 DEFAULT_URL = "http://astreamweb.com/intronews.txt"
 
 
-class MyWindow(xbmcgui.WindowDialog): #xbmcgui.Window): ##xbmcgui.Window
+class MyWindow(xbmcgui.WindowDialog):#xbmcgui.Window):##xbmcgui.Window
     
     scr={}
     scr['L'] = 0
@@ -151,11 +151,11 @@ class MyWindow(xbmcgui.WindowDialog): #xbmcgui.Window): ##xbmcgui.Window
     scr['H'] = 720
 
     def __init__(self, noteType='t', noteMessage='', noteImage='', L=140, T=110, W=1000, H=500, Font='font14', TxtColor='0xFF64d1ff'):
-        if len(noteImage)==0: 
+        if len(noteImage)==0:
             noteImage=DefaultNoteImage
-        if   (noteType.lower()=='text')  or (noteType.lower()=='t'): 
+        if   (noteType.lower()=='text')  or (noteType.lower()=='t'):
             noteType='t'
-        elif (noteType.lower()=='image') or (noteType.lower()=='i'): 
+        elif (noteType.lower()=='image') or (noteType.lower()=='i'):
             noteType='i'
         self.noteType = noteType
         self.noteMessage = noteMessage
@@ -203,8 +203,8 @@ class MyWindow(xbmcgui.WindowDialog): #xbmcgui.Window): ##xbmcgui.Window
         #self.OlaySplash
         for z in [self.BG,self.ImgMessage,self.TxtMessage,self.iLogo,self.buttonRemindMe,self.buttonDismiss]:
             self.addControl(z);
-        #for z in [self.BG,self.ImgMessage,self.TxtMessage,self.OlayBrdr,self.buttonRemindMe,self.buttonDismiss]: self.addControl(z);
-        #for z in [self.BG,self.OlayBrdr,self.ImgMessage,self.TxtMessage,self.buttonRemindMe,self.buttonDismiss]: self.addControl(z);
+        #for z in [self.BG,self.ImgMessage,self.TxtMessage,self.OlayBrdr,self.buttonRemindMe,self.buttonDismiss]:self.addControl(z);
+        #for z in [self.BG,self.OlayBrdr,self.ImgMessage,self.TxtMessage,self.buttonRemindMe,self.buttonDismiss]:self.addControl(z);
         #self.OlayBrdr.setAnimations([('WindowOpen','effect=fade delay=0 time=0 start=0 end=70')]);
         #self.ImgMessage.setAnimations([('WindowOpen','effect=fade delay=0 time=0 start=0 end=70')]);
         #self.OlaySplash.setAnimations([('WindowOpen','effect=fade delay=0 time=8000 start=100 end=0')]);
@@ -238,7 +238,7 @@ class MyWindow(xbmcgui.WindowDialog): #xbmcgui.Window): ##xbmcgui.Window
             SettingS("noteType", self.noteType)
             SettingS("noteImage", self.noteImage)
             SettingS("noteMessage", self.noteMessage)
-        except: pass
+        except:pass
         ##CODE HERE##
         self.CloseWindow1st()
 
@@ -267,7 +267,7 @@ def FetchNews():
             if (info_location3B) > 0:
                 html = OPEN_URL(info_location3B)
                 print(info_location3B)
-            else: return DefaultReturn
+            else:return DefaultReturn
         except:
             return DefaultReturn
     else:
@@ -285,17 +285,17 @@ def FetchNews():
 def CheckNews(TypeOfMessage, NewImage, NewMessage, DoFromService = True):
     if (len(NewImage) > 0) or (len(NewMessage) > 0):
         if (tfalse(SettingG("notifications-on-startup")) is False) or (DoFromService is False):
-            if NewImage.lower()=="none": 
+            if NewImage.lower()=="none":
                 NewImage = ""
-            if NewMessage.lower()=="none": 
+            if NewMessage.lower()=="none":
                 NewMessage = ""
             OldnoteType = SettingG("noteType")
             OldnoteImage = SettingG("noteImage")
             OldnoteMessage = SettingG("noteMessage")
             OldnoteImage = OldnoteImage.replace(DefaultNoteImage,'')
-            if OldnoteImage.lower()=="none": 
+            if OldnoteImage.lower()=="none":
                 OldnoteImage=""
-            if OldnoteMessage.lower()=="none": 
+            if OldnoteMessage.lower()=="none":
                 OldnoteMessage=""
             print(['OLD',OldnoteType,OldnoteImage,OldnoteMessage]) 
             print(['NEW',TypeOfMessage,NewImage,NewMessage])
@@ -305,7 +305,7 @@ def CheckNews(TypeOfMessage, NewImage, NewMessage, DoFromService = True):
                 del TempWindow
             elif DoFromService is True:
                 return
-            else: 
+            else:
                 TempWindow = MyWindow(noteType = TypeOfMessage,noteMessage = NewMessage,noteImage = NewImage)
                 TempWindow.doModal()
                 del TempWindow
