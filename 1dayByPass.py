@@ -1,11 +1,7 @@
-__author__ =  "enc0der"
-
 import sys
-import logging
 import xbmc, xbmcaddon, xbmcgui
 import resources.modules.scraper as scraper
 
-logger = logging
 
 dialog = xbmcgui.Dialog()
 __settings__ = xbmcaddon.Addon(id="plugin.video.yams")
@@ -30,10 +26,11 @@ if password == "" or password is None:
 
 if dialog.yesno("Day Pass", "Would you like to activate day pass for 1 day"):
     bypass = scraper.get5DayBypass(username, password)
-    print(bypass)
+
     if bypass["success"]:
-        dialog.ok("Success", "You are using {0} out of 20 day pass".format(bypass["bypasses"]))
-        dialog.ok("Restart Required", "Please restart your device for day pass to take effect (shutdown icon -> exit)")
+        dialog.ok("Success", f'''You are using {0} out of 20 day pass'''.format(bypass["bypasses"]))
+        dialog.ok("Restart Required", 
+            "Please restart your device for day pass to take effect (shutdown icon -> exit)")
         xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
     else:
         dialog.ok("Failure", bypass["reason"])
