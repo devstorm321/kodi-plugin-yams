@@ -1,120 +1,117 @@
-import os,sys,urllib.request,urllib.parse,urllib.error,urllib.request,urllib.error,urllib.parse,re,time,datetime,string,io,logging,random,array
+import os
+import sys
+import urllib.request
+import urllib.parse
+import urllib.error
 import xbmc, xbmcaddon, xbmcgui, xbmcplugin, xbmcvfs
-from resources.modules.utils import ApiError, log
-#import common
-addon_id='plugin.video.yams'
-try: 
-    addon_handle=int(sys.argv[1])
-except: 
-    addon_handle=0
 
-settings=xbmcaddon.Addon(id=addon_id)
+#import common
+ADDON_ID = 'plugin.video.yams'
+try: 
+    ADDON_HANDLE = int(sys.argv[1])
+except: 
+    ADDON_HANDLE = 0
+
+settings = xbmcaddon.Addon(id = ADDON_ID)
 ## ################################################## ##
 ## ################################################## ##
+
 def gAI(t):
-    try: return settings.getAddonInfo(t)
-    except: return ""
-def show_settings(self): settings.openSettings()
-def eod(): xbmcplugin.endOfDirectory(addon_handle)
+    try: 
+        return settings.getAddonInfo(t)
+    except: 
+        return ""
+
+def show_settings(): 
+    settings.openSettings()
+
+def eod(): 
+    xbmcplugin.endOfDirectory(ADDON_HANDLE)
 ## ################################################## ##
 ## ################################################## ##
-icon=gAI('icon');
-fanart=gAI('fanart');
-addon_name=gAI('name');
-addon_path=gAI('path');
-addon_type=gAI('type');
-addon_author=gAI('author');
-addon_version=gAI('version');
-addon_stars=gAI('stars');
-addon_changelog=gAI('changelog');
-disclaimer=gAI('disclaimer');
-description=gAI('description');
-summary=gAI('summary');
-artPath=xbmcvfs.translatePath(os.path.join(addon_path,'art'))
+icon = gAI('icon')
+fanart = gAI('fanart')
+addon_name = gAI('name')
+addon_path = gAI('path')
+addon_type = gAI('type')
+addon_author = gAI('author')
+addon_version = gAI('version')
+addon_stars = gAI('stars')
+addon_changelog = gAI('changelog')
+disclaimer = gAI('disclaimer')
+description = gAI('description')
+summary = gAI('summary')
+artPath = xbmcvfs.translatePath(os.path.join(addon_path,'art'))
 ## ################################################## ##
 ## ################################################## ##
-def note(title='',msg='',delay=5000,image=''):
-    if len(image)==0: image+=icon
-    xbmc.executebuiltin('XBMC.Notification("%s","%s",%d,"%s")' % (title,msg,delay,image))
+
+def note(title='', msg='', delay=5000, image=''):
+    if len(image)==0:
+        image+=icon
+    xbmc.executebuiltin( 'XBMC.Notification("%s","%s",%d,"%s")' % (title, msg, delay, image) )
+
 def SettingG(setting):
-    try: return settings.getSetting(setting)
-    except: return ""
+    try: 
+        return settings.getSetting(setting)
+    except: 
+        return ""
+
 def SettingS(setting,value):
     settings.setSetting(id=setting,value=value)
-def deb(s,t): ### for Writing Debug Data to log file ###
-    #if (_debugging==True):
-    print((s+':  '+t))
-def debob(t): ### for Writing Debug Object to log file ###
-    #if (_debugging==True):
-    print(t)
-def nolines(t):
-    it=t.splitlines(); t=''
-    for L in it: t=t+L
-    t=((t.replace("\r","")).replace("\n",""))
-    return t
-def art(f,fe=''):
-    fe1='.png'; fe2='.jpg'; fe3='.gif'; fe4='.wav'; fe5='.txt';
-    if   fe1 in f: f=f.replace(fe1,''); fe=fe1;
-    elif fe2 in f: f=f.replace(fe2,''); fe=fe2;
-    elif fe3 in f: f=f.replace(fe3,''); fe=fe3;
-    elif fe4 in f: f=f.replace(fe4,''); fe=fe4;
-    elif fe5 in f: f=f.replace(fe5,''); fe=fe5;
-    return xbmcvfs.translatePath(os.path.join(artPath,f+fe))
-def artp(f,fe='.png'): return art(f,fe)
-def artj(f,fe='.jpg'): return art(f,fe)
-def addonPath(f,fe=''): return xbmcvfs.translatePath(os.path.join(addon_path,f+fe))
-def cFL(t,c='tan'): return '[COLOR '+c+']'+t+'[/COLOR]' ### For Coloring Text ###
-def popYN(title='',line1='',line2='',line3='',n='',y=''):
-    diag=xbmcgui.Dialog()
-    r=diag.yesno(title,line1,line2,line3,n,y)
-    if r: return r
-    else: return False
-    #del diag
-def popOK(msg="",title="",line2="",line3=""):
-    dialog=xbmcgui.Dialog()
-    #ok=dialog.ok(title, msg, line2, line3)
-    dialog.ok(title, msg, line2, line3)
+
+
+def art(f, fe=''):
+    fe1='.png'
+    fe2='.jpg'
+    fe3='.gif'
+    fe4='.wav'
+    fe5='.txt'
+    if   fe1 in f: 
+        f=f.replace(fe1,'')
+        fe=fe1
+    elif fe2 in f: 
+        f=f.replace(fe2,'')
+        fe=fe2
+    elif fe3 in f: 
+        f=f.replace(fe3,'')
+        fe=fe3
+    elif fe4 in f: 
+        f=f.replace(fe4,'')
+        fe=fe4
+    elif fe5 in f: 
+        f=f.replace(fe5,'')
+        fe=fe5
+    return xbmcvfs.translatePath(os.path.join(artPath,f + fe))
+
+def artp(f,fe='.png'):
+    return art(f,fe)
+
+def addonPath(f,fe=''):
+    return xbmcvfs.translatePath(os.path.join(addon_path,f + fe))
 
 def OPEN_URL(url):
-    req=urllib.request.Request(url)
-    req.add_header('User-Agent','Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3')
-    response=urllib.request.urlopen(req)
-    link=response.read().decode('utf-8')
+    req = urllib.request.Request(url)
+    req.add_header('User-Agent',
+        'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3')
+    response = urllib.request.urlopen( req )
+    link = response.read().decode('utf-8')
     response.close()
     return link
-def File_Save(path,data):
-    file=open(path,'w')
-    file.write(data)
-    file.close()
+
 def File_Open(path):
     if os.path.isfile(path): ## File found.
-        file=open(path, 'r')
-        contents=file.read()
+        file = open(path, 'r')
+        contents = file.read()
         file.close()
         return contents
-    else: return '' ## File not found.
+    return '' ## File not found.
+
 def tfalse(r,d=False): ## Get True / False
-    if   (r.lower()=='true' ) or (r.lower()=='t') or (r.lower()=='y') or (r.lower()=='1') or (r.lower()=='yes'): return True
-    elif (r.lower()=='false') or (r.lower()=='f') or (r.lower()=='n') or (r.lower()=='0') or (r.lower()=='no'): return False
+    if (r.lower()=='true' ) or (r.lower()=='t') or (r.lower()=='y') or (r.lower()=='1') or (r.lower()=='yes'):
+        return True
+    elif (r.lower()=='false') or (r.lower()=='f') or (r.lower()=='n') or (r.lower()=='0') or (r.lower()=='no'):
+        return False
     else: return d
-
-def OPEN_URL_NORMAL(url):
-    req = urllib.request.Request(url)
-    req.add_header('User-Agent', 'python-requests/2.9.1')
-    response = urllib.request.urlopen(req)
-    link=response.read()
-    response.close()
-    return link
-
-def addItem(name,url,mode,iconimage,fanart,description):
-    u=sys.argv[0]+"?url="+urllib.parse.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.parse.quote_plus(name)+"&fanart="+urllib.parse.quote_plus(fanart)
-    ok=True
-    liz=xbmcgui.ListItem(name)
-    liz.setArt({'icon':"DefaultFolder.png", 'thumb':'iconimage'})
-    liz.setInfo( type="Video", infoLabels={ "Title": name } )
-    liz.setProperty( "Fanart_Image", fanart )
-    ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=False)
-    return ok
 
 ## ################################################## ##
 ## ################################################## ##
@@ -136,57 +133,75 @@ ACTION_NEXT_ITEM                                =        14     ## ?
 ACTION_BACKSPACE                                =       110     ## ?
 ## ################################################## ##
 ## ################################################## ##
-OverlayBorder = artp('blank1');
-OverlayBackground = artp('ContentPanel');
-hubLogo = artp('logo-rectangular3');
-#hubLogo = artp('logo_notice.png');
-DefaultNoteImage=artp('blank1');
-DefaultSplitter="|||";
-DefaultUrl="http://astreamweb.com/intronews.txt";
+OverlayBorder = artp('blank1')
+OverlayBackground = artp('ContentPanel')
+hubLogo = artp('logo-rectangular3')
+#hubLogo = artp('logo_notice.png')
+DefaultNoteImage = artp('blank1')
+DEFAULT_SPLITTER = "|||"
+DEFAULT_URL = "http://astreamweb.com/intronews.txt"
+
 
 class MyWindow(xbmcgui.WindowDialog): #xbmcgui.Window): ##xbmcgui.Window
     
-    scr={}; scr['L']=0; scr['T']=0; scr['W']=1280; scr['H']=720;
+    scr={}
+    scr['L'] = 0
+    scr['T'] = 0
+    scr['W'] = 1280
+    scr['H'] = 720
 
-    def __init__(self,noteType='t',noteMessage='',noteImage='',L=140,T=110,W=1000,H=500,Font='font14',TxtColor='0xFF64d1ff'):
+    def __init__(self, noteType='t', noteMessage='', noteImage='', L=140, T=110, W=1000, H=500, Font='font14', TxtColor='0xFF64d1ff'):
         if len(noteImage)==0: 
             noteImage=DefaultNoteImage
         if   (noteType.lower()=='text')  or (noteType.lower()=='t'): 
             noteType='t'
         elif (noteType.lower()=='image') or (noteType.lower()=='i'): 
             noteType='i'
-        self.noteType=noteType
-        self.noteMessage=noteMessage
-        self.noteImage=noteImage
-        self.Font=Font
-        self.TxtColor=TxtColor;
+        self.noteType = noteType
+        self.noteMessage = noteMessage
+        self.noteImage = noteImage
+        self.Font = Font
+        self.TxtColor = TxtColor;
         ## ### ##
         self.background=OverlayBackground
         #artp('black1');
-        self.BG=xbmcgui.ControlImage( L,T,W,H,self.background,aspectRatio=0,colorDiffuse='0xFF3030FF' )
+        self.BG = xbmcgui.ControlImage( L,T,W,H,self.background,aspectRatio=0,colorDiffuse='0xFF3030FF' )
         #self.OlayBrdr=xbmcgui.ControlImage(L,T,W,H,OverlayBorder,aspectRatio=0);
         #self.OlaySplash=xbmcgui.ControlImage(L,T,W,H,icon,aspectRatio=0);
-        iLogoW=85; iLogoH=80;
+        iLogoW=85
+        iLogoH=80
         self.iLogo=xbmcgui.ControlImage( int(L + W/2  - iLogoW / 2 ), T + 10, iLogoW, iLogoH, hubLogo, aspectRatio=0 )
         ## ### ##
         ###L2=L+110; T2=T+130; W2=W-(T2-T)-90; H2=H-(L2-L)-110; #L3=L2+5; T3=T2+5; W3=W2-18; H3=H2-10;
         ##L2=L+87; T2=T+80; W2=W-(T2-T)-96; H2=H-(L2-L)-74; L3=L2+5; T3=T2+60; W3=W2-18; H3=H2-5-60;
         #L2=L+67; T2=T+60; W2=W-(T2-T)-96; H2=H-(L2-L)-74;
-        L2=200; T2=200; W2=880; H2=340;
-        L3=L2+5; T3=T2+60; W3=W2-18; H3=H2-5-60;
+        L2=200
+        T2=200
+        W2=880
+        H2=340
+        L3=L2+5
+        T3=T2+60
+        W3=W2-18
+        H3=H2-5-60
         self.ImgMessage=xbmcgui.ControlImage(L2,T2,W2,H2,self.noteImage,aspectRatio=0)
         self.TxtMessage=xbmcgui.ControlTextBox(L2+5,T2,W2-10,H2,font=self.Font,textColor=self.TxtColor)
         #self.TxtMessage=xbmcgui.ControlTextBox(L3,T3,W3,H3,font=self.Font,textColor=self.TxtColor);
         #print [self.background,OverlayBorder,self.noteImage]
         ## ### ##
         focus=artp('button-focus_lightblue'); nofocus=artp('button-focus_grey');
-        w1=120; h1=35; w2=160; h2=35; spacing1=20;
-        l2=L+W-spacing1-w2; t2=T+H-h2-spacing1;
-        l1=L+W-spacing1-w2-spacing1-w1; t1=T+H-h1-spacing1;
+        w1=120
+        h1=35
+        w2=160
+        h2=35
+        spacing1=20
+        l2=L+W-spacing1-w2
+        t2=T+H-h2-spacing1
+        l1=L+W-spacing1-w2-spacing1-w1
+        t1=T+H-h1-spacing1
         self.buttonDismiss=xbmcgui.ControlButton(l1,t1,w1,h1,"Dismiss",textColor="0xFF000000",focusedColor="0xFF000000",alignment=2,focusTexture=focus,noFocusTexture=nofocus)
         self.buttonRemindMe=xbmcgui.ControlButton(l2,t2,w2,h2,"Remind Later",textColor="0xFF000000",focusedColor="0xFF000000",alignment=2,focusTexture=focus,noFocusTexture=nofocus)
         #self.OlaySplash
-        for z in [self.BG,self.ImgMessage,self.TxtMessage,self.iLogo,self.buttonRemindMe,self.buttonDismiss]: 
+        for z in [self.BG,self.ImgMessage,self.TxtMessage,self.iLogo,self.buttonRemindMe,self.buttonDismiss]:
             self.addControl(z);
         #for z in [self.BG,self.ImgMessage,self.TxtMessage,self.OlayBrdr,self.buttonRemindMe,self.buttonDismiss]: self.addControl(z);
         #for z in [self.BG,self.OlayBrdr,self.ImgMessage,self.TxtMessage,self.buttonRemindMe,self.buttonDismiss]: self.addControl(z);
@@ -207,14 +222,17 @@ class MyWindow(xbmcgui.WindowDialog): #xbmcgui.Window): ##xbmcgui.Window
         ## ### ##
         self.TxtMessage.setText(self.noteMessage)
         self.setFocus(self.buttonRemindMe)
+
     def doRemindMeLater(self):
         try:
             SettingS("noteType",self.noteType)
             SettingS("noteImage","")
             SettingS("noteMessage","")
-        except: pass
+        except:
+            pass
         ##CODE HERE##
         self.CloseWindow1st()
+
     def doDismiss(self):
         try:
             SettingS("noteType", self.noteType)
@@ -223,85 +241,58 @@ class MyWindow(xbmcgui.WindowDialog): #xbmcgui.Window): ##xbmcgui.Window
         except: pass
         ##CODE HERE##
         self.CloseWindow1st()
-    def onAction(self,action):
-        try: F=self.getFocus()
-        except: F=False
-        if   action == ACTION_PREVIOUS_MENU: 
-            self.doRemindMeLater()
-        elif action == ACTION_NAV_BACK: 
-            self.doRemindMeLater()
-        elif action == ACTION_SELECT_ITEM: 
-            self.doDismiss()
-        else:
-            try:
-                if not F==self.buttonRemindMe:
-                    self.setFocus(self.buttonDismiss);
-            except: pass
-    def onControl(self,control):
-        if   control==self.buttonRemindMe: 
-            self.doRemindMeLater()
-        elif control== self.buttonDismiss: 
-            self.doDismiss()
-        else:
-            try:
-                self.setFocus(self.buttonRemindMe);
-            except: pass
-    #def onInit(self): pass
-    #def onClick(self,control): pass
-    #def onControl(self,control): pass
-    #def onFocus(self,control): pass
-    #def onAction(self,action): pass
+
     def CloseWindow1st(self):
-        ##CODE HERE##
         self.close()
 ## ################################################## ##
 ## ################################################## ##
+
 DefaultReturn=["",""]
+
 def FetchNews():
-    NewImage=""
-    NewMessage=""
+    NewImage = ""
+    NewMessage = ""
     info_location = addonPath("test.txt")
     info_location3 = addonPath("url.txt")
-    info_location2 = DefaultUrl;
-    if os.path.isfile(info_location)==True:
+    info_location2 = DEFAULT_URL
+    if os.path.isfile(info_location):
         try:
             html = File_Open(info_location)
             print(info_location)
-        except: 
+        except:
             return DefaultReturn
-    elif os.path.isfile(info_location3)==True:
+    elif os.path.isfile(info_location3):
         try:
-            info_location3B=File_Open(info_location3).strip()
+            info_location3B = File_Open(info_location3).strip()
             if (info_location3B) > 0:
                 html = OPEN_URL(info_location3B)
                 print(info_location3B)
             else: return DefaultReturn
-        except: 
+        except:
             return DefaultReturn
     else:
         try:
             html = OPEN_URL(info_location2)
             print(info_location2)
-        except: 
+        except:
             return DefaultReturn
 
-    if DefaultSplitter in html:
-        NewImage  =html.split(DefaultSplitter)[0].strip()
-        NewMessage=html.split(DefaultSplitter)[1].strip()
+    if DEFAULT_SPLITTER in html:
+        NewImage = html.split(DEFAULT_SPLITTER)[0].strip()
+        NewMessage = html.split(DEFAULT_SPLITTER)[1].strip()
     return (NewImage,NewMessage)
 
-def CheckNews(TypeOfMessage,NewImage,NewMessage,DoFromService=True):
+def CheckNews(TypeOfMessage, NewImage, NewMessage, DoFromService = True):
     if (len(NewImage) > 0) or (len(NewMessage) > 0):
-        debob(["notifications-on-startup",tfalse(SettingG("notifications-on-startup")),"DoFromService",DoFromService])
-        if (tfalse(SettingG("notifications-on-startup"))==False) or (DoFromService==False):
+        if (tfalse(SettingG("notifications-on-startup")) is False) or (DoFromService is False):
             if NewImage.lower()=="none": 
-                NewImage=""
+                NewImage = ""
             if NewMessage.lower()=="none": 
-                NewMessage=""
-            OldnoteType=SettingG("noteType")
-            OldnoteImage=SettingG("noteImage")
-            OldnoteMessage=SettingG("noteMessage")
-            OldnoteImage=OldnoteImage.replace(DefaultNoteImage,'')
+                NewMessage = ""
+            OldnoteType = SettingG("noteType")
+            OldnoteImage = SettingG("noteImage")
+            OldnoteMessage = SettingG("noteMessage")
+            OldnoteImage = OldnoteImage.replace(DefaultNoteImage,'')
             if OldnoteImage.lower()=="none": 
                 OldnoteImage=""
             if OldnoteMessage.lower()=="none": 
@@ -309,16 +300,12 @@ def CheckNews(TypeOfMessage,NewImage,NewMessage,DoFromService=True):
             print(['OLD',OldnoteType,OldnoteImage,OldnoteMessage]) 
             print(['NEW',TypeOfMessage,NewImage,NewMessage])
             if (not OldnoteImage==NewImage) or (not OldnoteMessage==NewMessage):
-                TempWindow=MyWindow(noteType=TypeOfMessage,noteMessage=NewMessage,noteImage=NewImage)
+                TempWindow = MyWindow(noteType = TypeOfMessage,noteMessage = NewMessage,noteImage = NewImage)
                 TempWindow.doModal()
-                del TempWindow;
-            elif DoFromService==True: 
+                del TempWindow
+            elif DoFromService is True:
                 return
             else: 
-                TempWindow=MyWindow(noteType=TypeOfMessage,noteMessage=NewMessage,noteImage=NewImage)
+                TempWindow = MyWindow(noteType = TypeOfMessage,noteMessage = NewMessage,noteImage = NewImage)
                 TempWindow.doModal()
-                del TempWindow;
-
-
-## ################################################## ##
-## ################################################## ##
+                del TempWindow
