@@ -27,7 +27,7 @@ login_infos = "&username=" + username + "&password=" + password
 
 #show_english_channels
 def show_english_channels(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movies4')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
     items = []
     url = base
     response = urlopen(url).read().decode('utf-8')
@@ -48,7 +48,7 @@ def show_english_channels(params):
 
 #show_english_channels_items
 def show_english_channels_items(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     is_for_adult = params.get('page')
     category_id = params.get('url')
     if is_for_adult == 'True' :

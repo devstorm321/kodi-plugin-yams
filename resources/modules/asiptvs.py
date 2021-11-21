@@ -36,11 +36,10 @@ def asiptvs_vod():
             plugintools.add_item(action='asiptvs_vod_videos' ,title=item["category_name"],url = item["category_id"])
 
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
-    xbmc.executebuiltin('Container.SetViewMode(50)')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
 
 #('/asiptvs_vod_videos/
 def asiptvs_vod_videos(params):#category_id):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movies4')
     category_id = params.get('url')
     title = params.get('title')
     items = []
@@ -52,6 +51,7 @@ def asiptvs_vod_videos(params):#category_id):
         if 'English' in title :
             for l in ascii_lowercase:
                 plugintools.add_item(title=l.upper(),action='asiptvs_vod_eng',url=category_id)
+            xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
         else :
             items = sorted(json_data, key=lambda k: k['name'], reverse=False)
             for item in items:
@@ -61,11 +61,11 @@ def asiptvs_vod_videos(params):#category_id):
                 if item["stream_icon"] == None :  iconImage = ''
                 plugintools.add_item(action="asiptvs_play_stream",title=label,url = url,thumbnail=iconImage,
                                      isPlayable=True)
+            xbmcplugin.setContent(int(sys.argv[1]), 'movies')
 
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
 
 def asiptvs_vod_eng(params):#category_id):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movies4')
     category_id = params.get('url')
     let = params.get('title').lower()
     items = []
@@ -86,7 +86,7 @@ def asiptvs_vod_eng(params):#category_id):
                                  isPlayable=True)
 
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
-
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
 
 def asiptvs_vod_videos2(category_id):
     items = []
@@ -105,7 +105,7 @@ def asiptvs_vod_videos2(category_id):
                                  isPlayable=True)
 
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
-    xbmc.executebuiltin('Container.SetViewMode(500)')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
 
 
 def asiptvs_vod_videos2l(category_id,let):
@@ -127,6 +127,7 @@ def asiptvs_vod_videos2l(category_id,let):
                                  isPlayable=True)
 
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
 
 def asiptvs_play_stream(params):#url, label):
     url = params.get('url')
