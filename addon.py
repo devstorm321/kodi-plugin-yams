@@ -1027,7 +1027,7 @@ def personal(params):
     username = plugintools.get_setting("username")
     password = plugintools.get_setting("password")
 
-    url = f'''http://api.astreamweb.com/listmovie.php?username=%s'''.format(username)
+    url = f'''http://api.astreamweb.com/listmovie.php?username={0}'''.format(username)
     source = requests.get(url).content
 
     try :
