@@ -46,7 +46,7 @@ dialog = xbmcgui.Dialog()
 cookie_file = os.path.join(os.path.join(dataPath, ''), 'snhdcookie.lwp')
 agentType = '0'
 
-vijayVODUrl_ori = f'''http://api.yamsonline.com/astream?name=hotstarnew&username={0}&password={1}'''.format(username, password)
+vijayVODUrl_ori = f'''http://api.yamsonline.com/astream?name=hotstarnew&username={username}&password={password}'''
 
 importlib.reload(sys)
 # sys.setdefaultencoding('utf8') # deprecated in python3
@@ -81,8 +81,8 @@ def home(params):
 
     try :
         authenticated, status_code = __check_login()
-        xbmc.log(f'''Authenticated {0}'''.format(str(authenticated)), xbmc.LOGINFO)
-        xbmc.log(f'''Status {0}'''.format(status_code), xbmc.LOGINFO)
+        xbmc.log(f'''Authenticated {authenticated}''', xbmc.LOGINFO)
+        xbmc.log(f'''Status {status_code}''', xbmc.LOGINFO)
 
         if ((plugintools.get_setting('myaccount') == 'true') and authenticated) or status_code == 4 or status_code == 5 or status_code == 8:
             plugintools.add_item(action="account",title="My Account", thumbnail=__get_icon('account'), folder=True)
@@ -188,11 +188,11 @@ def home(params):
 def __get_icon(title):
     title = title.replace(' ', '_')
     icon_path = xbmcvfs.translatePath(
-        os.path.join(Path, 'resources', 'images',f'''{0}.png'''.format(title)))
+        os.path.join(Path, 'resources', 'images',f'''{title}.png'''))
 
     if os_path.isfile(icon_path):
         return icon_path
-    xbmc.log( f'''iconImage for "{0}" does not exist!'''.format(title) )
+    xbmc.log( f'''iconImage for "{title}" does not exist!''')
     return 'DefaultFolder.png'
 
 def register_username():
@@ -346,7 +346,7 @@ def __check_login():
                         'name_f': user['name_f'],
                         'name_l': user['name_l']}
                 result = memberutils.amemberCommand(data)
-                xbmc.log(f'''check_login user = memberutils.captureUserInfo result ={0}'''.format(result))
+                xbmc.log(f'''check_login user = memberutils.captureUserInfo result ={result}''')
                 if result['status']:
                     plugintools.set_setting('username', user['username'])
                     plugintools.set_setting('password', user['pass'])
@@ -354,20 +354,20 @@ def __check_login():
                     username = user['username']
                     password = user['pass']
                 else:
-                    xbmc.log(f'''Error: {0}'''.format(result['reason']))
+                    xbmc.log(f'''Error: {result['reason']}''')
             else:
                 show_restart()
                 return (False, status_code)
 
     if plugintools.get_setting('session'):
         authenticated, message, status_code = scraper.check_login(username, password, plugintools.get_setting('session'))
-        xbmc.log(f'''check_login session ok =authenticated {0} ,mess {1}, status_code {2}'''.format(authenticated, message, status_code))
+        xbmc.log(f'''check_login session ok =authenticated {authenticated} ,mess {message}, status_code {status_code}''')
     else:
         authenticated, message, status_code = scraper.check_login(username, password, None)
-        xbmc.log(f'''check_login session no =authenticated {0} ,mess {1}, status_code {2}'''.format(authenticated, message, status_code))
+        xbmc.log(f'''check_login session no =authenticated {authenticated} ,mess {message}, status_code {status_code}''')
 
     status_code = int(status_code)
-    xbmc.log(f'''authenticated {0}, status_code={1}'''.format(authenticated,status_code))
+    xbmc.log(f'''authenticated {authenticated}, status_code={status_code}''')
     # xbmc.log('message {}  '.format(message))
     if not authenticated:
         # Login check in the backend also does a hash digest check. If
@@ -419,8 +419,8 @@ def __check_login():
     if message:
         if re.findall(r"([a-fA-F\d]{32})", message):
             plugintools.set_setting('session', scraper.get_mac())
-            xbmc.log(f'''check_login message scraper.get_mac()={0}'''.format(scraper.get_mac()))
-            xbmc.log(f'''Active SID: {0}'''.format(plugintools.get_setting('session')))
+            xbmc.log(f'''check_login message scraper.get_mac()={scraper.get_mac()}''')
+            xbmc.log(f'''Active SID: {plugintools.get_setting('session')}''')
 
     if authenticated:
         if xbmc.getCondVisibility("System.Platform.Android") == 1:
@@ -478,7 +478,7 @@ def __check_login():
                 print('>>> traceback starts >>>')
                 traceback.print_exc()
                 print('<<< traceback end <<<')
-        xbmc.log(f'''usernamePath {0}'''.format(usernamePath))
+        xbmc.log(f'''usernamePath {usernamePath}''')
         
         # Check first run
         path = xbmcvfs.translatePath(os.path.join('special://home/userdata', ''))
@@ -532,15 +532,14 @@ def __check_session():
     try:
         session = plugintools.get_setting('session')
     except:
-        xbmc.log('check_session() session =vide')
+        xbmc.log('check_session() session error')
 
     username = plugintools.get_setting('username')
     password = plugintools.get_setting('password')
     valid_sess, message, status_code = scraper.check_session(username, password,session)
-    xbmc.log(f'''check_session() resultat : valid_sess {0} , message = {1}, status_code = {2}'''
-                                                        .format(valid_sess,message, status_code))
+    xbmc.log(f'''check_session() resultat : valid_sess {valid_sess} , message = {message}, status_code = {status_code}''')
     if not valid_sess:
-        xbmc.log(f'''check_session not valid session={0}'''.format(valid_sess))
+        xbmc.log(f'''check_session not valid session={valid_sess}''')
         path = xbmcvfs.translatePath(os.path.join('special://home/userdata', ''))
         configFile1 = os.path.join(path, 'astreamweb.config')
         configUrl1 = 'https://astreamweb.com/kodi/astreamweb.config'
@@ -564,7 +563,7 @@ def __check_session():
 
     plugintools.set_setting('session', scraper.get_mac())
     session = plugintools.get_setting('session')
-    xbmc.log(f'''__check_session {0}'''.format(session))
+    xbmc.log(f'''__check_session {session}''')
     return True
 
 
@@ -577,7 +576,7 @@ def show_checkforupdate(params):
 
 def isauth_ok():
     authenticated = __check_session()
-    xbmc.log(f'''isauth_ok authenticated = {0}'''.format(authenticated))
+    xbmc.log(f'''isauth_ok authenticated = {authenticated}''')
     if not authenticated:
         return False
     xbmc.log('show_tv_streams started')
@@ -615,7 +614,7 @@ def account(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
     xbmc.log('my account started')
     authenticated = __check_session()
-    xbmc.log(f'''authenticated de account {0}'''.format(authenticated))
+    xbmc.log(f'''authenticated de account {authenticated}''')
 
     if not authenticated:
         return  # dialog.ok('AstreamWeb Notice', message)
@@ -657,7 +656,7 @@ def account(params):
                 plugintools.set_setting('username', user['username'])
                 plugintools.set_setting('password', user['pass'])
             else:
-                xbmc.log(f'''Error: {0}'''.format(result['reason']))
+                xbmc.log(f'''Error: {result['reason']}''')
         else:
             show_restart()
             return
@@ -779,8 +778,8 @@ def history(params):
     username = plugintools.get_setting('username')
     password = plugintools.get_setting('password')
     dateavt = dt.date.today() - dt.timedelta(3*365/12)
-    vurl = f'''http://169.55.113.138/api/stat/?key=yamsdagr8&action=user_history&username={0}&from_date={1}&password={1}'''.format(username,dateavt,password)
-    xbmc.log(f'''history url {0}'''.format(vurl))
+    vurl = f'''http://169.55.113.138/api/stat/?key=yamsdagr8&action=user_history&username={username}&from_date={dateavt}&password={password}'''
+    xbmc.log(f'''history url {vurl}''')
     response = urllib.request.urlopen(vurl).read().decode('utf-8')
     json_data = json.loads(response)
     data_content = json_data["data"]
@@ -799,8 +798,8 @@ def history(params):
         if item['film_id'] == 0 :
             if 'mp4' in label :
                 vod = label.replace('\\','')
-                vurl = f'''http://api.yamsonline.com/playvod?username={0}&password={1}&name=media/{2}'''.format(username,password,vod)
-                xbmc.log(f'''history VOD {0}'''.format(vurl))
+                vurl = f'''http://api.yamsonline.com/playvod?username={username}&password={password}&name=media/{vod}'''
+                xbmc.log(f'''history VOD {vurl}''')
 
                 plugintools.add_item(action="play_vod",title=title,url = vurl,
                           thumbnail='',isPlayable = True,folder = False)
@@ -829,7 +828,7 @@ def api_yamsonline_providers(params):
     username = plugintools.get_setting('username')
     api_digest = scraper.digest
     sourceurl = "https://api.yamsonline.com/api?sort=added%2CDESC&task=movies&option=com_jsonapi&format=json&without_files=1&version=v2&user=" + username + "&page=" + pagenum + "&" + action + "=1&digest=" + api_digest
-    xbmc.log(f'''api_yamsonline_providers url: {0}'''.format(sourceurl))
+    xbmc.log(f'''api_yamsonline_providers url: {sourceurl}''')
     response = urllib.request.urlopen(sourceurl).read().decode('utf-8')
     json_data = json.loads(response)
     data_pagination = json_data["pagination"]
@@ -909,7 +908,7 @@ def play_iptv_favourite(params): #url, label, cid):
         html_content = response.read()
         #print(html)
         USER_AGENT = "Opera/9.80 (Linux armv7l; InettvBrowser/2.2 (00014A;SonyDTV115;0002;0100) KDL42W650A; CC/GRC) Presto/2.12.362 Version/12.11"
-        play1 = f'''{0}?|User-Agent={1}'''.format(html_content, USER_AGENT)
+        play1 = f'''{html_content}?|User-Agent={USER_AGENT}'''
         plugintools.play_resolved_url(play1)
 
         time.sleep(3)
@@ -951,7 +950,7 @@ def personal2(params):
     source = requests.get(url).content
     try :
         json_data = json.loads(source)["data"]
-        xbmc.log(f'''personal {0}'''.format(json_data))
+        xbmc.log(f'''personal {json_data}''')
     except Exception as e :
         if 'KeyError' in str(e) :
             xbmcgui.Dialog().ok(
@@ -961,14 +960,14 @@ def personal2(params):
         try :
             title = i["title"]
             thumbnail = i["poster_url"].replace('\\','')
-            xbmc.log(f'''personal title {0}, url {1}'''.format(title,url))
+            xbmc.log(f'''personal title {title}, url {url}''')
             plugintools.add_item(action='personal2link',
                                 page=str(i["movie_id"]),
                                 title=title,
                                 thumbnail=thumbnail)
 
         except Exception as e :
-            xbmc.log(f'''personal error {0}'''.format(repr(e)))
+            xbmc.log(f'''personal error {repr(e)}''')
             if 'list index out of range' in str(e) :
                 pass #plugintools.add_item(action='', url='',title=i)
 
@@ -986,7 +985,7 @@ def personal2link(params):
 
     source = requests.get(url).content
     json_data = json.loads(source)["data"]
-    xbmc.log(f'''personal {0}'''.format(json_data))
+    xbmc.log(f'''personal {json_data}''')
     page = params.get('page')
     
     for i in json_data :
@@ -998,14 +997,14 @@ def personal2link(params):
             for x in i["files"]:
                 name = x["name"]
                 sname  = name.split('.')[-1]
-                xbmc.log(f'''personal sname {0}'''.format(name))
+                xbmc.log(f'''personal sname {name}''')
                 if (("mkv" == sname ) or ("mp4" == sname )) or (("m4v" == sname ) or  (sname == "avi")):
                     if i["radarr"]:
                         url = 'https://api.yamsonline.com/playpersonal?id=%s&title=%s&username=%s&password=%s&name=%s'%(page,urllib.parse.quote_plus(path11.encode('utf-8')),username,password,urllib.parse.quote_plus(name.encode('utf-8')))
                     else :
                         url = 'https://api.yamsonline.com/playmovie?id=%s&username=%s&password=%s&name=%s'%(page,username,password,urllib.parse.quote(name))
 
-                    xbmc.log(f'''personallink title {0} url {1}'''.format(title,url))
+                    xbmc.log(f'''personallink title {title} url {url}''')
                     plugintools.add_item(action='play_vod',
                         url=url,
                         title=name,
@@ -1027,30 +1026,31 @@ def personal(params):
     username = plugintools.get_setting("username")
     password = plugintools.get_setting("password")
 
-    url = f'''http://api.astreamweb.com/listmovie.php?username={0}'''.format(username)
+    url = f'''http://api.astreamweb.com/listmovie.php?username={username}'''
     source = requests.get(url).content
-
+    
+    # xbmc.log(f'''personal data url:{url}, resp: {source}''')
     try :
         json_data = json.loads(source)["data"]
-        xbmc.log(f'''personal {0}'''.format(json_data))
+        xbmc.log(f'''personal data:{json_data}''')
     except KeyError  :
         xbmcgui.Dialog().ok("AstreamWeb Notice",
             "No Movies found in Watchlist or you have not signed up for On Demand feature")
         return
     except Exception as e:
-        xbmc.log(f'''personal error {0}'''.format(repr(e)))
+        xbmc.log(f'''personal error {repr(e)}''')
         return
     for i in json_data:
         try:
             title = i["title"]
             thumbnail = i["poster_url"].replace('\\','')
-            xbmc.log(f'''personal  title {0} url {1}'''.format(title,url))
+            xbmc.log(f'''personal  title {title} url {url}''')
             plugintools.add_item(action='personallink',
                 page=str(i["movie_id"]),title=title,thumbnail=thumbnail)
 
 
         except Exception as e:
-            xbmc.log(f'''personal error {0}'''.format(repr(e)))
+            xbmc.log(f'''personal error {repr(e)}''')
             if 'list index out of range' in str(e) :
                 pass #plugintools.add_item(action='', url='',title=i)
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)

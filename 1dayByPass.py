@@ -28,7 +28,7 @@ if dialog.yesno("Day Pass", "Would you like to activate day pass for 1 day"):
     bypass = scraper.get5DayBypass(username, password)
 
     if bypass["success"]:
-        dialog.ok("Success", f'''You are using {0} out of 20 day pass'''.format(bypass["bypasses"]))
+        dialog.ok("Success", f'''You are using {bypass["bypasses"]} out of 20 day pass''')
         dialog.ok("Restart Required", 
             "Please restart your device for day pass to take effect (shutdown icon -> exit)")
         xbmc.executebuiltin("XBMC.ActivateWindow(Home)")

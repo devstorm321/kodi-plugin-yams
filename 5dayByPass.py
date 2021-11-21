@@ -30,7 +30,7 @@ if dialog.yesno("Day Pass", "Would you like to activate day pass for 5 days"):
     print(bypass)
     if bypass["success"]:
         dialog.ok("Success", 
-            f'''You are using {0} out of 3, 5 Day passes.'''.format(bypass["bypasses"]))
+            f'''You are using {bypass["bypasses"]} out of 3, 5 Day passes.''')
         dialog.ok("Restart Required", 
             "Please restart your device for day pass to take effect (shutdown icon -> exit)")
     else:
