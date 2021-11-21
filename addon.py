@@ -843,7 +843,8 @@ def api_yamsonline_providers(params):
             plugintools.add_item(action='api_yamsonline_providers',title="Next page...",
                                  page = pagenum + 1, extra=action)
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
-    xbmc.executebuiltin('Container.SetViewMode(50)')
+    # xbmc.executebuiltin('Container.SetViewMode(50)')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
 
 def show_favourites(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')
@@ -1829,7 +1830,7 @@ def secure_catchupvod_url(src_url):
 
 #catchup_providers/eng1
 def show_eng1(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     if not isiptvauth_ok():
         return
     asiptvs.asiptvs_vod()
