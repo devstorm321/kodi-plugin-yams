@@ -38,8 +38,6 @@ YOUTUBE_PLAYLISTITEM = 'playlistItems?part=snippet%%2CcontentDetails&playlistId=
 YOUTUBE_PLAYLISTITEM_PAGE = 'playlistItems?part=snippet%%2CcontentDetails&playlistId=%s&maxResults=%s&pageToken=%s&key=' + GOOGLE_API_KEY
 YOUTUBE_SEARCH = 'https://www.googleapis.com/youtube/v3/search?part=snippet&q=%s&key=' + GOOGLE_API_KEY
 
-SPORTS_VOD_URL = "https://astreamweb.com/kodi/web/update_sportsnationhd_vod.php"
-
 digest = '1@121#'
 GENRES = [{'name': 'Action', 'id': '34'},
           {'name': 'Adventure', 'id': '62'},
@@ -760,193 +758,6 @@ def get_youtube_playitem(channel, per_page, sorting, pageToken=None):
     '''
 
 
-def get_youtube_playlist_icon(playlist_id):
-    url = urlopen(YOUTUBE_SEARCH % playlist_id)
-    snippet = json.load(url)
-
-    thumbnail = ''
-    for item in snippet['items']:
-        if "thumbnails" in item['snippet']:
-            thumb = item['snippet']['thumbnails']
-            if 'high' in thumb:
-                thumbnail = thumb['high']['url']
-            elif 'medium' in thumb:
-                thumbnail = thumb['medium']['url']
-            elif 'default' in thumb:
-                thumbnail = thumb['default']['url']
-
-    return thumbnail
-
-
-def get_youtube_sections(page, per_page, sorting):
-    xbmc.log('get_youtube_sections started')
-
-    url = '{0}?digest={1}'.format(VOD_URL, digest)
-    xbmc.log('vod_url:{0}'.format(url))
-    try:
-        response = urlopen(url)
-    except HTTPError:
-        dialog = xbmcgui.Dialog()
-        dialog.ok('Error with VOD Authentication', 'Access Error')
-        raise ApiError('HTTPError')
-
-    tree = ET.parse(response)
-    sections = list()
-
-    for section in tree.getroot():
-        name = section.find('title').text
-        icon = section.find('icon').text
-        type = int(section.find('type').text)
-        data = list()
-        if type != 1:
-            for channel in section.find('list'):
-                data.append({'name': channel.get('name'),
-                             'icon': channel.find('icon').text.replace(' ', '%20'),
-                             'channel': channel.find('url').text})
-        else:
-            for playlist in section.find('list'):
-                data.append({'name': playlist.find('title').text,
-                             'id': playlist.find('id').text})
-
-        sections.append({'name': name,
-                         'type': section.find('type').text,
-                         'icon': icon,
-                         'list': data})
-
-    num_entries = len(sections)
-    has_next_page = (int(page) * int(per_page) < num_entries)
-
-    return sections, has_next_page
-
-
-def get_youtube_channels(page, per_page, sorting):
-    xbmc.log('get_youtube_channels started')
-
-    url = VOD_URL + '?digest=' + digest
-    xbmc.log('vod_url:' + url)
-    try:
-        response = urlopen(url)
-    except HTTPError:
-        dialog = xbmcgui.Dialog()
-        dialog.ok('Error with VOD Authentication', 'Access Error')
-        raise ApiError('HTTPError')
-
-    tree = ET.parse(response)
-    channels = list()
-
-    for item in tree.getroot():
-        channels.append({'name': item.get('name'),
-                         'icon': item.find('icon').text.replace(' ', '%20'),
-                         'channel': item.find('url').text})
-
-    num_entries = len(channels)
-    has_next_page = (int(page) * int(per_page) < num_entries)
-
-    return channels, has_next_page
-
-
-def get_channellive_seasons(lang, page, per_page, sorting, grabVideo=False):
-    xbmc.log('Getting season list for language {0}'.format(lang))
-    xml_url = 'https://astreamweb.com/kodi/RokuGateway.xml'
-    try:
-        resp = urlopen(xml_url)
-        if resp.getcode() != 200:
-            dialog = xbmcgui.Dialog()
-            dialog.ok('Exception', 'Unable to retrieve information: Code: ' + str(resp.getcode()))
-            return {}, 0
-
-    except Exception as e:
-        dialog = xbmcgui.Dialog()
-        dialog.ok('Exception', 'Unable to retrieve information; Message: ' + repr(e))
-        return {}, 0
-
-    resp_xml = resp.read()
-    root = ET.fromstring(resp_xml)
-    channel_list = dict()
-    for child in root:
-        a = dict()
-        a['sd_img'] = child.attrib['sd_img']
-        a['child'] = child
-        channel_list[child.attrib['title']] = a
-
-    if page == '1':
-        start_index = page
-    else:
-        start_index = (int(page) - 1) * per_page
-    num_entries = len(list(channel_list.items()))
-    if num_entries == 0 and grabVideo:
-        xbmc.log('No channels.')
-        dialog = xbmcgui.Dialog()
-        dialog.ok('Exception', 'No Channels to show.')
-    else:
-        has_next_page = ((int(start_index) + int(per_page)) < num_entries)
-        return channel_list, has_next_page
-
-
-def get_channellive_prog(root, page, per_page, sorting):
-    channel_list = dict()
-    for child in root:
-        a = dict()
-        a['description'] = child.attrib['description']
-        a['feed'] = child.attrib['feed']
-        channel_list[child.attrib['title']] = a
-
-    if page == '1':
-        start_index = page
-    else:
-        start_index = (int(page) - 1) * per_page
-    num_entries = len(list(channel_list.items()))
-    if num_entries == 0:
-        xbmc.log('No episode.')
-        dialog = xbmcgui.Dialog()
-        dialog.ok('Exception', 'No episode to show.')
-    else:
-        has_next_page = ((int(start_index) + int(per_page)) < num_entries)
-        return channel_list, has_next_page
-
-
-def get_channellive_vod(vodfeed, page, per_page, sorting):
-    try:
-        resp = urlopen(vodfeed)
-        if resp.getcode() != 200:
-            dialog = xbmcgui.Dialog()
-            dialog.ok('Exception', 'Unable to retrieve information: Code: ' + str(resp.getcode()))
-            return {}, 0
-
-    except Exception as e:
-        dialog = xbmcgui.Dialog()
-        dialog.ok('Exception', 'Unable to retrieve information; Message: ' + repr(e))
-        return {}, 0
-
-    resp_xml = resp.read()
-    root = ET.fromstring(resp_xml)
-    vod_list = dict()
-    for child in root:
-        if child.tag == 'item':
-            a = dict()
-            a['sdImg'] = child.attrib['sdImg']
-            for child2 in child:
-                if child2.tag == 'media':
-                    for child3 in child2:
-                        if child3.tag == 'streamUrl':
-                            a['streamUrl'] = child3.text
-                if child2.tag == 'title':
-                    a['title'] = child2.text
-            vod_list[a['title']] = a
-    if page == '1':
-        start_index = page
-    else:
-        start_index = (int(page) - 1) * per_page
-    num_entries = len(list(vod_list.items()))
-    if num_entries == 0:
-        xbmc.log('No Vods.')
-        dialog = xbmcgui.Dialog()
-        dialog.ok('Exception', 'No Vods to show.')
-    else:
-        has_next_page = ((int(start_index) + int(per_page)) < num_entries)
-        return vod_list, has_next_page
-
-
 def check_login(username, password, session=None):
     request_dict = {
         'task': 'checklogin',
@@ -1328,12 +1139,6 @@ def Calibration():
     xbmc.executebuiltin('ActivateWindow(screencalibration)')
 
 
-def Macaddress():
-    dialog = xbmcgui.Dialog()
-    username = __settings__.getSetting('username')
-    dialog.ok('Verification Tool', 'Device ID: ' + get_mac() + '-' + get_deviceType(), 'Username: ' + username)
-
-
 def get1DayBypass(username, password):
     data = __get_json({"task": "get1dayBypass", "username": username, "password": password})
     return data
@@ -1347,25 +1152,3 @@ def get5DayBypass(username, password):
 def getBypassActive(username):
     data = __get_json({"task": "isbypassactive", "username": username})
     return data
-
-
-def getSportsVodJson():
-    import json
-    resp = urlopen(SPORTS_VOD_URL).read().decode('utf-8')
-    jsonData = json.loads(resp)
-    return jsonData
-
-
-def parseSportsVodJson():
-    jsonData = getSportsVodJson()
-    channels = jsonData["vod_channels"]
-    print((str(len(channels)) + "ASDDD"))
-    channelList = []
-    for i in channels:
-        try:
-            a = i["status"] == "1"
-            if a:
-                channelList.append(i)
-        except:
-            continue
-    return channelList

@@ -14,7 +14,7 @@ import traceback
 
 import updater
 import importlib
-from updater import fresh_starty
+
 from resources.modules import (plugintools, scraper, memberutils, yamsutils, asiptvs, engchannels)
 from resources.modules.asiptvs import *
 from resources.modules.engchannels import *
@@ -101,10 +101,6 @@ def home(params):
         if status_code == 4 or status_code == 5:
             plugintools.add_item(action="show_restart1", title="restart AstreamWeb",
                                  thumbnail=__get_icon('resetastreamweb'), folder=False)
-
-        if status_code == 5:
-            plugintools.add_item(action="show_macaddress", title="Device Verification Tool",
-                                 thumbnail=__get_icon('clearcache'), folder=False)
 
         # 1 Add Link to Favourites
         if (plugintools.get_setting('mynotify') == 'true') and authenticated:
@@ -614,14 +610,6 @@ def __check_session():
     return True
 
 
-def show_checkforupdate(params):
-    xbmc.executebuiltin('UpdateLocalAddons ')
-    xbmc.executebuiltin("UpdateAddonRepos")
-    dialog.ok("Update Check Completed",
-              "If Updates are found, your screen may go black for 1 minute.")
-    xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
-
-
 def isauth_ok():
     authenticated = __check_session()
     xbmc.log(f'''isauth_ok authenticated = {authenticated}''')
@@ -932,7 +920,8 @@ def show_iptv_favourite(params):  # pagenum):
     pagenum = params.get('page')
     username = plugintools.get_setting('username')
     api_digest = scraper.digest
-    sourceurl = "https://api.yamsonline.com/api?task=channel_favorite&option=com_jsonapi&format=json&user=" + username + "&version=v2&device=box&digest=" + api_digest
+    sourceurl = "https://api.yamsonline.com/api?task=channel_favorite&option=com_jsonapi&format=json&user=" \
+                + username + "&version=v2&device=box&digest=" + api_digest
     xbmc.log(sourceurl)
     response = urllib.request.urlopen(sourceurl).read().decode('utf-8')
     json_data = json.loads(response)
@@ -962,7 +951,8 @@ def play_iptv_favourite(params):  # url, label, cid):
         response = urllib.request.urlopen(base64.b64decode(url).decode('utf-8'))
         html_content = response.read()
         # print(html)
-        USER_AGENT = "Opera/9.80 (Linux armv7l; InettvBrowser/2.2 (00014A;SonyDTV115;0002;0100) KDL42W650A; CC/GRC) Presto/2.12.362 Version/12.11"
+        USER_AGENT = "Opera/9.80 (Linux armv7l; InettvBrowser/2.2 (00014A;SonyDTV115;0002;0100) KDL42W650A; CC/GRC) " \
+                     "Presto/2.12.362 Version/12.11 "
         play1 = f'''{html_content}?|User-Agent={USER_AGENT}'''
         plugintools.play_resolved_url(play1)
 
@@ -1055,11 +1045,11 @@ def personal2link(params):
                 if (("mkv" == sname) or ("mp4" == sname)) or (("m4v" == sname) or (sname == "avi")):
                     if i["radarr"]:
                         url = 'https://api.yamsonline.com/playpersonal?id=%s&title=%s&username=%s&password=%s&name=%s' % (
-                        page, urllib.parse.quote_plus(path11.encode('utf-8')), username, password,
-                        urllib.parse.quote_plus(name.encode('utf-8')))
+                            page, urllib.parse.quote_plus(path11.encode('utf-8')), username, password,
+                            urllib.parse.quote_plus(name.encode('utf-8')))
                     else:
                         url = 'https://api.yamsonline.com/playmovie?id=%s&username=%s&password=%s&name=%s' % (
-                        page, username, password, urllib.parse.quote(name))
+                            page, username, password, urllib.parse.quote(name))
 
                     xbmc.log(f'''personallink title {title} url {url}''')
                     plugintools.add_item(action='play_vod',
@@ -1136,12 +1126,10 @@ def personallink(params):
                 xbmc.log('personal sname ' + sname)
                 if (("mkv" == sname) or ("mp4" == sname)) or (("m4v" == sname) or ("avi" == sname) or ("ts" == sname)):
                     if i["radarr"]:
-                        url = 'https://api.yamsonline.com/playpersonal?id=%s&title=%s&username=%s&password=%s&name=%s' % (
-                        page, urllib.parse.quote_plus(path11.encode('utf-8')), username, password,
-                        urllib.parse.quote_plus(name.encode('utf-8')))
+                        url = f'https://api.yamsonline.com/playpersonal?id={page}&title={urllib.parse.quote_plus(path11.encode("utf-8"))}&username={username}&password={password}&name={urllib.parse.quote_plus(name.encode("utf-8"))}'
                     else:
                         url = 'https://api.yamsonline.com/playmovie?id=%s&username=%s&password=%s&name=%s' % (
-                        page, username, password, urllib.parse.quote(name))
+                            page, username, password, urllib.parse.quote(name))
 
                     xbmc.log('personallink title %s  url  %s' % (title, url))
                     plugintools.add_item(action='play_vod',
@@ -1206,9 +1194,9 @@ def latestMovies(params):
         'id': video['id'],
     } for video in videos]
     ListSearch = 'XBMC.Container.Update(%s)' % (
-                sys.argv[0] + '?action=search&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
+            sys.argv[0] + '?action=search&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
     ListMovie = 'XBMC.Container.Update(%s)' % (
-                sys.argv[0] + '?action=show_movies&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
+            sys.argv[0] + '?action=show_movies&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
 
     for item in items:
         try:
@@ -1258,7 +1246,7 @@ def show_movie_files(params):
         oneUrl = len(videos) == 100
         xbmc.log('oneUrl {}'.format(oneUrl))
         ListDownload = 'XBMC.RunPlugin(%s)' % (
-                    sys.argv[0] + '?action=do_download_movie&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
+                sys.argv[0] + '?action=do_download_movie&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
 
         # print "oneUrl: " + str(oneUrl)
         if not videos:  # items:
@@ -1361,7 +1349,7 @@ def play_vod1(params):
     title = params.get("title")
     plugintools.play_resolved_url(urllink, title=title)
     time.sleep(3)
-    if xbmc.Player().isPlaying() == False:
+    if not xbmc.Player().isPlaying():
         response = urllib.request.urlopen(urllink).read().decode('utf-8')
         json_data = json.loads(response)
         for item in json_data:
@@ -1383,12 +1371,10 @@ def show_langs(params):
         authenticated, message, status_code = scraper.check_login(username, password,
                                                                   plugintools.get_setting('session'))
         if not authenticated:
-            dialog = xbmcgui.Dialog()
-            dialog.ok('AstreamWeb Notice', message)
+            xbmcgui.Dialog().ok('AstreamWeb Notice', message)
             if status_code == 2 or status_code == 3:
-                dialog = xbmcgui.Dialog()
-                dialog.ok('[COLOR green]INFORMATION ONLY:[/COLOR] ',
-                          'Please remove a device connected to this account in settings -> Device Specific', )
+                xbmcgui.Dialog().ok('[COLOR green]INFORMATION ONLY:[/COLOR] ',
+                                    'Please remove a device connected to this account in settings -> Device Specific', )
                 plugintools.open_settings_dialog()
                 exit()
             else:
@@ -1424,9 +1410,8 @@ def show_sorting(params):
             dialog = xbmcgui.Dialog()
             dialog.ok('AstreamWeb Notice', message)
             if status_code == 2 or status_code == 3:
-                dialog = xbmcgui.Dialog()
-                dialog.ok('[COLOR green]INFORMATION ONLY:[/COLOR] ',
-                          'Please remove a device connected to this account in settings -> Device Specific', )
+                xbmcgui.Dialog().ok('[COLOR green]INFORMATION ONLY:[/COLOR] ',
+                                    'Please remove a device connected to this account in settings -> Device Specific', )
                 plugintools.open_settings_dialog()
                 exit()
             else:
@@ -1493,12 +1478,10 @@ def show_movies(params):
             authenticated, message, status_code = scraper.check_login(username, password,
                                                                       plugintools.get_setting('session'))
             if not authenticated:
-                dialog = xbmcgui.Dialog()
-                dialog.ok('AstreamWeb Notice', message)
+                xbmcgui.Dialog().ok('AstreamWeb Notice', message)
                 if status_code == 2 or status_code == 3:
-                    dialog = xbmcgui.Dialog()
-                    dialog.ok('[COLOR green]INFORMATION ONLY:[/COLOR] ',
-                              'Please remove a device connected to this account in settings -> Device Specific', )
+                    xbmcgui.Dialog().ok('[COLOR green]INFORMATION ONLY:[/COLOR] ',
+                                        'Please remove a device connected to this account in settings -> Device Specific', )
                     plugintools.open_settings_dialog()
                     exit()
                 else:
@@ -1514,9 +1497,9 @@ def show_movies(params):
             xbmc.log('has_next_page {}'.format(has_next_page))
             # Add context menu items for title and actor search
             ListSearch = 'XBMC.Container.Update(%s)' % (
-                        sys.argv[0] + '?action=search&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
+                    sys.argv[0] + '?action=search&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
             ListMovie = 'XBMC.Container.Update(%s)' % (
-                        sys.argv[0] + '?action=show_movies&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
+                    sys.argv[0] + '?action=show_movies&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
 
             is_update = (not page == '1')
             xbmc.log('is_update {}.'.format(is_update))
@@ -1527,9 +1510,8 @@ def show_movies(params):
 
             for item in items:
                 try:
-                    context_men = [('Movie information', 'XBMC.Action(Info)')]
-
-                    context_men.append(('Search for Movies by title', ListSearch % ('', '', '', '', '', '')))
+                    context_men = [('Movie information', 'XBMC.Action(Info)'),
+                                   ('Search for Movies by title', ListSearch % ('', '', '', '', '', ''))]
 
                     for cast in item['info']['cast']:
                         s_path = 'cast-%s' % cast
@@ -1953,25 +1935,23 @@ def getseries(params):
     password = plugintools.get_setting("password")
     authenticated, message, status_code = scraper.check_login(username, password, plugintools.get_setting("session"))
     if not authenticated:
-        dialog = xbmcgui.Dialog()
-        dialog.ok("AstreamWeb Notice", message)
+        xbmcgui.Dialog().ok("AstreamWeb Notice", message)
         if status_code == 2 or status_code == 3:
-            dialog = xbmcgui.Dialog()
-            dialog.ok('[COLOR green]required:[/COLOR] ',
-                      'Please remove a device connected to this account in settings -> Device Specific', )
+            xbmcgui.Dialog().ok('[COLOR green]required:[/COLOR] ',
+                                'Please remove a device connected to this account in settings -> Device Specific', )
             plugintools.open_settings_dialog()
-            exit()
+            sys.exit()
         else:
             xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
         return False
     videos = scraper.__get_json({
-            "task": "series",
-            "category": "82",
-            "without_files": "1",
-            "user": username,
-            "per_page": "300",
-            "page": "1"
-        })["data"]
+        "task": "series",
+        "category": "82",
+        "without_files": "1",
+        "user": username,
+        "per_page": "300",
+        "page": "1"
+    })["data"]
     items = [{
         'label': re.sub('\([ 0-9]*?\)', '', video['title']),
         'thumbnail': video['cover'].replace(' ', '%20'),
@@ -1999,17 +1979,16 @@ def getseries(params):
     } for video in videos]
 
     ListSearch = 'XBMC.Container.Update(%s)' % (
-                sys.argv[0] + '?action=search&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
+            sys.argv[0] + '?action=search&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
     ListMovie = 'XBMC.Container.Update(%s)' % (
-                sys.argv[0] + '?action=show_series&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
+            sys.argv[0] + '?action=show_series&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
 
     for item in items:
         xbmc.log('getseries info {}'.format(item["info"]["cast"]))
         xbmc.log('getseries info {}'.format(item["id"]))
         try:
-            context_men = [('Movie information', 'XBMC.Action(Info)')]
-
-            context_men.append(('Search for Movies by title', ListSearch % ('', '', '', '', '', '')))
+            context_men = [('Movie information', 'XBMC.Action(Info)'),
+                           ('Search for Movies by title', ListSearch % ('', '', '', '', '', ''))]
 
             for cast in item['info']['cast']:
                 s_path = 'cast-%s' % cast
@@ -2037,7 +2016,7 @@ def getseries3(params):
         xbmcgui.Dialog().ok("AstreamWeb Notice", message)
         if status_code == 2 or status_code == 3:
             xbmcgui.Dialog().ok('[COLOR green]required:[/COLOR] ',
-                      'Please remove a device connected to this account in settings -> Device Specific')
+                                'Please remove a device connected to this account in settings -> Device Specific')
             plugintools.open_settings_dialog()
             exit()
         else:
@@ -2079,9 +2058,9 @@ def getseries3(params):
     } for video in videos]
 
     ListSearch = 'XBMC.Container.Update(%s)' % (
-                sys.argv[0] + '?action=search&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
+            sys.argv[0] + '?action=search&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
     ListMovie = 'XBMC.Container.Update(%s)' % (
-                sys.argv[0] + '?action=show_series&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
+            sys.argv[0] + '?action=show_series&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
 
     for item in items:
         xbmc.log('getseries info {}'.format(item["info"]["cast"]))
@@ -2114,7 +2093,7 @@ def getseries2(params):
         xbmcgui.Dialog().ok("AstreamWeb Notice", message)
         if status_code == 2 or status_code == 3:
             xbmcgui.Dialog().ok('[COLOR green]required:[/COLOR] ',
-                      'Please remove a device connected to this account in settings -> Device Specific', )
+                                'Please remove a device connected to this account in settings -> Device Specific', )
             plugintools.open_settings_dialog()
             exit()
         else:
@@ -2156,9 +2135,9 @@ def getseries2(params):
     } for video in videos]
 
     ListSearch = 'XBMC.Container.Update(%s)' % (
-                sys.argv[0] + '?action=search&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
+            sys.argv[0] + '?action=search&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
     ListMovie = 'XBMC.Container.Update(%s)' % (
-                sys.argv[0] + '?action=show_series&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
+            sys.argv[0] + '?action=show_series&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
 
     for item in items:
         xbmc.log('getseries info {}'.format(item["info"]["cast"]))
@@ -2199,7 +2178,7 @@ def show_series(params):  # (path, sorting, page):
             xbmcgui.Dialog().ok('AstreamWeb Notice', message)
             if status_code == 2 or status_code == 3:
                 xbmcgui.Dialog().ok('[COLOR green]INFORMATION ONLY:[/COLOR] ',
-                          'Please remove a device connected to this account in settings -> Device Specific', )
+                                    'Please remove a device connected to this account in settings -> Device Specific', )
                 plugintools.open_settings_dialog()
                 sys.exit()
             else:
@@ -2216,9 +2195,9 @@ def show_series(params):  # (path, sorting, page):
 
         # Add context menu items for title and actor search
         ListSearch = 'XBMC.Container.Update(%s)' % (
-                    sys.argv[0] + '?action=search&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
+                sys.argv[0] + '?action=search&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
         ListMovie = 'XBMC.Container.Update(%s)' % (
-                    sys.argv[0] + '?action=show_series&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
+                sys.argv[0] + '?action=show_series&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
         # figure out if this is a page refresh
         is_update = (not page == '1')
         # add pagination-items
@@ -2402,6 +2381,7 @@ def search(params):
     plugintools.add_item(title="Multi-Search", action='multiSearch')
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
 
+
 # multiSearch
 def multiSearch(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')
@@ -2501,7 +2481,6 @@ def multiSearchActress(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     path = params.get('url')
     actresses = scraper.ACTRESSES
-    items = []
     if path == "-":
         path = ""
     else:
@@ -2531,7 +2510,6 @@ def searchByActor(params):
 def searchByActress(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     actresses = scraper.ACTRESSES
-    items = []
     for actress in actresses:
         cast_path = "cast-%s" % actress
         plugintools.add_item(title=actress, action='show_movies', url=cast_path, extra='title,ASC', page='1',
@@ -2584,7 +2562,7 @@ def searchByName(params):
             # Add context menu items for title and actor search
             context_men = []
             ListMovie = 'XBMC.Container.Update(%s)' % (
-                        sys.argv[0] + '?action=show_movies&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
+                    sys.argv[0] + '?action=show_movies&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
             for item in items:
                 try:
                     for cast in item['info']['cast']:
@@ -2615,14 +2593,13 @@ def show_letters(params):
         authenticated, message, status_code = scraper.check_login(username, password,
                                                                   plugintools.get_setting('session'))
         if not authenticated:
-            dialog = xbmcgui.Dialog()
-            dialog.ok('AstreamWeb Notice', message)
+            xbmcgui.Dialog().ok('AstreamWeb Notice', message)
             if status_code == 2 or status_code == 3:
                 dialog = xbmcgui.Dialog()
                 dialog.ok('[COLOR red]Required:[/COLOR] ',
                           'Please remove a device connected to this account in settings -> Device Specific', )
                 plugintools.open_settings_dialog()
-                exit()
+                sys.exit()
             else:
                 xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
             return False
@@ -2641,8 +2618,6 @@ def show_letters(params):
 def show_maintenance(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
     plugintools.add_item(action="show_clearcache", title='Clear Cache',
-                         thumbnail=__get_icon('clearcache'))
-    plugintools.add_item(action="show_checkforupdate", title='Check For Updates',
                          thumbnail=__get_icon('clearcache'))
     plugintools.add_item(action="show_speedtest", title='Speedtest',
                          thumbnail=__get_icon('speed'))
@@ -2664,18 +2639,10 @@ def show_maintenance(params):
                          thumbnail=__get_icon('resetastreamweb'))
     plugintools.add_item(action="select_skin_language2", title='Select Skin Language',
                          thumbnail=__get_icon('resetastreamweb'), folder=False)
-    plugintools.add_item(action="show_macaddress", title='Device Verification Tool',
-                         thumbnail=__get_icon('clearcache'))
     #       plugintools.add_item(action="show_downloads",title='My Downloads',
     #                                 thumbnail=__get_icon('my download'))
-    plugintools.add_item(action="show_timeshift", title='TimeShift for EPG Guide',
-                         thumbnail=__get_icon('red'))
-    plugintools.add_item(action="show_disablePVR", title='Disable IPTV Guide',
-                         thumbnail=__get_icon('red'))
     plugintools.add_item(action="show_removedevice1", title='Remove All Devices',
                          thumbnail=__get_icon('resetastreamweb'))
-    plugintools.add_item(action="wipe_data", title='Wipe data',
-                         thumbnail=__get_icon('wipe_data'))
     #       plugintools.add_item(action="show_switch",title='Switch PVR Provider',
     #                                 thumbnail=__get_icon('red'))
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
@@ -2700,33 +2667,6 @@ def show_removedevice1(params):
 def show_removedevice():
     xbmc.executebuiltin('XBMC.RunScript(special://home/addons/plugin.video.yams/killSessions.py)', True)
     xbmc.executebuiltin('Container.Refresh(plugin://plugin.video.yams)')
-
-
-def wipe_data(params):
-    dialog = xbmcgui.Dialog()
-    if dialog.yesno("Astreamweb", "Do you want to perform a clean install?"):
-        fresh_starty()
-        DIALOG_PROGRESS = xbmcgui.DialogProgress()
-        DIALOG_PROGRESS.create("A Restart is Required", "no")
-        # get window progress
-        WINDOW_PROGRESS = xbmcgui.Window(10101)
-        # give window time to initialize
-        xbmc.sleep(100)
-        # get our cancel button
-        CANCEL_BUTTON = WINDOW_PROGRESS.getControl(10)
-        # desable button (bool - True=enabled / False=disabled.)
-        CANCEL_BUTTON.setEnabled(False)
-        # your code here
-        for i in range(100):
-            DIALOG_PROGRESS.update(0,
-               "On your Fire TV remote hold down [COLOR red]select[/COLOR] and [COLOR red]play/pause[/COLOR] for 7 seconds, or pull the plug.")
-            time.sleep(1)
-
-        # enable button
-        CANCEL_BUTTON.setEnabled(True)
-        DIALOG_PROGRESS.close()
-    else:
-        xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
 
 
 def debug_off(params):
@@ -2796,7 +2736,6 @@ def show_ping(params):
 
 def __ping(host):
     xbmc.log("------------=> Ping to " + host)
-    ping_results = False
 
     try:
         if xbmc.getCondVisibility('system.platform.windows'):
@@ -2871,10 +2810,6 @@ def show_advancedsetting(params):
 
 def show_calibration(params):
     scraper.Calibration()
-
-
-def show_macaddress(params):
-    scraper.Macaddress()
 
 
 def handle_wait(time_to_wait, title, text):
@@ -3090,7 +3025,7 @@ def get_einthusan():
     choseneinthusan = "No Preference"
     keys = list(goeinthusan.keys())
 
-    if (choseneinthusan == "None" or choseneinthusan == '') or not choseneinthusan in keys:
+    if (choseneinthusan == "None" or choseneinthusan == '') or choseneinthusan not in keys:
         return None
     else:
         return goeinthusan[choseneinthusan]
@@ -3141,8 +3076,8 @@ def show_einthusan_a_z(params):
     for letter in azlist:
         plugintools.add_item(
             action="show_einthusan_movies", title=letter,
-             extra='https://einthusan.ca/movie/results/?alpha={0}&find=Alphabets&{1}'.format(letter, post),
-             page='1')
+            extra='https://einthusan.ca/movie/results/?alpha={0}&find=Alphabets&{1}'.format(letter, post),
+            page='1')
 
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
 
@@ -3208,7 +3143,8 @@ def show_einthusan_search(params):
 
         html = requests.get(postData, headers=headers).text
         match = re.compile(
-            '<div class="block1">.*?href=".*?watch\/(.*?)\/\?lang=(.*?)".*?src="(.*?)".*?<h3>(.*?)</h3>.+?i class(.+?)<p').findall(html)
+            '<div class="block1">.*?href=".*?watch\/(.*?)\/\?lang=(.*?)".*?src="(.*?)".*?<h3>(.*?)</h3>.+?i class(.+?)<p').findall(
+            html)
 
         nextpage = re.findall('data-disabled="([^"]*)" href="(.+?)"', html)[-1]
 
@@ -3247,7 +3183,8 @@ def show_einthusan_movies(params):
 
     html = requests.get(url, verify=False).text
     match = re.compile(
-        '<div class="block1">.*?href=".*?watch\/(.*?)\/\?lang=(.*?)".*?src="(.*?)".*?<h3>(.*?)</h3>.+?i class(.+?)<p.+?<span>Wiki</span>(.+?)</div>').findall(html)
+        '<div class="block1">.*?href=".*?watch\/(.*?)\/\?lang=(.*?)".*?src="(.*?)".*?<h3>(.*?)</h3>.+?i class(.+?)<p.+?<span>Wiki</span>(.+?)</div>').findall(
+        html)
     nextpage = re.findall('data-disabled="([^"]*)" href="(.+?)"', html)[-1]
 
     for movie, lang, image, name, ishd, trailer in match:
@@ -3434,7 +3371,7 @@ def play_einthusan(params):
     lnk = einthusan_preferred_server(lnk, mainurl)
     xbmc.log(lnk, level=xbmc.LOGINFO)
     urlnew = lnk + ('|https://einthusan.ca&Referer=%s&User-Agent=%s' % (mainurl,
-                'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36'))
+                                                                        'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36'))
     plugintools.play_resolved_url(urlnew)
     s.close()
 
@@ -3511,20 +3448,6 @@ def correctpvr():
     xbmc.executebuiltin('XBMC.AlarmClock(shutdowntimer,XBMC.Quit(),0.5,true)')
 
 
-def disablePVR():
-    nullPVR = '{"jsonrpc":"2.0","method":"Addons.SetAddonEnabled","params":{"addonid":"pvr.iptvsimple","enabled":false},"id":1}'
-    nullLiveTV = '{"jsonrpc":"2.0", "method":"Settings.SetSettingValue", "params":{"setting":"pvrmanager.enabled", "value":false},"id":1}'
-    PVRdata = xbmcvfs.translatePath(os.path.join('special://home/userdata/addon_data/', 'pvr.iptvsimple'))
-    xbmc.executeJSONRPC(nullLiveTV)
-    xbmc.executeJSONRPC(nullPVR)
-    shutil.rmtree(PVRdata)
-    xbmc.executebuiltin('Container.Refresh(plugin://plugin.video.yams)')
-    dialog.ok("[COLOR white] Astreamweb[/COLOR]", '[COLOR white]PVR Guide is now disabled[/COLOR]', ' ',
-              '[COLOR white]Kodi will now Force Exit, if it freezes please restart device[/COLOR]')
-    xbmc.sleep(1000)
-    xbmc.executebuiltin('XBMC.AlarmClock(shutdowntimer,XBMC.Quit(),0.5,true)')
-
-
 def switchinfo():
     dialog.ok("[COLOR white] Restart KODI [/COLOR]",
               '[COLOR white]Please restart Kodi once/if the EPG Data has been imported[/COLOR]', '')
@@ -3533,7 +3456,6 @@ def switchinfo():
 # maintenance/switch
 def show_switch(params):
     if xbmc.getCondVisibility('Pvr.HasTVChannels'):
-        disablePVR()  # godev.disablePVR2()
         correctpvr()  # godev.correctpvr()
         switchinfo()  # godev.switchinfo()
     else:
@@ -3564,21 +3486,6 @@ def show_correctpvr(params):
         xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
 
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
-
-
-# maintenance/timeshift
-def show_timeshift(params):
-    moist = xbmcaddon.Addon('pvr.iptvsimple')
-    dialog = xbmcgui.Dialog()
-    selections = [str(a) for a in range(-12, 13)]
-    selected = dialog.select("Select timezone", selections)
-    moist.setSetting(id='epgTimeShift', value=selections[selected])
-    xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
-
-
-# maintenance/disablePVR/')
-def show_disablePVR(params):
-    disablePVR()  # godev.disablePVR2()
 
 
 ################################################
@@ -3659,12 +3566,12 @@ def list_home_movie(params):  # id, page):
         select_list = []
         links = []
         for video in videos:
-            movie_path = movieUrl = video['url'].replace("server.akshayan.me", server)
+            movie_path = video['url'].replace("server.akshayan.me", server)
             movie = xbmcgui.ListItem(label=video['label'], path=movie_path)
             select_list.append(movie)
             links.append(movie_path)
-        dialog = xbmcgui.Dialog()
-        select = dialog.select("Movies", select_list)
+
+        select = xbmcgui.Dialog().select("Movies", select_list)
         if select >= 0:
             xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
             xbmc.Player().play(item=links[select], listitem=select_list[select])
