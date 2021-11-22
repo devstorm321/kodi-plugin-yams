@@ -588,14 +588,6 @@ def get_series_files(movie_id, username, password):
     return videos
 
 
-def get_youtube_playlist(channel, per_page, sorting, pageToken=None):
-    return get_youtube_info('playlist', channel, per_page, sorting, pageToken)
-
-
-def get_youtube_playitem(channel, per_page, sorting, pageToken=None):
-    return get_youtube_info('channel', channel, per_page, sorting, pageToken)
-
-
 def check_login(username, password, session=None):
     request_dict = {
         'task': 'checklogin',
@@ -1034,46 +1026,3 @@ def get_items(username, path, page, per_page, sorting, task):
     has_next_page = (int(page) * int(per_page) < num_entries)
     xbmc.log('get_movies got items: "%s", np: "%s"' % (items, has_next_page))
     return items, has_next_page
-
-
-def get_youtube_info(type, channel, per_page, sorting, pageToken=None):
-    xbmc.log('Getting playlist %s %s' % (channel, pageToken))
-    nextPage = None
-    prevPage = None
-
-    shows = list()
-    if pageToken is None:
-        url = urlopen(YOUTUBE_BASEAPI + YOUTUBE_PLAYLIST % (channel, str(per_page)))
-    else:
-        url = urlopen(YOUTUBE_BASEAPI + YOUTUBE_PLAYLIST_PAGE % (channel, str(per_page), pageToken))
-
-    play_list = json.load(url)
-    num_entries = play_list['pageInfo']['totalResults']
-
-    if 'nextPageToken' in play_list:
-        nextPage = play_list['nextPageToken']
-    if 'prevPageToken' in play_list:
-        prevPage = play_list['prevPageToken']
-
-    if num_entries > 0:
-        for play in play_list['items']:
-            # Get HQ thumbnail
-            thumbnail = ''
-            if 'thumbnails' in play['snippet']:
-                thumb = play['snippet']['thumbnails']
-                if 'high' in thumb:
-                    thumbnail = thumb['high']['url']
-                elif 'medium' in thumb:
-                    thumbnail = thumb['medium']['url']
-                elif 'default' in thumb:
-                    thumbnail = thumb['default']['url']
-            if type == 'playlist':
-                shows.append({'name': play['snippet']['title'],
-                              'icon': thumbnail,
-                              'playlist': play['id']})
-            elif type == 'channel':
-                shows.append({'name': play['snippet']['title'],
-                              'icon': thumbnail,
-                              'channel': play['contentDetails']['videoId']})
-
-    return shows, nextPage, prevPage

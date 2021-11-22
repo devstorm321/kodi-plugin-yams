@@ -13,7 +13,7 @@ import traceback
 
 import importlib
 
-from resources.modules import (plugintools, scraper, memberutils, yamsutils, asiptvs, engchannels)
+from resources.modules import (plugintools, scraper, yamsutils, asiptvs, engchannels)
 from resources.modules.asiptvs import *
 from resources.modules.engchannels import *
 from resources.modules.utils import ApiError, postHtml
@@ -365,32 +365,7 @@ def __check_login():
             xbmc.executebuiltin('UnloadSkin()')
             xbmc.executebuiltin('ReloadSkin()')
             xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
-            return False
-        elif not memberutils.codeverification(username):
-            xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
-            return False
-        else:
-            user = memberutils.captureUserInfo()
-            if not user['error']:
-                data = {'task': 'customer',
-                        'login': user['username'],
-                        'pass': user['pass'],
-                        'email': user['email'],
-                        'name_f': user['name_f'],
-                        'name_l': user['name_l']}
-                result = memberutils.amemberCommand(data)
-                xbmc.log(f'''check_login user = memberutils.captureUserInfo result ={result}''')
-                if result['status']:
-                    plugintools.set_setting('username', user['username'])
-                    plugintools.set_setting('password', user['pass'])
-
-                    username = user['username']
-                    password = user['pass']
-                else:
-                    xbmc.log(f'''Error: {result['reason']}''')
-            else:
-                show_restart()
-                return False, status_code
+        return False
 
     if plugintools.get_setting('session'):
         authenticated, message, status_code = scraper.check_login(username, password,
@@ -641,167 +616,6 @@ def isiptvauth_ok():
         return True
 
     return False
-
-
-def account(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
-    xbmc.log('my account started')
-    authenticated = __check_session()
-    xbmc.log(f'''authenticated de account {authenticated}''')
-
-    if not authenticated:
-        return  # dialog.ok('AstreamWeb Notice', message)
-
-    username = plugintools.get_setting('username')
-
-    if not memberutils.codeverification(username):
-        show_restart()
-        return
-
-    customer_id = ''
-    user_id = ''
-    email = ''
-    # Get user details and compare
-    if username != '':
-        data = {'task': 'user_info', 'login': username}
-        result = memberutils.amemberCommand(data)
-        if result['_total'] == 1:
-            info = result['0']
-    else:
-        # Capture user info
-        user = memberutils.captureUserInfo()
-        if not user['error']:
-            data = {'task': 'customer',
-                    'login': user['username'],
-                    'pass': user['pass'],
-                    'email': user['email'],
-                    'name_f': user['name_f'],
-                    'name_l': user['name_l']}
-            result = memberutils.amemberCommand(data)
-            if result['status']:
-                user_id = result['token']
-                email = user['email']
-
-                plugintools.set_setting('username', user['username'])
-                plugintools.set_setting('password', user['pass'])
-            else:
-                xbmc.log(f'''Error: {result['reason']}''')
-        else:
-            show_restart()
-            return
-
-        memberutils.writeStorage(customer_id, user_id, email)
-        plugintools.add_item(action="", title="To Upgrade Package, you must cancel old package first.",
-                             isPlayable=False, folder=False)
-        plugintools.add_item(action="", title='------------------------', isPlayable=False, folder=False)
-        plugintools.add_item(action="cancel_subscription", title="Cancel Subscription", thumbnail=__get_icon('sub'),
-                             isPlayable=False, folder=False)
-        xbmcplugin.endOfDirectory(int(sys.argv[1]))
-
-
-# cancel_subscription
-def cancel_subscription(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
-    xbmc.log('cancel subscription')
-    subs = []
-    # get user subscriptions
-    username = plugintools.get_setting('username')
-    if username != '':
-        data = {'task': 'check_access', 'login': username}
-        result = memberutils.amemberCommand(data)
-        if result['ok']:
-            user_id = result['user_id']
-
-            if 'subscriptions' in result:
-                subscriptions = result['subscriptions']
-                for sub in subscriptions:
-                    subs.append(int(sub))
-
-                data = {'task': 'products'}
-                result = memberutils.amemberCommand(data)
-                if result['status']:
-                    products = json.loads(result['products'])
-
-                    size = products['_total']
-                    for index in range(size):
-                        if products[str(index)]['product_id'] in subs:
-                            # find if cancelled
-                            data = {'task': 'check_expire', 'user_id': user_id,
-                                    'product_id': products[str(index)]['product_id']}
-                            check_expire = memberutils.amemberCommand(data)
-
-                            if check_expire['isExpire']:
-                                url = str(user_id)
-                                package = str(products[str(index)]['product_id'])
-                                title = products[str(index)]['title']
-                                cancel_item(package, title, url)
-                            else:
-                                url = str(user_id)
-                                package = str(products[str(index)]['product_id'])
-                                title = products[str(index)]['title']
-                                cancel_item(package, title, url)
-            else:
-                plugintools.add_item(title='No Active Subscriptions', url='', isPlayable=False, folder=False)
-        else:
-            plugintools.add_item(title='No Active Subscriptions', url='', isPlayable=False, folder=False)
-    else:
-        plugintools.add_item(title='No Active Subscriptions', url='', isPlayable=False, folder=False)
-
-    xbmcplugin.endOfDirectory(int(sys.argv[1]))
-    xbmc.executebuiltin('Container.SetViewMode(50)')
-
-
-def cancel_item(package, title, user_id):
-    xbmc.log('cancel item ' + package)
-    if xbmcgui.Dialog().yesno('AStreamWeb Cancel Subscription',
-                              'Are you sure you want to cancel your subscription: \n ' + title):
-        xbmc.log('Canceled sub: ' + title)
-        # Load subscriptions from user
-        data = {'task': 'user_access', 'user_id': user_id, 'product_id': package, 'page': False}
-        result = memberutils.amemberCommand(data)
-        if result['status']:
-            subscriptions = json.loads(result['subscriptions'])
-            size = subscriptions['_total']
-            if size > 200:
-                # calculate last page and call json again
-                page = size / 200
-                offset = size % 200
-                if offset == 0:
-                    page = page - 1
-
-                data = {'task': 'user_access',
-                        'user_id': user_id,
-                        'product_id': package,
-                        'page': True,
-                        'pagenum': page}
-                result = memberutils.amemberCommand(data)
-                if result['status']:
-                    subscriptions = json.loads(result['subscriptions'])
-
-            processCancelation(subscriptions)
-        show_restart()
-    else:
-        return
-
-
-def processCancelation(subscriptions):
-    xbmc.log('performing cancellation')
-    # Find valid invoice id for product
-    # iterate entries finding largest access_id
-    access_id = 0
-    invoice_id = ''
-    for index in range(subscriptions['_total']):
-        if subscriptions[str(index)]['access_id'] > access_id:
-            access_id = subscriptions[str(index)]['access_id']
-            invoice_id = subscriptions[str(index)]['invoice_id']
-
-    # Send cancel
-    data = {'task': 'cancel_subscription', 'invoice_id': invoice_id}
-    result = memberutils.amemberCommand(data)
-    if result['status']:
-        xbmcgui.Dialog().ok(
-            '[COLOR green]SUBSCRIPTION CANCELLATION:[/COLOR] ',
-            'The recurring billing on your subscription has been succesfully cancelled. Access to the services provided will terminate on the date of the expiration.')
 
 
 #########################################

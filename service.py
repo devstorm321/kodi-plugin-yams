@@ -12,7 +12,6 @@ import xbmcaddon
 import xbmcgui
 import xbmcvfs
 
-import resources.modules.memberutils as memberutils
 import resources.modules.scraper as scraper
 import resources.modules.yamsutils as yamsutils
 from resources.modules.scraper import get_mac
@@ -207,30 +206,6 @@ def run():
                         if days.days <= 5:
                             user_id = ''
                             # Get user details and compare
-                            if username != '':
-                                data = {'task': 'user_info', 'login': username}
-                                result = memberutils.amemberCommand(data)
-                                if result['_total'] == 1:
-                                    info = result['0']
-                                    user_id = info['user_id']
-                                else:
-                                    # Capture user info
-                                    user = memberutils.captureUserInfo()
-                                    if not user['error']:
-                                        data = {'task': 'customer', 'login': user['username'], 'pass': user['pass'],
-                                                'email': user['email'], 'name_f': user['name_f'],
-                                                'name_l': user['name_l']}
-                                        result = memberutils.amemberCommand(data)
-                                        if result['status']:
-                                            user_id = result['token']
-
-                                            __settings__.setSetting('username', user['username'])
-                                            __settings__.setSetting('password', user['pass'])
-                                        else:
-                                            xbmc.log('Error: %s' % result['reason'])
-                                    else:
-                                        scraper.ResetAstreamWeb()
-                                        return
                             dialog = xbmcgui.Dialog()
                             if dialog.yesno("AstreamWeb Subscription Notification",
                                             "Your AstreamWeb Subscription is due to expire in {0} days. Do you want to renew your account?".format(
