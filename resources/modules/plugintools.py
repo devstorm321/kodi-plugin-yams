@@ -263,7 +263,8 @@ def read_body_and_headers(url, post=None, headers=[], follow_redirects=False, ti
             handle = urlopen(req)
             socket.setdefaulttimeout(deftimeout)
         except:
-            for line in sys.exc_info(): _log("%s" % line)
+            for line in sys.exc_info():
+                _log("%s" % line)
     cj.save(ficherocookies)  # Actualiza el almacén de cookies
     # Lee los datos y cierra
     if handle.info().get('Content-Encoding') == 'gzip':
@@ -428,7 +429,7 @@ def add_itemcontext(action="", title="", plot="", url="", thumbnail="", fanart="
                     sys.argv[0], action, title, url, urllib.parse.quote_plus(thumbnail), urllib.parse.quote_plus(plot),
                     urllib.parse.quote_plus(extra), urllib.parse.quote_plus(page))
 
-    if not contextmenu == None:
+    if contextmenu:
         listitem.addContextMenuItems(contextmenu)
 
     try:

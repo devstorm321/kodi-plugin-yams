@@ -52,13 +52,7 @@ def asiptvs_vod_videos(params):  # category_id):
             xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
         else:
             items = sorted(json_data, key=lambda k: k['name'], reverse=False)
-            for item in items:
-                label = item["name"]
-                url = stream_url1 + str(item["stream_id"]) + "&type=" + str(item["container_extension"])
-                iconImage = item["stream_icon"]
-                if item["stream_icon"] is None:  iconImage = ''
-                plugintools.add_item(action="asiptvs_play_stream", title=label, url=url, thumbnail=iconImage,
-                                     isPlayable=True)
+            add_items(items, stream_url1)
             xbmcplugin.setContent(int(sys.argv[1]), 'movies')
 
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
@@ -74,57 +68,21 @@ def asiptvs_vod_eng(params):  # category_id):
     if len(json_data):
         items = sorted(json_data, key=lambda k: k['name'], reverse=False)
         result = list([x for x in items if (x["name"].lower().replace(' ', '').startswith(let, 0))])
-
-        for item in result:
-            label = item["name"]
-            url = stream_url1 + str(item["stream_id"]) + "&type=" + str(item["container_extension"])
-            iconImage = item["stream_icon"]
-            if item["stream_icon"] is None:
-                iconImage = ''
-            plugintools.add_item(action="asiptvs_play_stream", title=label, url=url, thumbnail=iconImage,
-                                 isPlayable=True)
+        add_items(result, stream_url1)
 
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')
 
 
-def asiptvs_vod_videos2(category_id):
+def asiptvs_vod_videos2(category_id, let=None):
     url = base + "?" + login_infos + "&action=get_vod_streams&category_id=" + category_id
     response = urlopen(url).read().decode('utf-8')
     json_data = json.loads(response)
     xbmc.log('jsondata {}'.format(json_data))
     if len(json_data):
         items = sorted(json_data, key=lambda k: k['name'], reverse=False)
-        for item in items:
-            label = item["name"]
-            url = stream_url1 + str(item["stream_id"]) + "&type=" + str(item["container_extension"])
-            iconImage = item["stream_icon"]
-            if item["stream_icon"] is None:
-                iconImage = ''
-            plugintools.add_item(action="asiptvs_play_stream", title=label, url=url, thumbnail=iconImage,
-                                 isPlayable=True)
-
-    xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
-    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
-
-
-def asiptvs_vod_videos2l(category_id, let):
-    url = base + "?" + login_infos + "&action=get_vod_streams&category_id=" + category_id
-    response = urlopen(url).read().decode('utf-8')
-    json_data = json.loads(response)
-    xbmc.log('jsondata {}'.format(json_data))
-    if len(json_data):
-        items = sorted(json_data, key=lambda k: k['name'], reverse=False)
-        result = list([x for x in items if (x["name"].lower().replace(' ', '').startswith(let, 0))])
-
-        for item in result:
-            label = item["name"]
-            url = stream_url1 + str(item["stream_id"]) + "&type=" + str(item["container_extension"])
-            iconImage = item["stream_icon"]
-            if item["stream_icon"] is None:
-                iconImage = ''
-            plugintools.add_item(action="asiptvs_play_stream", title=label, url=url, thumbnail=iconImage,
-                                 isPlayable=True)
+        result = list([x for x in items if (x["name"].lower().replace(' ', '').startswith(let, 0))]) if let else items
+        add_items(result, stream_url1)
 
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')
@@ -142,3 +100,14 @@ def asiptvs_play_stream(params):  # url, label):
     time.sleep(3)
     if not xbmc.Player().isPlaying():
         xbmc.executebuiltin('Notification(Channel Unavailable at this moment,,10000,)')
+
+
+def add_items(items, base_url):
+    for item in items:
+        label = item["name"]
+        url = base_url + str(item["stream_id"]) + "&type=" + str(item["container_extension"])
+        iconImage = item["stream_icon"]
+        if item["stream_icon"] is None:
+            iconImage = ''
+        plugintools.add_item(action="asiptvs_play_stream", title=label, url=url, thumbnail=iconImage,
+                             isPlayable=True)

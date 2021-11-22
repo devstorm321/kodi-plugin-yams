@@ -155,11 +155,11 @@ def get_deviceType():
     print((xbmc.getCondVisibility("System.Platform.Windows") == 1))
     if (xbmc.getCondVisibility("System.Platform.Linux") == 1 and (
             xbmc.getInfoLabel("System.BatteryLevel") == "100%" or xbmc.getInfoLabel(
-            "System.BatteryLevel") == "0%")) or xbmc.getCondVisibility(
-            "System.Platform.Linux.RaspberryPi") == 1 or xbmc.getCondVisibility(
-            "System.Platform.Windows") == 1 or xbmc.getCondVisibility(
-            "System.Platform.OSX") == 1 or xbmc.getCondVisibility("System.Platform.ATV2") or xbmc.getCondVisibility(
-            "System.Platform.tvos") == 1 or (xbmc.getCondVisibility("System.Platform.Android") == 1 and (
+        "System.BatteryLevel") == "0%")) or xbmc.getCondVisibility(
+        "System.Platform.Linux.RaspberryPi") == 1 or xbmc.getCondVisibility(
+        "System.Platform.Windows") == 1 or xbmc.getCondVisibility(
+        "System.Platform.OSX") == 1 or xbmc.getCondVisibility("System.Platform.ATV2") or xbmc.getCondVisibility(
+        "System.Platform.tvos") == 1 or (xbmc.getCondVisibility("System.Platform.Android") == 1 and (
             xbmc.getInfoLabel("System.BatteryLevel") == "100%" or xbmc.getInfoLabel("System.BatteryLevel") == "0%")):
         type = "box"
     elif xbmc.getCondVisibility("System.Platform.Android") == 1 or xbmc.getCondVisibility("System.Platform.IOS") == 1:
@@ -211,91 +211,11 @@ def get_genres(force_online=False):
 
 
 def get_movies(username, path, page, per_page, sorting):
-    xbmc.log('get_movies start: path="%s", page="%s", per_page="%s", sorting="%s"'
-             % (path, page, per_page, sorting), xbmc.LOGINFO)
-    request_dict = {
-        'user': username,
-        'task': 'movies',
-        'without_files': '1',
-        'per_page': per_page,
-        'page': page,
-    }
-    if path and path != '-':
-        for filter in path.split('+'):
-            if filter and filter != '-':
-                filter_criteria, id = filter.split('-', 1)
-                if filter_criteria and id and id != '-':
-                    xbmc.log('get_movies filter %s=%s' % (filter_criteria, id))
-                    request_dict[filter_criteria] = id
-    if sorting and sorting != '-':
-        request_dict['sort'] = sorting
-    json_data = __get_json(request_dict)
-    data = json_data['data']
-    items = [{
-        'label': re.sub('\([ 0-9]*?\)', '', video['title']),
-        'thumbnail': video['cover'].replace(' ', '%20'),
-        'fanart': video.get('stills'),  # jaysheel
-        'info': {
-            'originaltitle': video['title'],
-            'tagline': video['collection'],
-            'plot': video['plot'],
-            'year': int(video['year']),
-            'cast': video['cast'].replace(', ', ',').split(','),
-            'director': video['director'],
-            'rating': float(video['rating']),
-            'votes': video['votes'],
-            'genre': __resolve_categories(video['categories'])
-        },
-        'id': video['id'],
-    } for video in data]
-    num_entries = int(json_data['pagination']['count'])
-    has_next_page = (int(page) * int(per_page) < num_entries)
-    xbmc.log('get_movies got items: "%s", np: "%s"' % (items, has_next_page))
-    return items, has_next_page
+    return get_items(username, path, page, per_page, sorting, 'movies')
 
 
 def get_series(username, path, page, per_page, sorting):
-    xbmc.log('get_movies start: path="%s", page="%s", per_page="%s", sorting="%s"'
-             % (path, page, per_page, sorting))
-    request_dict = {
-        'user': username,
-        'task': 'series',
-        'without_files': '1',
-        'per_page': per_page,
-        'page': page,
-    }
-    if path and path != '-':
-        for filter in path.split('+'):
-            if filter and filter != '-':
-                filter_criteria, id = filter.split('-', 1)
-                if filter_criteria and id and id != '-':
-                    xbmc.log('get_movies filter %s=%s' % (filter_criteria, id))
-                    request_dict[filter_criteria] = id
-    if sorting and sorting != '-':
-        request_dict['sort'] = sorting
-    json_data = __get_json(request_dict)
-    seadata = json_data['data']
-    items = [{
-        'label': re.sub('\([ 0-9]*?\)', '', video['title']),
-        'thumbnail': video['cover'].replace(' ', '%20'),
-        'fanart': video.get('stills'),  # jaysheel
-        'info': {
-            'originaltitle': video['title'],
-            'tagline': video['collection'],
-            'plot': video['plot'],
-            'year': int(video['year']),
-            'cast': video['cast'].replace(', ', ',').split(','),
-            'director': video['director'],
-            'rating': float(video['rating']),
-            'votes': video['votes'],
-            'genre': __resolve_categories(video['categories'])
-        },
-        'id': video['id'],
-    } for video in seadata]
-    num_entries = int(json_data['pagination']['count'])
-    has_next_page = (int(page) * int(per_page) < num_entries)
-    xbmc.log('get_movies got items: "%s", np: "%s"' % (items, has_next_page))
-    return items, has_next_page
+    return get_items(username, path, page, per_page, sorting, 'series')
 
 
 def get_tv_streams(username, password):
@@ -512,11 +432,11 @@ def get_seasons(movie_id, username, password, seasn):
     try:
         if seasn == 0:
             url = 'https://api.yamsonline.com/api?task=season&option=com_jsonapi&format=json&cleancache=1&version=v2&user=%s&id=%s&digest=%s' % (
-            username, movie_id, digest)
+                username, movie_id, digest)
 
         else:
             url = 'https://api.yamsonline.com/api?task=season&option=com_jsonapi&format=json&cleancache=1&version=v2&user=%s&id=%s&season_num=%s&digest=%s' % (
-            username, movie_id, seasn, digest)
+                username, movie_id, seasn, digest)
         xbmc.log('get_saisons url %s' % url)
         response = urlopen(url).read().decode('utf-8')
         json_data = json.loads(response)  # ;print(json_data)
@@ -669,93 +589,11 @@ def get_series_files(movie_id, username, password):
 
 
 def get_youtube_playlist(channel, per_page, sorting, pageToken=None):
-    xbmc.log('Getting playlist %s %s' % (channel, pageToken))
-    nextPage = None
-    prevPage = None
-
-    shows = list()
-    if pageToken is None:
-        url = urlopen(YOUTUBE_BASEAPI + YOUTUBE_PLAYLIST % (channel, str(per_page)))
-    else:
-        url = urlopen(YOUTUBE_BASEAPI + YOUTUBE_PLAYLIST_PAGE % (channel, str(per_page), pageToken))
-
-    play_list = json.load(url)
-    num_entries = play_list['pageInfo']['totalResults']
-
-    if 'nextPageToken' in play_list:
-        nextPage = play_list['nextPageToken']
-    if 'prevPageToken' in play_list:
-        prevPage = play_list['prevPageToken']
-
-    if num_entries > 0:
-        for play in play_list['items']:
-            # Get HQ thumbnail
-            thumbnail = ''
-            if 'thumbnails' in play['snippet']:
-                thumb = play['snippet']['thumbnails']
-                if 'high' in thumb:
-                    thumbnail = thumb['high']['url']
-                elif 'medium' in thumb:
-                    thumbnail = thumb['medium']['url']
-                elif 'default' in thumb:
-                    thumbnail = thumb['default']['url']
-
-            shows.append({'name': play['snippet']['title'],
-                          'icon': thumbnail,
-                          'playlist': play['id']})
-
-    return shows, nextPage, prevPage
+    return get_youtube_info('playlist', channel, per_page, sorting, pageToken)
 
 
 def get_youtube_playitem(channel, per_page, sorting, pageToken=None):
-    xbmc.log('Getting playlist for item %s %s' % (channel, pageToken))
-    nextPage = None
-    prevPage = None
-
-    shows = list()
-    if pageToken is None:
-        url = urlopen(YOUTUBE_BASEAPI + YOUTUBE_PLAYLISTITEM % (channel, str(per_page)))
-    else:
-        url = urlopen(YOUTUBE_BASEAPI + YOUTUBE_PLAYLISTITEM_PAGE % (channel, str(per_page), pageToken))
-
-    play_list = json.load(url)
-    num_entries = play_list['pageInfo']['totalResults']
-
-    if 'nextPageToken' in play_list:
-        nextPage = play_list['nextPageToken']
-    if 'prevPageToken' in play_list:
-        prevPage = play_list['prevPageToken']
-
-    if num_entries > 0:
-        for play in play_list['items']:
-            # Get HQ thumbnail
-            thumbnail = ''
-            if 'thumbnails' in play['snippet']:
-                thumb = play['snippet']['thumbnails']
-                if 'high' in thumb:
-                    thumbnail = thumb['high']['url']
-                elif 'medium' in thumb:
-                    thumbnail = thumb['medium']['url']
-                elif 'default' in thumb:
-                    thumbnail = thumb['default']['url']
-
-            shows.append({'name': play['snippet']['title'],
-                          'icon': thumbnail,
-                          'channel': play['contentDetails']['videoId']})
-
-    return shows, nextPage, prevPage
-
-
-'''
-    request_dict = {
-    'task' : 'vod',
-    'sort' : sorting,
-    'per_page' : per_page,
-    'page' : page
-    }
-    json_data = __get_json(request_dict)
-    items = json_data['data']
-    '''
+    return get_youtube_info('channel', channel, per_page, sorting, pageToken)
 
 
 def check_login(username, password, session=None):
@@ -1152,3 +990,90 @@ def get5DayBypass(username, password):
 def getBypassActive(username):
     data = __get_json({"task": "isbypassactive", "username": username})
     return data
+
+
+def get_items(username, path, page, per_page, sorting, task):
+    xbmc.log('get_movies start: path="%s", page="%s", per_page="%s", sorting="%s"'
+             % (path, page, per_page, sorting))
+    request_dict = {
+        'user': username,
+        'task': task,
+        'without_files': '1',
+        'per_page': per_page,
+        'page': page,
+    }
+    if path and path != '-':
+        for filter in path.split('+'):
+            if filter and filter != '-':
+                filter_criteria, id = filter.split('-', 1)
+                if filter_criteria and id and id != '-':
+                    xbmc.log('get_movies filter %s=%s' % (filter_criteria, id))
+                    request_dict[filter_criteria] = id
+    if sorting and sorting != '-':
+        request_dict['sort'] = sorting
+    json_data = __get_json(request_dict)
+    seadata = json_data['data']
+    items = [{
+        'label': re.sub('\([ 0-9]*?\)', '', video['title']),
+        'thumbnail': video['cover'].replace(' ', '%20'),
+        'fanart': video.get('stills'),  # jaysheel
+        'info': {
+            'originaltitle': video['title'],
+            'tagline': video['collection'],
+            'plot': video['plot'],
+            'year': int(video['year']),
+            'cast': video['cast'].replace(', ', ',').split(','),
+            'director': video['director'],
+            'rating': float(video['rating']),
+            'votes': video['votes'],
+            'genre': __resolve_categories(video['categories'])
+        },
+        'id': video['id'],
+    } for video in seadata]
+    num_entries = int(json_data['pagination']['count'])
+    has_next_page = (int(page) * int(per_page) < num_entries)
+    xbmc.log('get_movies got items: "%s", np: "%s"' % (items, has_next_page))
+    return items, has_next_page
+
+
+def get_youtube_info(type, channel, per_page, sorting, pageToken=None):
+    xbmc.log('Getting playlist %s %s' % (channel, pageToken))
+    nextPage = None
+    prevPage = None
+
+    shows = list()
+    if pageToken is None:
+        url = urlopen(YOUTUBE_BASEAPI + YOUTUBE_PLAYLIST % (channel, str(per_page)))
+    else:
+        url = urlopen(YOUTUBE_BASEAPI + YOUTUBE_PLAYLIST_PAGE % (channel, str(per_page), pageToken))
+
+    play_list = json.load(url)
+    num_entries = play_list['pageInfo']['totalResults']
+
+    if 'nextPageToken' in play_list:
+        nextPage = play_list['nextPageToken']
+    if 'prevPageToken' in play_list:
+        prevPage = play_list['prevPageToken']
+
+    if num_entries > 0:
+        for play in play_list['items']:
+            # Get HQ thumbnail
+            thumbnail = ''
+            if 'thumbnails' in play['snippet']:
+                thumb = play['snippet']['thumbnails']
+                if 'high' in thumb:
+                    thumbnail = thumb['high']['url']
+                elif 'medium' in thumb:
+                    thumbnail = thumb['medium']['url']
+                elif 'default' in thumb:
+                    thumbnail = thumb['default']['url']
+            if type == 'playlist':
+                shows.append({'name': play['snippet']['title'],
+                              'icon': thumbnail,
+                              'playlist': play['id']})
+            elif type == 'channel':
+                shows.append({'name': play['snippet']['title'],
+                              'icon': thumbnail,
+                              'channel': play['contentDetails']['videoId']})
+
+    return shows, nextPage, prevPage

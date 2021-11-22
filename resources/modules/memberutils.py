@@ -293,7 +293,7 @@ def amemberCommand(params):
                               'second_total': params['product_second_price'],
                               'second_period': params['product_second_period'],
                               'nested[invoice-payments][0][rebill_date]': '%s-%s-%s' % (
-                              expire.year, expire.month, expire.day),
+                                  expire.year, expire.month, expire.day),
                               'nested[invoice-items][0][rebill_times]': params['product_rebill_times'],
                               'nested[invoice-items][0][second_discount]': '0.00',
                               'nested[invoice-items][0][second_price]': params['product_second_price'],
@@ -313,31 +313,13 @@ def amemberCommand(params):
             result = {'status': True, 'invoice': json.dumps(data)}
     elif params['task'] == 'link_stripe':
         url = amember_api_stripe % (amember_api_key, params['user_id'], params['stripe_id'])
-        data = request('GET', url, headers=headers)
-        data = data.json()
-
-        if 'error' in data:
-            result = {'status': False, 'reason': data['message']}
-        else:
-            result = {'status': True, 'products': json.dumps(data)}
+        result = request_json(url, headers)
     elif params['task'] == 'products':
         url = amember_api_products % (amember_api_key, 'comment', 'KODI')
-        data = request('GET', url, headers=headers)
-        data = data.json()
-
-        if 'error' in data:
-            result = {'status': False, 'reason': data['message']}
-        else:
-            result = {'status': True, 'products': json.dumps(data)}
+        result = request_json(url, headers)
     elif params['task'] == 'product_detail':
         url = amember_api_products % (amember_api_key, 'product_id', params['product_id'])
-        data = request('GET', url, headers=headers)
-        data = data.json()
-
-        if 'error' in data:
-            result = {'status': False, 'reason': data['message']}
-        else:
-            result = {'status': True, 'product_detail': json.dumps(data)}
+        result = request_json(url, headers)
     elif params['task'] == 'check_access':
         url = amember_api_check_access % (amember_api_key, params['login'])
         data = request('GET', url, headers=headers)
@@ -349,7 +331,7 @@ def amemberCommand(params):
     elif params['task'] == 'user_access':
         if params['page']:
             url = amember_api_user_access_page % (
-            amember_api_key, params['user_id'], params['product_id'], params['pagenum'])
+                amember_api_key, params['user_id'], params['product_id'], params['pagenum'])
         else:
             url = amember_api_user_access % (amember_api_key, params['user_id'], params['product_id'])
         data = request('GET', url, headers=headers)
@@ -513,3 +495,15 @@ def __log(text):
     import datetime as dt
 
     print((dt.datetime.now(), 'AstreamWeb addon: %s' % text))
+
+
+def request_json(url, headers):
+    data = request('GET', url, headers=headers)
+    data = data.json()
+
+    if 'error' in data:
+        result = {'status': False, 'reason': data['message']}
+    else:
+        result = {'status': True, 'products': json.dumps(data)}
+
+    return result
