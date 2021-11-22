@@ -5,7 +5,8 @@ Spyder Editor
 This temporary script file is located here:
 D:\00-Costin\Python\WinPython-64bit-2.7.6.4\settings\.spyder2\.temp.py
 """
-import xbmc, xbmcaddon, xbmcgui
+import xbmc
+import xbmcaddon
 
 xbmc.executebuiltin("UpdateAddonRepos")
 

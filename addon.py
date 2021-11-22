@@ -6,6 +6,7 @@ import urllib.parse
 import shutil
 import requests
 import subprocess
+import re
 
 from os import path as os_path
 import datetime as dt
