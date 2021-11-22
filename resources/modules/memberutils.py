@@ -1,13 +1,12 @@
-import re
-import sys, io
-import urllib.error, urllib.parse
-from requests import request
-
-from datetime import date
 import calendar
-
+import io
 import threading
 import time
+import urllib.error
+import urllib.parse
+from datetime import date
+
+from requests import request
 
 try:
     import simplejson as json
@@ -43,7 +42,8 @@ astreamweb_code_verification = 'http://astreamweb.com/codeverification.txt'
 __settings__ = xbmcaddon.Addon(id='plugin.video.yams')
 
 addonPath = xbmcvfs.translatePath(__settings__.getAddonInfo('path'))
-storage = os.path.join(addonPath,'resources/storage.db')
+storage = os.path.join(addonPath, 'resources/storage.db')
+
 
 # Currency: USD, EUR, GBP
 
@@ -64,6 +64,7 @@ class keepAlive(threading.Thread):
 
     def killIt(self):
         self.isAlive = False
+
 
 class card_payment(xbmcgui.WindowXMLDialog):
     def show(self):
@@ -90,9 +91,8 @@ class card_payment(xbmcgui.WindowXMLDialog):
         pass
 
     def onAction(self, action):
-        buttonCode =  action.getButtonCode()
-        actionID   =  action.getId()
-        if (buttonCode == KEY_BUTTON_BACK or buttonCode == KEY_KEYBOARD_ESC):
+        buttonCode = action.getButtonCode()
+        if buttonCode == KEY_BUTTON_BACK or buttonCode == KEY_KEYBOARD_ESC:
             xbmc.executebuiltin('Skin.Reset(AnimeWindowXMLDialogClose)')
             xbmc.executebuiltin('Skin.ResetSettings()')
             self.close()
@@ -121,7 +121,8 @@ class card_payment(xbmcgui.WindowXMLDialog):
         pass
 
     def getData(self):
-        data = {'status': self.status, 'name': self.name, 'number': self.card_number, 'month': self.expiry_month, 'year': self.expiry_year, 'cvv': self.sec_cvv, 'zip': self.zip}
+        data = {'status': self.status, 'name': self.name, 'number': self.card_number, 'month': self.expiry_month,
+                'year': self.expiry_year, 'cvv': self.sec_cvv, 'zip': self.zip}
         return data
 
     def __del__(self):
@@ -130,42 +131,46 @@ class card_payment(xbmcgui.WindowXMLDialog):
     def killIt(self):
         if self.opened:
             dialog = xbmcgui.Dialog()
-            dialog.ok('IMPORTANT MESSAGE', '', 'If you are running Kodi 14.2 or lower there is a chance your system will crash due to a bug in the handling of the popup windows. If this is the case please restart Kodi and your profile will automatically be updated.', '')
+            dialog.ok('IMPORTANT MESSAGE',
+                      'If you are running Kodi 14.2 or lower there is a chance your system will crash due to a bug in '
+                      'the handling of the popup windows. If this is the case please restart Kodi and your profile '
+                      'will automatically be updated.')
         self.thread1.killIt()
+
 
 def stripeCommand(params):
     try:
         if params['task'] == 'token':
             stripeResult = stripe.Token.create(
-                                               card={
-                                               'name': params['name'],
-                                               'number': params['number'],
-                                               'exp_month': params['month'],
-                                               'exp_year': params['year'],
-                                               'cvc': params['cvc'],
-                                               'address_zip': params['zip']
-                                               })
+                card={
+                    'name': params['name'],
+                    'number': params['number'],
+                    'exp_month': params['month'],
+                    'exp_year': params['year'],
+                    'cvc': params['cvc'],
+                    'address_zip': params['zip']
+                })
 
             dic = json.dumps(stripeResult)
             data = json.loads(dic)
             result = {'status': True, 'token': data['id']}
         elif params['task'] == 'customer':
             stripeResult = stripe.Customer.create(
-                                                  email=params['email'],
-                                                  description='Customer for %s' % params['email'],
-                                                  source=params['token']
-                                                  )
+                email=params['email'],
+                description='Customer for %s' % params['email'],
+                source=params['token']
+            )
 
             dic = json.dumps(stripeResult)
             data = json.loads(dic)
             result = {'status': True, 'cust_id': data['id']}
         elif params['task'] == 'charge':
             stripeResult = stripe.Charge.create(
-                                                amount=params['amount'],
-                                                currency=params['currency'],
-                                                customer=params['customer'],
-                                                description=params['sub']
-                                                )
+                amount=params['amount'],
+                currency=params['currency'],
+                customer=params['customer'],
+                description=params['sub']
+            )
             dic = json.dumps(stripeResult)
             data = json.loads(dic)
             result = {'status': True, 'charge_id': data['id']}
@@ -175,7 +180,7 @@ def stripeCommand(params):
         return result
     except stripe.error.CardError as e:
         body = e.json_body
-        err  = body['error']
+        err = body['error']
         __log(err['message'])
 
         dialog = xbmcgui.Dialog()
@@ -183,47 +188,49 @@ def stripeCommand(params):
         pass
     except stripe.error.InvalidRequestError as e:
         body = e.json_body
-        err  = body['error']
+        err = body['error']
         dialog = xbmcgui.Dialog()
         dialog.ok("Stripe Error: Invalid Request", err['message'])
         pass
     except stripe.error.AuthenticationError as e:
         body = e.json_body
-        err  = body['error']
+        err = body['error']
         dialog = xbmcgui.Dialog()
         dialog.ok("Stripe Error: Authentication Error", err['message'])
         pass
     except stripe.error.APIConnectionError as e:
         body = e.json_body
-        err  = body['error']
+        err = body['error']
         dialog = xbmcgui.Dialog()
         dialog.ok("Stripe Error: Communication", err['message'])
         pass
     except stripe.error.StripeError as e:
         body = e.json_body
-        err  = body['error']
+        err = body['error']
         dialog = xbmcgui.Dialog()
         dialog.ok("Stripe Error", err['message'])
         pass
     except Exception as e:
         dialog = xbmcgui.Dialog()
-        dialog.ok("AStreamWeb Error", "Ooops something went wrong and we were unable to process the command. Please try again.")
+        dialog.ok("AStreamWeb Error",
+                  "Ooops something went wrong and we were unable to process the command. Please try again.")
         pass
 
     result = {'status': False, 'reason': 'Stripe Error'}
     return result
 
+
 def amemberCommand(params):
     headers = {'Content-type': 'application/x-www-form-urlencoded'}
 
     if params['task'] == 'customer':
-        post_data = {'_key' : amember_api_key,
-                    'format': 'xml',
-                    'login': params['login'],
-                    'pass': params['pass'],
-                    'email': params['email'],
-                    'name_f': params['name_f'],
-                    'name_l': params['name_l']}
+        post_data = {'_key': amember_api_key,
+                     'format': 'xml',
+                     'login': params['login'],
+                     'pass': params['pass'],
+                     'email': params['email'],
+                     'name_f': params['name_f'],
+                     'name_l': params['name_l']}
         post_data = urllib.parse.urlencode(post_data)
         data = request('POST', amember_api_users, headers=headers, data=post_data)
         data = data.json()
@@ -242,39 +249,39 @@ def amemberCommand(params):
             status = 2
 
         post_data = {'_key': amember_api_key,
-                    'user_id': params['user_id'],
-                    'paysys_id': 'stripe',
-                    'currency': params['currency'],
-                    'first_subtotal': params['product_first_price'],
-                    'first_discount': '0.00',
-                    'first_tax': '0.00',
-                    'first_shipping': '0.00',
-                    'first_total': params['product_first_price'],
-                    'first_period': params['product_first_period'],
-                    'is_confirmed': 1,
-                    'status': status,
-                    'nested[invoice-items][0][item_id]': params['product_id'],
-                    'nested[invoice-items][0][item_type]': 'product',
-                    'nested[invoice-items][0][item_title]': params['product_title'],
-                    'nested[invoice-items][0][item_description]': params['product_desc'],
-                    'nested[invoice-items][0][qty]': 1,
-                    'nested[invoice-items][0][first_discount]': '0.00',
-                    'nested[invoice-items][0][first_price]': params['product_first_price'],
-                    'nested[invoice-items][0][first_tax]': '0.00',
-                    'nested[invoice-items][0][first_shipping]': '0.00',
-                    'nested[invoice-items][0][first_total]': params['product_first_price'],
-                    'nested[invoice-items][0][first_period]': params['product_first_period'],
-                    'nested[invoice-items][0][currency]': params['currency'],
-                    'nested[invoice-items][0][billing_plan_id]': params['billing_plan_id'],
-                    'nested[invoice-payments][0][user_id]': params['user_id'],
-                    'nested[invoice-payments][0][paysys_id]': 'stripe',
-                    'nested[invoice-payments][0][receipt_id]': params['receipt_id'],
-                    'nested[invoice-payments][0][currency]': params['currency'],
-                    'nested[invoice-payments][0][amount]': params['product_first_price'],
-                    'nested[access][0][user_id]': params['user_id'],
-                    'nested[access][0][product_id]': params['product_id'],
-                    'nested[access][0][begin_date]': '%s-%s-%s' % (begin.year, begin.month, begin.day),
-                    'nested[access][0][expire_date]': '%s-%s-%s' % (expire.year, expire.month, expire.day)}
+                     'user_id': params['user_id'],
+                     'paysys_id': 'stripe',
+                     'currency': params['currency'],
+                     'first_subtotal': params['product_first_price'],
+                     'first_discount': '0.00',
+                     'first_tax': '0.00',
+                     'first_shipping': '0.00',
+                     'first_total': params['product_first_price'],
+                     'first_period': params['product_first_period'],
+                     'is_confirmed': 1,
+                     'status': status,
+                     'nested[invoice-items][0][item_id]': params['product_id'],
+                     'nested[invoice-items][0][item_type]': 'product',
+                     'nested[invoice-items][0][item_title]': params['product_title'],
+                     'nested[invoice-items][0][item_description]': params['product_desc'],
+                     'nested[invoice-items][0][qty]': 1,
+                     'nested[invoice-items][0][first_discount]': '0.00',
+                     'nested[invoice-items][0][first_price]': params['product_first_price'],
+                     'nested[invoice-items][0][first_tax]': '0.00',
+                     'nested[invoice-items][0][first_shipping]': '0.00',
+                     'nested[invoice-items][0][first_total]': params['product_first_price'],
+                     'nested[invoice-items][0][first_period]': params['product_first_period'],
+                     'nested[invoice-items][0][currency]': params['currency'],
+                     'nested[invoice-items][0][billing_plan_id]': params['billing_plan_id'],
+                     'nested[invoice-payments][0][user_id]': params['user_id'],
+                     'nested[invoice-payments][0][paysys_id]': 'stripe',
+                     'nested[invoice-payments][0][receipt_id]': params['receipt_id'],
+                     'nested[invoice-payments][0][currency]': params['currency'],
+                     'nested[invoice-payments][0][amount]': params['product_first_price'],
+                     'nested[access][0][user_id]': params['user_id'],
+                     'nested[access][0][product_id]': params['product_id'],
+                     'nested[access][0][begin_date]': '%s-%s-%s' % (begin.year, begin.month, begin.day),
+                     'nested[access][0][expire_date]': '%s-%s-%s' % (expire.year, expire.month, expire.day)}
 
         if status == 2:
             post_data.update({'rebill_times': params['product_rebill_times'],
@@ -285,7 +292,8 @@ def amemberCommand(params):
                               'second_shipping': '0.00',
                               'second_total': params['product_second_price'],
                               'second_period': params['product_second_period'],
-                              'nested[invoice-payments][0][rebill_date]': '%s-%s-%s' % (expire.year, expire.month, expire.day),
+                              'nested[invoice-payments][0][rebill_date]': '%s-%s-%s' % (
+                              expire.year, expire.month, expire.day),
                               'nested[invoice-items][0][rebill_times]': params['product_rebill_times'],
                               'nested[invoice-items][0][second_discount]': '0.00',
                               'nested[invoice-items][0][second_price]': params['product_second_price'],
@@ -331,16 +339,17 @@ def amemberCommand(params):
         else:
             result = {'status': True, 'product_detail': json.dumps(data)}
     elif params['task'] == 'check_access':
-        url = amember_api_check_access %(amember_api_key, params['login'])
+        url = amember_api_check_access % (amember_api_key, params['login'])
         data = request('GET', url, headers=headers)
         result = data.json()
     elif params['task'] == 'user_info':
-        url = amember_api_user_info %(amember_api_key, params['login'])
+        url = amember_api_user_info % (amember_api_key, params['login'])
         data = request('GET', url, headers=headers)
         result = data.json()
     elif params['task'] == 'user_access':
         if params['page']:
-            url = amember_api_user_access_page % (amember_api_key, params['user_id'], params['product_id'], params['pagenum'])
+            url = amember_api_user_access_page % (
+            amember_api_key, params['user_id'], params['product_id'], params['pagenum'])
         else:
             url = amember_api_user_access % (amember_api_key, params['user_id'], params['product_id'])
         data = request('GET', url, headers=headers)
@@ -353,12 +362,12 @@ def amemberCommand(params):
     elif params['task'] == 'cancel_subscription':
         cancel = date.today()
 
-        post_data = {'_key' : amember_api_key,
+        post_data = {'_key': amember_api_key,
                      'status': 3,
                      'tm_cancelled': '%s-%s-%s' % (cancel.year, cancel.month, cancel.day),
                      'rebill_date': ''}
 
-        data = request('PUT', amember_api_cancel_invoice  %params['invoice_id'], headers=headers, data=post_data)
+        data = request('PUT', amember_api_cancel_invoice % params['invoice_id'], headers=headers, data=post_data)
         data = data.json()
 
         if 'error' in data:
@@ -368,7 +377,7 @@ def amemberCommand(params):
     elif params['task'] == 'exclusion':
         excludes = list()
 
-        url = amember_api_check_access %(amember_api_key, params['login'])
+        url = amember_api_check_access % (amember_api_key, params['login'])
         data = request('GET', url, headers=headers)
         user = data.json()
 
@@ -404,9 +413,9 @@ def amemberCommand(params):
                 invoice_id = data[str(index)]['invoice_id']
 
         if invoice_id is not None:
-            post_data = {'_key' : amember_api_key}
+            post_data = {'_key': amember_api_key}
 
-            data = request('PUT', amember_api_cancel_invoice  %invoice_id, headers=headers, data=post_data)
+            data = request('PUT', amember_api_cancel_invoice % invoice_id, headers=headers, data=post_data)
             data = data.json()
             __log(data)
 
@@ -421,6 +430,7 @@ def amemberCommand(params):
 
     return result
 
+
 def captureUserInfo():
     dialog = xbmcgui.Dialog()
     headers = {'Content-type': 'application/x-www-form-urlencoded'}
@@ -434,7 +444,7 @@ def captureUserInfo():
         validUser = False
         while not validUser:
             username = dialog.input('Please Enter Your Desired Username', type=xbmcgui.INPUT_ALPHANUM)
-            url = amember_api_check_access %(amember_api_key, username)
+            url = amember_api_check_access % (amember_api_key, username)
             data = request('GET', url, headers=headers)
             result = data.json()
             if not result['ok']:
@@ -445,9 +455,11 @@ def captureUserInfo():
 
         isSame = False
         while not isSame:
-            pass_1 = dialog.input('Please Enter A Password', type=xbmcgui.INPUT_ALPHANUM, option=xbmcgui.ALPHANUM_HIDE_INPUT)
+            pass_1 = dialog.input('Please Enter A Password', type=xbmcgui.INPUT_ALPHANUM,
+                                  option=xbmcgui.ALPHANUM_HIDE_INPUT)
             __log(pass_1)
-            pass_2 = dialog.input('Please Enter The Same Password Again', type=xbmcgui.INPUT_ALPHANUM, option=xbmcgui.ALPHANUM_HIDE_INPUT)
+            pass_2 = dialog.input('Please Enter The Same Password Again', type=xbmcgui.INPUT_ALPHANUM,
+                                  option=xbmcgui.ALPHANUM_HIDE_INPUT)
             __log(pass_2)
 
             if pass_1 == pass_2:
@@ -456,11 +468,12 @@ def captureUserInfo():
                 dialog.ok('Password Error',
                           'The passwords you entered do not match. Please make sure you enter the same password twice. Ensure CAPSLOCK is turned off.')
 
-
-        user = {'error': False, 'name_f': name_f, 'name_l': name_l, 'email': email, 'pass': pass_1, 'username': username}
+        user = {'error': False, 'name_f': name_f, 'name_l': name_l, 'email': email, 'pass': pass_1,
+                'username': username}
     else:
         user = {'error': True}
     return user
+
 
 def codeverification(username):
     response = urllib.request.urlopen(astreamweb_code_verification)
@@ -474,23 +487,27 @@ def codeverification(username):
         return False
 
     return True
-    
+
+
 def fetchStorage():
     with io.open(storage, 'r') as data_file:
         data = json.load(data_file)
     return data
+
 
 def writeStorage(customer_id=None, user_id=None, email=None):
     data = {'customer_id': customer_id, 'user_id': user_id, 'email': email}
     with io.open(storage, 'w') as data_file:
         json.dump(data, data_file)
 
+
 def add_months(sourcedate, months):
     month = sourcedate.month - 1 + months
     year = sourcedate.year + month / 12
     month = month % 12 + 1
-    day = min(sourcedate.day, calendar.monthrange(year,month)[1])
+    day = min(sourcedate.day, calendar.monthrange(year, month)[1])
     return date(year, month, day)
+
 
 def __log(text):
     import datetime as dt

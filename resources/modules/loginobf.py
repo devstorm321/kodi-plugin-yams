@@ -1,11 +1,11 @@
 import re
-import requests
 import traceback
 
 BASE_URL = "https://einthusan.tv"
 LOGIN_USERNAME = "kilavan8@gmail.com"
 LOGIN_PASSWORD = "654321"
-USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36"
+USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 " \
+             "Safari/537.36 "
 LANGUAGE = "tamil"
 
 
@@ -14,11 +14,10 @@ def login_info(s, refererurl):
     headers = {
         "Origin": BASE_URL,
         "Referer": refererurl,
-		"User-Agent": USER_AGENT,
-    }
+        "User-Agent": USER_AGENT}
     try:
         html1 = s.get(
-        	BASE_URL + "/login/?lang=" + language, headers=headers, allow_redirects=False,
+            BASE_URL + "/login/?lang=" + language, headers=headers, allow_redirects=False,
         ).text
 
         csrf1 = re.findall("data-pageid=[\"'](.*?)[\"']", html1)[0]
@@ -32,17 +31,17 @@ def login_info(s, refererurl):
         postdata2 = {
             "xEvent": "Login",
             "xJson": '{"Email":"'
-            + LOGIN_USERNAME
-            + '","Password":"'
-            + LOGIN_PASSWORD
-            + '"}',
+                     + LOGIN_USERNAME
+                     + '","Password":"'
+                     + LOGIN_PASSWORD
+                     + '"}',
             "arcVersion": 3,
             "appVersion": 59,
             "tabID": csrf1 + "48",
             "gorilla.csrf.Token": csrf1,
         }
         html2 = s.post(
-        	BASE_URL + "/ajax/login/?lang=" + language,
+            BASE_URL + "/ajax/login/?lang=" + language,
             headers=headers,
             cookies=s.cookies,
             data=postdata2,

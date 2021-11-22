@@ -23,11 +23,6 @@ if password == "" or password is None:
     dialog.ok("Oops", "Sorry Password is invalid/compulsory")
     sys.exit(0)
 
-# Unused
-# if session == "" or session is None:
-#     dialog.ok("Oops", "Sorry Current Session is invalid/compulsory")
-#     sys.exit(0)
-
 if dialog.yesno('Kill Session', 'Kill all sessions?'):
     success, message = scraper.delete_sessions(username, password)
     if success:

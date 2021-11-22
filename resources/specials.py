@@ -1,12 +1,24 @@
-import sys, json, urllib.request, urllib.error, urllib.parse, urllib.request, urllib.parse, urllib.error, xbmcgui, xbmcplugin
-addonHandle   = int(sys.argv[1])
-baseUrl       = sys.argv[0]
+import json
+import sys
+import urllib.error
+import urllib.error
+import urllib.parse
+import urllib.parse
+import urllib.request
+import urllib.request
+import xbmcgui
+import xbmcplugin
+
+addonHandle = int(sys.argv[1])
+baseUrl = sys.argv[0]
+
 
 def addDirectory(name, image, build_url, is_folder=True):
     li = xbmcgui.ListItem(name)
-    li.setArt({'thumb':str(image)})
+    li.setArt({'thumb': str(image)})
     li.setProperty('IsPlayable', 'True')
-    xbmcplugin.addDirectoryItem(handle=addonHandle, url=build_url, listitem=li, isFolder = is_folder)
+    xbmcplugin.addDirectoryItem(handle=addonHandle, url=build_url, listitem=li, isFolder=is_folder)
+
 
 def buildUrl(query):
     return baseUrl + '?' + urllib.parse.urlencode(query)
@@ -28,7 +40,7 @@ def vijayVOD(url, mode, isDirectory):
     else:
         items = json.loads(html)
         for item in items:
-            dirBuildUrl = buildUrl({"mode" : "vijayVOD", "url" : item['url'], "isDirectory" : item['isDirectory']})
+            dirBuildUrl = buildUrl({"mode": "vijayVOD", "url": item['url'], "isDirectory": item['isDirectory']})
             addDirectory(item['title'], item['imageUrl'], dirBuildUrl, item['isDirectory'])
 
         xbmcplugin.endOfDirectory(addonHandle)

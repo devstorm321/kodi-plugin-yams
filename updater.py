@@ -1,21 +1,31 @@
+import os
+import time
+import urllib.error
+import urllib.error
+import urllib.parse
+import urllib.parse
+import urllib.request
+import urllib.request
 from distutils.version import LooseVersion
-import time,os
-import urllib.request, urllib.error, urllib.parse, urllib.request, urllib.parse, urllib.error
-import xbmc, xbmcgui,xbmcaddon, xbmcvfs
+
+import xbmc
+import xbmcaddon
+import xbmcgui
+import xbmcvfs
 
 AddonID = 'plugin.video.yams'
-addonPath=xbmcaddon.Addon(id=AddonID).getAddonInfo('path')
-addonPath=xbmcvfs.translatePath(addonPath);
-xbmcPath=os.path.join(addonPath,"..","..")
-xbmcPath=os.path.abspath(xbmcPath)
+addonPath = xbmcaddon.Addon(id=AddonID).getAddonInfo('path')
+addonPath = xbmcvfs.translatePath(addonPath)
+xbmcPath = os.path.join(addonPath, "..", "..")
+xbmcPath = os.path.abspath(xbmcPath)
 
 ICON = xbmcvfs.translatePath(os.path.join(addonPath, 'icon.png'))
 
 ADDON_NAME = "AStreamweb"
 
-
 APK_URL = "http://plugin.astreamweb.com/AstreamWeb-Play.apk"
 VERSION_URL = "https://astreamweb.com/kodi/astream_version.txt"
+
 
 def availableUpdate():
     osVersion = xbmc.getInfoLabel('System.OSVersionInfo')
@@ -35,14 +45,15 @@ def availableUpdate():
 
     return False
 
+
 def upgrade_astreamweb(path):
-    if not xbmcgui.Dialog().yesno("Updater", "This Updater works only with Fire TV and Android devices, proceed?", nolabel="No", yeslabel="Yes"): return False
-#       if xbmcvfs.exists(path): xbmcvfs.delete(path)
+    if not xbmcgui.Dialog().yesno("Updater", "This Updater works only with Fire TV and Android devices, proceed?",
+                                  nolabel="No", yeslabel="Yes"): return False
+    #       if xbmcvfs.exists(path): xbmcvfs.delete(path)
     if downloadAPK(APK_URL, path):
         installAPK(path)
     else:
         xbmcgui.Dialog().ok("Updater", "Installation failed, check log files.")
-
 
 
 def downloadAPK(url, dest):
@@ -55,8 +66,9 @@ def downloadAPK(url, dest):
     except Exception as e:
         dia.close()
         xbmcgui.Dialog().notification(ADDON_NAME, __language__(30001), ICON, 4000)
-        xbmcvfs.log("downloadAPK, Failed! (%s) %s"%(url,str(e)), xbmc.LOGERROR)
-        xbmcvfs.delete(addonPath); return False
+        xbmcvfs.log("downloadAPK, Failed! (%s) %s" % (url, str(e)), xbmc.LOGERROR)
+        xbmcvfs.delete(addonPath);
+        return False
     return True
 
 
@@ -65,8 +77,10 @@ def pbhook(numblocks, blocksize, filesize, dia, start_time):
         percent = min(numblocks * blocksize * 100 / filesize, 100)
         currently_downloaded = float(numblocks) * blocksize / (1024 * 1024)
         kbps_speed = numblocks * blocksize / (time.time() - start_time)
-        if kbps_speed > 0: eta = (filesize - numblocks * blocksize) / kbps_speed
-        else: eta = 0
+        if kbps_speed > 0:
+            eta = (filesize - numblocks * blocksize) / kbps_speed
+        else:
+            eta = 0
         kbps_speed = kbps_speed / 1024
         total = float(filesize) / (1024 * 1024)
         mbs = '%.02f MB of %.02f MB' % (currently_downloaded, total)
@@ -78,18 +92,21 @@ def pbhook(numblocks, blocksize, filesize, dia, start_time):
         dia.update(percent)
     if dia.iscanceled(): raise Exception('Download Canceled')
 
+
 def fresh_starty():
     try:
-        for root, dirs, files in os.walk(xbmcPath,topdown=False):
+        for root, dirs, files in os.walk(xbmcPath, topdown=False):
             for name in files:
                 try:
-                    if name not in ["tmp.apk","updater.py"]: os.remove(os.path.join(root,name))
+                    if name not in ["tmp.apk", "updater.py"]: os.remove(os.path.join(root, name))
                 except:
-                    if name not in ["Addons15.db","MyVideos75.db","Textures13.db","xbmc.log","tmp.apk","updater.py"]: failed=True
+                    if name not in ["Addons15.db", "MyVideos75.db", "Textures13.db", "xbmc.log", "tmp.apk",
+                                    "updater.py"]: failed = True
             for name in dirs:
-                try: os.rmdir(os.path.join(root,name))
+                try:
+                    os.rmdir(os.path.join(root, name))
                 except:
-                    if name not in ["Database","userdata","addons","plugin.video.yams"]: failed=True
+                    if name not in ["Database", "userdata", "addons", "plugin.video.yams"]: failed = True
         if failed:
             dialog = xbmcgui.Dialog()
             dialog.ok("Astreamweb", "User data successfully deleted")
@@ -101,20 +118,22 @@ def fresh_starty():
         dialog.ok("Astreamweb", "Deleting user data failed")
     xbmc.executebuiltin('Skin.ResetSettings')
 
+
 def fresh_start():
-    xbmc.log("freshstart.main_list xbmcPath="+xbmcPath)
-    failed=False
+    xbmc.log("freshstart.main_list xbmcPath=" + xbmcPath)
+    failed = False
     try:
-        for root, dirs, files in os.walk(xbmcPath,topdown=False):
+        for root, dirs, files in os.walk(xbmcPath, topdown=False):
             for name in files:
                 try:
-                    if name not in ["tmp.apk","updater.py"]: os.remove(os.path.join(root,name))
+                    if name not in ["tmp.apk", "updater.py"]: os.remove(os.path.join(root, name))
                 except:
-                    if name not in ["Addons15.db","MyVideos75.db","Textures13.db","xbmc.log"]: failed=True
+                    if name not in ["Addons15.db", "MyVideos75.db", "Textures13.db", "xbmc.log"]: failed = True
             for name in dirs:
-                try: os.rmdir(os.path.join(root,name))
+                try:
+                    os.rmdir(os.path.join(root, name))
                 except:
-                    if name not in ["Database","userdata"]: failed=True
+                    if name not in ["Database", "userdata"]: failed = True
         if failed:
             dialog = xbmcgui.Dialog()
             dialog.ok("Astreamweb", "Deleting user data failed")
@@ -126,11 +145,13 @@ def fresh_start():
         dialog.ok("Astreamweb", "Deleting user data failed")
     xbmc.executebuiltin('Skin.ResetSettings')
 
+
 def installAPK(apkfile):
-        #import resources.modules.fresh_start as fresh_start
-#       fresh_start()#fresh_start.fresh_start()
-    xbmc.executebuiltin('StartAndroidActivity("","android.intent.action.VIEW","application/vnd.android.package-archive","file:'+apkfile+'")')
+    # import resources.modules.fresh_start as fresh_start
+    #       fresh_start()#fresh_start.fresh_start()
+    xbmc.executebuiltin(
+        'StartAndroidActivity("","android.intent.action.VIEW","application/vnd.android.package-archive","file:' + apkfile + '")')
 
 
-__settings__=xbmcaddon.Addon(id = AddonID)
-__language__=__settings__.getLocalizedString
+__settings__ = xbmcaddon.Addon(id=AddonID)
+__language__ = __settings__.getLocalizedString

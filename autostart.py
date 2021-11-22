@@ -11,13 +11,10 @@ xbmc.executebuiltin("UpdateAddonRepos")
 
 xbmc.executebuiltin("UpdateLocalAddons")
 
-autostart  = xbmcaddon.Addon(id='plugin.video.yams').getSetting("autostart")
+autostart = xbmcaddon.Addon(id='plugin.video.yams').getSetting("autostart")
 
-#dialog = xbmcgui.Dialog()
-#xbmcgui.Dialog().ok('Auto Start Value: ', autostart)
-
-if (autostart == 'true'):
+if autostart == 'true':
     autostart = True
-    xbmc.executebuiltin( "ActivateWindow(Videos,plugin://plugin.video.yams)" )
+    xbmc.executebuiltin("ActivateWindow(Videos,plugin://plugin.video.yams)")
 else:
     autostart = False

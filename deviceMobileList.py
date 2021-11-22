@@ -1,7 +1,6 @@
 import xbmc, xbmcaddon, xbmcgui
 import resources.modules.scraper as scraper
-import urllib.request, urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse
-import json,requests
+import requests
 
 import sys
 
@@ -33,14 +32,16 @@ third = ""
 k = 0
 dialog = xbmcgui.Dialog()
 xbmc.log(' devices {}'.format(devices))
+
+
 for device in devices["mobiles"]:
     if device["device_type"] == "mobile":
         ip = device["remote_addr"]
         headers = {"authorization": "Basic MTI0OTU4Om5aMm1EV0M0aFBvTVpUS08=",
-           "User-Agent": "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36"}
+                   "User-Agent": "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36"}
         url = "https://geoip.maxmind.com/geoip/v2.1/city/{0}".format(ip)
 
-        georesp = requests.get(url,headers=headers)
+        georesp = requests.get(url, headers=headers)
         georesp = json_loads(georesp.text)
         if georesp["city"]["names"]["en"] != "":
             location = georesp["city"]["names"]["en"]
@@ -55,5 +56,7 @@ for device in devices["mobiles"]:
         elif k == 2:
             third = "{0} {1}".format(ip, location)
             k = 3
-if k ==0 : dialog.ok("Active mobile devices", ' No mobile device active' )
-else : dialog.ok("Active mobile devices", first, second, third)
+if k == 0:
+    dialog.ok("Active mobile devices", ' No mobile device active')
+else:
+    dialog.ok("Active mobile devices", first, second, third)

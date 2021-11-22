@@ -1,7 +1,7 @@
 import xbmc, xbmcaddon, xbmcgui
 import resources.modules.scraper as scraper
-import urllib.request, urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, requests
-import json
+import requests
+import sys
 
 try:
     from simplejson import loads as json_loads
@@ -14,6 +14,8 @@ except:
 __settings__ = xbmcaddon.Addon(id='plugin.video.yams')
 username = __settings__.getSetting(id="username")
 password = __settings__.getSetting(id="password")
+
+dialog = xbmcgui.Dialog()
 
 if username == "" or username is None:
     dialog.ok("Oops", "Sorry Username is invalid/compulsory")
@@ -28,11 +30,12 @@ first = ""
 second = ""
 third = ""
 k = 0
-dialog = xbmcgui.Dialog()
+
 xbmc.log(' devices {}'.format(devices))
 dev = []
 
-def remove_device(user, passd,sess_id):
+
+def remove_device(user, passd, sess_id):
     request_dict = {
         'task': 'removedevice',
         'username': user,
@@ -53,38 +56,38 @@ for device in devices["boxes"]:
 
         appversion = device["App_Version"]
         headers = {"authorization": "Basic MTI0OTU4Om5aMm1EV0M0aFBvTVpUS08=",
-           "User-Agent": "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36"}
+                   "User-Agent": "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36"}
         url = "https://geoip.maxmind.com/geoip/v2.1/city/{0}".format(ip)
 
-        georesp = requests.get(url,headers=headers)
+        georesp = requests.get(url, headers=headers)
         georesp = json_loads(georesp.text)
         if georesp["city"]["names"]["en"] != "":
             location = georesp["city"]["names"]["en"]
         elif georesp["country"]["names"]["en"] != "":
             location = georesp["country"]["names"]["en"]
         if k == 0:
-            dev.append(("{0}, {1}, {2}".format(ip,location,appversion)))
+            dev.append(("{0}, {1}, {2}".format(ip, location, appversion)))
             k = 1
         elif k == 1:
-            dev.append(("{0}, {1}, {2}".format(ip,location,appversion)))
+            dev.append(("{0}, {1}, {2}".format(ip, location, appversion)))
             k = 2
         elif k == 2:
-            dev.append(("{0}, {1}, {2}".format(ip,location,appversion)))
+            dev.append(("{0}, {1}, {2}".format(ip, location, appversion)))
             k = 3
         elif k == 3:
-            dev.append(("{0}, {1}, {2}".format(ip,location,appversion)))
+            dev.append(("{0}, {1}, {2}".format(ip, location, appversion)))
             k = 4
         elif k == 4:
-            dev.append(("{0}, {1}, {2}".format(ip,location,appversion)))
+            dev.append(("{0}, {1}, {2}".format(ip, location, appversion)))
             k = 5
         elif k == 5:
-            dev.append(("{0}, {1}, {2}".format(ip,location,appversion)))
+            dev.append(("{0}, {1}, {2}".format(ip, location, appversion)))
             k = 6
         elif k == 6:
-            dev.append(("{0}, {1}, {2}".format(ip,location,appversion)))
+            dev.append(("{0}, {1}, {2}".format(ip, location, appversion)))
             k = 7
         elif k == 7:
-            dev.append(("{0}, {1}, {2}".format(ip,location,appversion)))
+            dev.append(("{0}, {1}, {2}".format(ip, location, appversion)))
             k = 8
 
 for device in devices["mobiles"]:
@@ -93,35 +96,35 @@ for device in devices["mobiles"]:
         sessionid = device["session_id"]
         appversion = device["App_Version"]
         headers = {"authorization": "Basic MTI0OTU4Om5aMm1EV0M0aFBvTVpUS08=",
-           "User-Agent": "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36"}
+                   "User-Agent": "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36"}
         url = "https://geoip.maxmind.com/geoip/v2.1/city/{0}".format(ip)
 
-        georesp = requests.get(url,headers=headers)
+        georesp = requests.get(url, headers=headers)
         georesp = json_loads(georesp.text)
         if georesp["city"]["names"]["en"] != "":
             location = georesp["city"]["names"]["en"]
         elif georesp["country"]["names"]["en"] != "":
             location = georesp["country"]["names"]["en"]
         if k == 0:
-            dev.append(("{0}, {1}, {2}".format(ip,location,appversion,)))
+            dev.append(("{0}, {1}, {2}".format(ip, location, appversion, )))
             k = 1
         elif k == 1:
-            dev.append(("{0}, {1}, {2}".format(ip,location,appversion,)))
+            dev.append(("{0}, {1}, {2}".format(ip, location, appversion, )))
             k = 2
         elif k == 2:
-            dev.append(("{0}, {1}, {2}".format(ip,location,appversion,)))
+            dev.append(("{0}, {1}, {2}".format(ip, location, appversion, )))
             k = 3
         elif k == 3:
-            dev.append(("{0}, {1}, {2}".format(ip,location,appversion,)))
+            dev.append(("{0}, {1}, {2}".format(ip, location, appversion, )))
             k = 4
         elif k == 4:
-            dev.append(("{0}, {1}, {2}".format(ip,location,appversion,)))
+            dev.append(("{0}, {1}, {2}".format(ip, location, appversion, )))
             k = 5
         elif k == 5:
-            dev.append(("{0}, {1}, {2}".format(ip,location,appversion,)))
+            dev.append(("{0}, {1}, {2}".format(ip, location, appversion, )))
             k = 6
 
-
-if k ==0 : dialog.ok("Active devices", ' No device active' )
-else :
+if k == 0:
+    dialog.ok("Active devices", ' No device active')
+else:
     dev_rem = dialog.contextmenu(dev)

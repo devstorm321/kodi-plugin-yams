@@ -1,9 +1,17 @@
-from distutils.version import LooseVersion
-import urllib.request, urllib.error, urllib.parse, urllib.request, urllib.parse, urllib.error
+import os
 import time
-import xbmc, xbmcgui,xbmcaddon, xbmcvfs
+import urllib.error
+import urllib.error
+import urllib.parse
+import urllib.parse
+import urllib.request
+import urllib.request
+from distutils.version import LooseVersion
 
-import os, re
+import xbmc
+import xbmcaddon
+import xbmcgui
+import xbmcvfs
 
 APK_URL = "http://www.indiangilma.com/rss/PerfectPlayer.apk"
 VERSION_URL = "https://astreamweb.com/kodi/astream_version.txt"
@@ -31,14 +39,18 @@ def availableUpdate():
 
     return False
 
+
 def upgrade_astreamweb(path):
-    if not xbmcgui.Dialog().yesno("Updater", "This Updater works only with Fire TV and Android devices, proceed?", nolabel="No", yeslabel="Yes"): return False
+    if not xbmcgui.Dialog().yesno(
+            "Updater",
+            "This Updater works only with Fire TV and Android devices, proceed?",
+            nolabel="No", yeslabel="Yes"):
+        return False
     if xbmcvfs.exists(path): xbmcvfs.delete(path)
     if downloadAPK(APK_URL, path):
         installAPK(path)
     else:
         xbmcgui.Dialog().ok("Updater", "Installation failed, check log files.")
-
 
 
 def downloadAPK(url, dest):
@@ -51,7 +63,7 @@ def downloadAPK(url, dest):
     except Exception as e:
         dia.close()
         xbmcgui.Dialog().notification(ADDON_NAME, __language__(30001), ICON, 4000)
-        xbmc.log("downloadAPK, Failed! (%s) %s"%(url,str(e)), xbmc.LOGERROR)
+        xbmc.log("downloadAPK, Failed! (%s) %s" % (url, str(e)), xbmc.LOGERROR)
         xbmcvfs.delete(PATH)
         return False
     return True
@@ -62,8 +74,10 @@ def pbhook(numblocks, blocksize, filesize, dia, start_time):
         percent = min(numblocks * blocksize * 100 / filesize, 100)
         currently_downloaded = float(numblocks) * blocksize / (1024 * 1024)
         kbps_speed = numblocks * blocksize / (time.time() - start_time)
-        if kbps_speed > 0: eta = (filesize - numblocks * blocksize) / kbps_speed
-        else: eta = 0
+        if kbps_speed > 0:
+            eta = (filesize - numblocks * blocksize) / kbps_speed
+        else:
+            eta = 0
         kbps_speed = kbps_speed / 1024
         total = float(filesize) / (1024 * 1024)
         mbs = '%.02f MB of %.02f MB' % (currently_downloaded, total)
@@ -77,10 +91,11 @@ def pbhook(numblocks, blocksize, filesize, dia, start_time):
 
 
 def installAPK(apkfile):
-    xbmc.executebuiltin('StartAndroidActivity("","android.intent.action.VIEW","application/vnd.android.package-archive","file:'+apkfile+'")')
+    xbmc.executebuiltin(
+        'StartAndroidActivity("","android.intent.action.VIEW","application/vnd.android.package-archive","file:' + apkfile + '")')
 
 
 AddonID = 'plugin.video.yams'
 
-__settings__=xbmcaddon.Addon(id=AddonID)
-__language__=__settings__.getLocalizedString
+__settings__ = xbmcaddon.Addon(id=AddonID)
+__language__ = __settings__.getLocalizedString

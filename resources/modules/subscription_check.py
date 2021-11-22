@@ -1,32 +1,39 @@
-import urllib.request, urllib.error, urllib.parse
 import json
-import xbmc, xbmcaddon, xbmcgui, xbmcvfs
-from . import scraper
-import traceback
 import os
+import traceback
+import urllib.error
+import urllib.parse
+import urllib.request
+
+import xbmc
+import xbmcaddon
+import xbmcgui
+import xbmcvfs
+
+from . import scraper
+
 
 def setSubscriptionButton(username):
     try:
         path = xbmcvfs.translatePath(os.path.join('special://home/userdata', ''))
-        url = "https://yamshost.org/amember/api/check-access/by-login?_key=HODzCPbEpwmz4ufir2jimobile&login=%s" % username
+        url = f"https://yamshost.org/amember/api/check-access/by-login?_key=HODzCPbEpwmz4ufir2jimobile&login={username}"
         response = urllib.request.urlopen(url).read().decode('utf-8')
         jsonResp = json.loads(response)
-        print((jsonResp, "BBBBBBBBBB"))
-        categories = jsonResp["categories"]
+
         categories = [int(a) for a in list(jsonResp["categories"].keys())]
         category = ""
         print(categories)
-        if 2 in categories: # basic cat
+        if 2 in categories:  # basic cat
             category = "Basic"
             xbmc.executebuiltin('Skin.SetBool(HomeMenuNoBasicButton)')
             xbmc.executebuiltin('Skin.Reset(%s)' % 'HomeMenuNoStandardButton')
             xbmc.executebuiltin('Skin.Reset(%s)' % 'HomeMenuNoPremiumButton')
-        if 12 in categories: # standard cat
+        if 12 in categories:  # standard cat
             xbmc.executebuiltin('Skin.SetBool(HomeMenuNoStandardButton)')
             xbmc.executebuiltin('Skin.Reset(%s)' % 'HomeMenuNoBasicButton')
             xbmc.executebuiltin('Skin.Reset(%s)' % 'HomeMenuNoPremiumButton')
             category = "Standard"
-        if 125 in categories: # premium cat
+        if 125 in categories:  # premium cat
             category = "Premium"
             xbmc.executebuiltin('Skin.SetBool(HomeMenuNoPremiumButton)')
             xbmc.executebuiltin('Skin.Reset(%s)' % 'HomeMenuNoBasicButton')
@@ -50,11 +57,13 @@ def setSubscriptionButton(username):
         print('>>> end of traceback <<<')
         pass
 
+
 def skin_update(category):
     dialog = xbmcgui.Dialog()
-    dialog.ok('Notice', "Due to a change of your subscription, we are updating the skin to be accustomed to subscription level: %s" % category)
+    dialog.ok('Notice',
+              f"Due to a change of your subscription, we are updating the skin to be accustomed to subscription level: {category}")
     # selecting skin Languages
-    __settings__   = xbmcaddon.Addon(id='plugin.video.yams')
+    __settings__ = xbmcaddon.Addon(id='plugin.video.yams')
     langs = __settings__.getSetting('channellanguage').lower()
     config1 = "https://astreamweb.com/kodi/skin/{0}/skin.estuary-mainmenu.DATA.xml".format(langs.lower())
     config2 = "https://astreamweb.com/kodi/skin/{0}/skin.estuary-videosubmenu.DATA.xml".format(langs.lower())

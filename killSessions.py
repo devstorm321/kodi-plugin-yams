@@ -1,5 +1,4 @@
 __author__ = 'clearkruti'
-import sys
 import logging
 import xbmc,xbmcgui,xbmcaddon
 
@@ -26,9 +25,5 @@ if password == "" or password is None:
     xbmc.executebuiltin("WindowClose()")
     xbmc.executebuiltin("ActivateWindow(Home)")
 
-# Unused
-# if session == "" or session is None:
-#     dialog.ok("Oops", "Sorry Current Session is invalid/compulsory")
-#     sys.exit(0)
 scraper.delete_sessions(username, password)
 xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
