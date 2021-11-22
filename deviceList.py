@@ -9,6 +9,9 @@ except:
     print(('Plugin Error', 'simplejson import error: limited functionality'))
     pass
 
+from common import get_device_info
+
+
 dialog = xbmcgui.Dialog()
 # Ideally do not use username & password when there is a valid session to kill
 # But cannot guarantee valid session
@@ -51,19 +54,7 @@ def remove_device(user, passd, sess_id):
 
 for device in devices["boxes"]:
     if device["device_type"] == "box":
-        ip = device["remote_addr"]
-        sessionid = device["session_id"]
-        appversion = device["App_Version"]
-        headers = {"authorization": "Basic MTI0OTU4Om5aMm1EV0M0aFBvTVpUS08=",
-                   "User-Agent": "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36"}
-        url = "https://geoip.maxmind.com/geoip/v2.1/city/{0}".format(ip)
-
-        georesp = requests.get(url, headers=headers)
-        georesp = json_loads(georesp.text)
-        if georesp["city"]["names"]["en"] != "":
-            location = georesp["city"]["names"]["en"]
-        elif georesp["country"]["names"]["en"] != "":
-            location = georesp["country"]["names"]["en"]
+        ip, location, appversion, sessionid = get_device_info()
         if k == 0:
             dev.append(("{0}, {1}, {2},{3}".format(ip, location, appversion, sessionid)))
             k = 1
@@ -91,19 +82,8 @@ for device in devices["boxes"]:
 
 for device in devices["mobiles"]:
     if device["device_type"] == "mobile":
-        ip = device["remote_addr"]
-        sessionid = device["session_id"]
-        appversion = device["App_Version"]
-        headers = {"authorization": "Basic MTI0OTU4Om5aMm1EV0M0aFBvTVpUS08=",
-                   "User-Agent": "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36"}
-        url = "https://geoip.maxmind.com/geoip/v2.1/city/{0}".format(ip)
+        ip, location, appversion, sessionid = get_device_info()
 
-        georesp = requests.get(url, headers=headers)
-        georesp = json_loads(georesp.text)
-        if georesp["city"]["names"]["en"] != "":
-            location = georesp["city"]["names"]["en"]
-        elif georesp["country"]["names"]["en"] != "":
-            location = georesp["country"]["names"]["en"]
         if k == 0:
             dev.append(("{0}, {1}, {2},{3}".format(ip, location, appversion, sessionid)))
             k = 1
