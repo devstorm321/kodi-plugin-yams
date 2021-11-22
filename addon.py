@@ -12,7 +12,6 @@ from os import path as os_path
 import datetime as dt
 import traceback
 
-import updater
 import importlib
 
 from resources.modules import (plugintools, scraper, memberutils, yamsutils, asiptvs, engchannels)
@@ -643,10 +642,6 @@ def isiptvauth_ok():
         return True
 
     return False
-
-
-def astreamweb_update(params):
-    updater.upgrade_astreamweb(xbmcvfs.translatePath(os.path.join(dataPath, "tmp.apk")))
 
 
 def account(params):
