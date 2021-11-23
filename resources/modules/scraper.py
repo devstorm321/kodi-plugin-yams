@@ -28,15 +28,8 @@ MaintenanceTitle = "Maintenance Tool"
 MAIN_URL = 'https://api.yamsonline.com/api'
 VOD_URL = 'https://astreamweb.com/kodi/vod.php'
 
-GOOGLE_API_KEY = 'AIzaSyBuDCshXSkXWc6MuYTxhdLpCmLR1eMLAy8'
+# GOOGLE_API_KEY = 'AIzaSyBuDCshXSkXWc6MuYTxhdLpCmLR1eMLAy8'
 to_id = 'plugin.video.yams'
-
-YOUTUBE_BASEAPI = 'https://www.googleapis.com/youtube/v3/'
-YOUTUBE_PLAYLIST = 'playlists?part=snippet%%2CcontentDetails&channelId=%s&maxResults=%s&key=' + GOOGLE_API_KEY
-YOUTUBE_PLAYLIST_PAGE = 'playlists?part=snippet%%2CcontentDetails&channelId=%s&maxResults=%s&pageToken=%s&key=' + GOOGLE_API_KEY
-YOUTUBE_PLAYLISTITEM = 'playlistItems?part=snippet%%2CcontentDetails&playlistId=%s&maxResults=%s&key=' + GOOGLE_API_KEY
-YOUTUBE_PLAYLISTITEM_PAGE = 'playlistItems?part=snippet%%2CcontentDetails&playlistId=%s&maxResults=%s&pageToken=%s&key=' + GOOGLE_API_KEY
-YOUTUBE_SEARCH = 'https://www.googleapis.com/youtube/v3/search?part=snippet&q=%s&key=' + GOOGLE_API_KEY
 
 digest = '1@121#'
 GENRES = [{'name': 'Action', 'id': '34'},
@@ -257,47 +250,6 @@ def get_tv_streams(username, password):
     return streams
 
 
-def get_radio_streams(username, password, rc):
-    return __get_streams(username, password, rc, category='82')
-
-
-def __get_streams(username, password, rc, category):
-    xbmc.log('__get_streams started with username=%s, rc=%s, cat=%s' % (username,
-                                                                        rc,
-                                                                        category))
-    request_dict = {'task': 'movies',
-                    'user': username,
-                    'sort': 'modified,DESC',
-                    'category': category,
-                    'cleancache': '1'}
-    json_data = __get_json(request_dict)
-    items = json_data['data']
-    streams = list()
-    r_valid_prefix = re.compile('strm$', re.IGNORECASE)
-    for item in items:
-        for file in item['nginx']:
-            name = __decrypt(file['name'])
-            if not re.search(r_valid_prefix, name):
-                xbmc.log('__get_streams ignore "%s" - wrong prefix' % name)
-                continue
-            if not '[%s]' % rc in name:
-                xbmc.log('__get_streams ignore "%s" - wrong region:"%s"' % (name,
-                                                                            rc))
-                continue
-            path = __decrypt(file['name'])
-            server = __decrypt(file['server'])
-            url = __get_server_url(server, path, username, password,
-                                   stream=True, v=ACCESS_CODES['LIVE_STREAM'])
-            streams.append({'label': item['title'],
-                            'thumbnail': item['cover'].replace(' ', '%20'),
-                            'is_playable': True,
-                            'is_folder': False,
-                            'url': url})
-            continue
-    xbmc.log('__get_streams got streams: "%s"' % streams)
-    return streams
-
-
 def get_movie_files(movie_id, username, password):
     xbmc.log('get_movie_files started with movie_id=%s, username=%s' % (movie_id,
                                                                         username))
@@ -459,135 +411,6 @@ def get_seasons(movie_id, username, password, seasn):
     return items
 
 
-def get_series_files(movie_id, username, password):
-    xbmc.log('get_series_files started with movie_id=%s, username=%s' % (movie_id,
-                                                                         username))
-    # location
-    r_eu = re.compile('s10.yamsftp.net', re.IGNORECASE)
-    r_us = re.compile('s1.yamsftp.net', re.IGNORECASE)
-    # songs
-    r_videosongs = re.compile('Video Songs', re.IGNORECASE)
-    # valid fileprefix
-    r_valid = re.compile('(avi|mkv|iso|mp4|ts|mpg|wmv|flv|dat|m4v)$', re.IGNORECASE)
-    # quality
-    r_low = re.compile('(pdvd|pre-|predvd|DVDscr|pirate|cam|hdcam)', re.IGNORECASE)
-    r_1080 = re.compile('(1080)')
-    r_2160 = re.compile('(4K)|(2160)|(UltraHD)|(Ultra HD)', re.IGNORECASE)
-    r_720 = re.compile('(720)')
-    r_good = re.compile('mkv$', re.IGNORECASE)
-    r_med = re.compile('(avi|mpg|ts|iso|mp4|dat)$', re.IGNORECASE)
-    # stream
-    r_stream = re.compile('flv$', re.IGNORECASE)
-    # tv show
-    r_serials = re.compile('S([0-9]+)E([0-9]+)', re.IGNORECASE)
-    # invalid server
-    r_invalid_serv = re.compile('s3.yamsftp.net', re.IGNORECASE)
-    # 3D Movies
-    r_3d = re.compile('3D Movies', re.IGNORECASE)
-    # languages
-    r_tamil = re.compile('tamil', re.IGNORECASE)
-    r_telugu = re.compile('telugu', re.IGNORECASE)
-    r_hindi = re.compile('hindi', re.IGNORECASE)
-    r_mala = re.compile('malayalam', re.IGNORECASE)
-    # Override
-    r_override = re.compile('209.212.145.158', re.IGNORECASE)
-
-    xbmc.log('get_series_files start')
-    request_dict = {'task': 'series',
-                    'user': username,
-                    'id': movie_id,
-                    'cleancache': 1}
-    json_data = __get_json(request_dict)
-    nginx = json_data['data'][0]['nginx']
-    videos = list()
-
-    for file in nginx:
-        name = __decrypt(file['name'])
-        path = __decrypt(file['name'])
-        server = __decrypt(file['server'])
-        if not re.search(r_valid, name):
-            xbmc.log('getVideo invalid: "%s"' % name)
-            continue
-        if re.search(r_invalid_serv, server):
-            xbmc.log('getVideo wrong server "%s" for file %s' % (server, name))
-            continue
-        url = __get_server_url(server, path, username, password,
-                               v=ACCESS_CODES['PLAYBACK'])
-        xbmc.log('getVideo url server "%s" ' % (url))
-        xbmc.log('getVideo name server "%s" ' % (name))
-        # is tv-serials
-        if re.search(r_serials, name):
-            season, episode = re.search(r_serials, name).groups()
-            xbmc.log('getseason season episode "%s" "%s" ' % (season, episode))
-            videos.append({'season': season,
-                           'episode': episode,
-                           'label': name,
-                           'url': url})
-        # is movie, needs quality and language tag
-        else:
-            # detect quality
-            if re.search(r_1080, name):
-                quality = 'Super High'
-            elif re.search(r_2160, name):
-                quality = '4K Ultra HD'
-            elif re.search(r_720, name):
-                quality = 'High'
-            elif re.search(r_good, name):
-                quality = 'Good'
-            elif re.search(r_med, name):
-                quality = 'Medium'
-            elif re.search(r_stream, name):
-                quality = 'Stream'
-            else:
-                quality = 'Unknown'
-            if re.search(r_low, name):
-                quality = 'Low'
-            # detect language
-            if re.search(r_tamil, name + path):
-                language = 'Tamil'
-            elif re.search(r_telugu, name + path):
-                language = 'Telugu'
-            elif re.search(r_hindi, name + path):
-                language = 'Hindi'
-            elif re.search(r_mala, name + path):
-                language = 'Malayalam'
-            else:
-                language = ''
-            xbmc.log('getVideo append: "%s" with quality "%s"' % (name, quality))
-
-            # Override .mp4 on live.yamsonline.com
-            if re.search(r_med, name) and re.search(r_override, url):
-                quality = 'Stream'
-
-            label = '[%s Quality]' % (quality)
-            # if language
-            if language:
-                label = label + ' [%s]' % (language)
-            # is EU server
-            if re.search(r_eu, server):
-                label = label + ' [EU]'
-            if (re.search(r_1080, name) or re.search(r_720, name)) and re.search(r_us, server):
-                label = label + ' [US]'
-            # is video song
-            if re.search(r_videosongs, path):
-                label = label + ' [Video Song]'
-            # is 3D Movies
-            if re.search(r_3d, path):
-                label = label + ' [3D Movies]'
-
-            label = label + ' - %s' % (name)
-            thumbnail = json_data['data'][0]['thumbnail']
-            plot = json_data['data'][0]['plot']
-            videos.append({
-                'label': label,
-                'url': url,
-                'thumbnail': thumbnail,
-                'plot': plot
-            })
-
-    return videos
-
-
 def check_login(username, password, session=None):
     request_dict = {
         'task': 'checklogin',
@@ -664,21 +487,6 @@ def check_digest(username, password, digest):
         return True, ''
     else:
         return False, json_data.get('reason', '')
-
-
-def check_network():
-    return True
-    request = Request('https://goo.gl/rbTo3')
-    request.get_method = lambda: 'HEAD'
-    request.add_header('User-Agent',
-                       'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/22.0.1207.1 '
-                       'Safari/537.1')
-    try:
-        urlopen(request).info()
-    except HTTPError:
-        pass
-    else:
-        return True
 
 
 def delete_sessions(username, password):
@@ -798,18 +606,6 @@ def clearCache():
 
             else:
                 pass
-
-
-def get_installedversion():
-    # retrieve current installed version
-    json_query = xbmc.executeJSONRPC(
-        '{ "jsonrpc": "2.0", "method": "Application.GetProperties", "params": {"properties": ["version", "name"]}, "id": 1 }')
-    json_query = str(json_query, 'utf-8', errors='ignore')
-    json_query = json.loads(json_query)
-    version_installed = []
-    if 'result' in json_query and 'version' in json_query['result']:
-        version_installed = json_query['result']['version']
-    return version_installed
 
 
 ################################
@@ -947,10 +743,6 @@ def VerifyAdvancedSetting():
     dialog.ok(MaintenanceTitle, "[COLOR yellow]YOU HAVE[/COLOR] " + name + "[COLOR yellow] SETTINGS installed[/COLOR]")
 
 
-def ResetAstreamWeb():
-    xbmc.executebuiltin("ActivateWindow(Programs, plugin://plugin.video.resetastreamweb)")
-
-
 def Newwindow1():
     xbmc.executebuiltin('ReplaceWindow(Videos, addons://sources/video/)')
 
@@ -967,11 +759,6 @@ def Calibration():
               'blue arrow on top \n left and do the same for buttom right. Exit by pressing back button once '
               'completed.')
     xbmc.executebuiltin('ActivateWindow(screencalibration)')
-
-
-def get1DayBypass(username, password):
-    data = __get_json({"task": "get1dayBypass", "username": username, "password": password})
-    return data
 
 
 def get5DayBypass(username, password):
