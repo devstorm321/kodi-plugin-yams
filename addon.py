@@ -1017,7 +1017,7 @@ def latestMovies(params):
                 context_men.append(('Movies with %s' % cast, ListMovie % ('', s_path, '', '', 'title%2CASC', '1')))
 
         except:
-            ""
+            pass
         plugintools.add_itemcontext(action='show_movie_files', title=item['label'], url=item['id'],
                                     info_labels=item['info'],
                                     thumbnail=item['thumbnail'], fanart=item['fanart'], iconImage=item['iconImage'],
