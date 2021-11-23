@@ -62,7 +62,7 @@ def run():
         if not os.path.exists(xbmcvfs.translatePath('/sdcard/Android/data/com.androidtoid.com/')):
             os.mkdir(xbmcvfs.translatePath('/sdcard/Android/data/com.androidtoid.com/'))
     if params.get("action") is None:
-        if xbmc.getInfoLabel("System.BuildVersion") >= "18.5 Git:20191116-37f51f6e63":
+        if xbmc.getInfoLabel("System.BuildVersion") >= "19.3":
             home(params)
         else:
             dialog.ok('APP EXPIRED',
@@ -70,7 +70,7 @@ def run():
                           "System.BuildVersion") + "),\nFollow guide: http://tiny.cc/upgrd\nsupport line: 001 (484) 272-2496")
             return
     else:
-        if xbmc.getInfoLabel("System.BuildVersion") >= "18.5 Git:20191116-37f51f6e63":
+        if xbmc.getInfoLabel("System.BuildVersion") >= "19.3":
             action = params.get("action")
             exec(action + "(params)")
         else:
@@ -396,8 +396,7 @@ def __check_login():
             xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
             authenticated, message, status_code = scraper.check_login(username, password, None)
         if status_code == 9:
-            dialog.ok('[COLOR green]Notice:[/COLOR]',
-                      message, )
+            dialog.ok('[COLOR green]Notice:[/COLOR]', message)
             xbmc.executebuiltin("XBMC.ActivateWindow(splash)")
             authenticated, message, status_code = scraper.check_login(username, password, None)
         if status_code == 8:
@@ -1182,9 +1181,9 @@ def show_langs(params):
             xbmcgui.Dialog().ok('AstreamWeb Notice', message)
             if status_code == 2 or status_code == 3:
                 xbmcgui.Dialog().ok('[COLOR green]INFORMATION ONLY:[/COLOR] ',
-                                    'Please remove a device connected to this account in settings -> Device Specific', )
+                                    'Please remove a device connected to this account in settings -> Device Specific')
                 plugintools.open_settings_dialog()
-                exit()
+                sys.exit()
             else:
                 xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
             return False
@@ -1215,13 +1214,12 @@ def show_sorting(params):
         authenticated, message, status_code = scraper.check_login(username, password,
                                                                   plugintools.get_setting('session'))
         if not authenticated:
-            dialog = xbmcgui.Dialog()
-            dialog.ok('AstreamWeb Notice', message)
+            xbmcgui.Dialog().ok('AstreamWeb Notice', message)
             if status_code == 2 or status_code == 3:
                 xbmcgui.Dialog().ok('[COLOR green]INFORMATION ONLY:[/COLOR] ',
-                                    'Please remove a device connected to this account in settings -> Device Specific', )
+                                    'Please remove a device connected to this account in settings -> Device Specific')
                 plugintools.open_settings_dialog()
-                exit()
+                sys.exit()
             else:
                 xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
             return False
@@ -1289,9 +1287,9 @@ def show_movies(params):
                 xbmcgui.Dialog().ok('AstreamWeb Notice', message)
                 if status_code == 2 or status_code == 3:
                     xbmcgui.Dialog().ok('[COLOR green]INFORMATION ONLY:[/COLOR] ',
-                                        'Please remove a device connected to this account in settings -> Device Specific', )
+                                        'Please remove a device connected to this account in settings -> Device Specific')
                     plugintools.open_settings_dialog()
-                    exit()
+                    sys.exit()
                 else:
                     xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
                 return False
@@ -1766,7 +1764,7 @@ def show_series(params):  # (path, sorting, page):
             xbmcgui.Dialog().ok('AstreamWeb Notice', message)
             if status_code == 2 or status_code == 3:
                 xbmcgui.Dialog().ok('[COLOR green]INFORMATION ONLY:[/COLOR] ',
-                                    'Please remove a device connected to this account in settings -> Device Specific', )
+                                    'Please remove a device connected to this account in settings -> Device Specific')
                 plugintools.open_settings_dialog()
                 sys.exit()
             else:
@@ -1964,6 +1962,7 @@ def show_series_files(params):
 def search(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
     plugintools.add_item(title="Search by Movie", action='searchByName')
+    plugintools.add_item(title="Search by Series", action='searchBySeries')
     plugintools.add_item(title="Search by Actor", action='searchByActor')
     plugintools.add_item(title="Search by Actress", action='searchByActress')
     plugintools.add_item(title="Multi-Search", action='multiSearch')
@@ -2116,14 +2115,12 @@ def searchByName(params):
         authenticated, message, status_code = scraper.check_login(username, password,
                                                                   plugintools.get_setting('session'))
         if not authenticated:
-            dialog = xbmcgui.Dialog()
-            dialog.ok('AstreamWeb Notice', message)
+            xbmcgui.Dialog().ok('AstreamWeb Notice', message)
             if status_code == 2 or status_code == 3:
-                dialog = xbmcgui.Dialog()
-                dialog.ok('[COLOR red]Required:[/COLOR] ',
-                          'Please remove a device connected to this account in settings -> Device Specific', )
+                xbmcgui.Dialog().ok('[COLOR red]Required:[/COLOR] ',
+                                    'Please remove a device connected to this account in settings -> Device Specific')
                 plugintools.open_settings_dialog()
-                exit()
+                sys.exit()
             else:
                 xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
             return False
@@ -2168,6 +2165,67 @@ def searchByName(params):
             xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
 
 
+def searchBySeries(params):
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
+    authenticated = __check_session()
+    if not authenticated:
+        return  # dialog.ok('AstreamWeb Notice', message)
+    else:
+        username = plugintools.get_setting('username')
+        password = plugintools.get_setting('password')
+        authenticated, message, status_code = scraper.check_login(username, password,
+                                                                  plugintools.get_setting('session'))
+        if not authenticated:
+            xbmcgui.Dialog().ok('AstreamWeb Notice', message)
+            if status_code == 2 or status_code == 3:
+                xbmcgui.Dialog().ok('[COLOR red]Required:[/COLOR] ',
+                                    'Please remove a device connected to this account in settings -> Device Specific')
+                plugintools.open_settings_dialog()
+                sys.exit()
+            else:
+                xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
+            return False
+        else:
+            xbmc.log('search start')
+
+        per_page = __get_per_page()
+        page = '1'
+        keyboard = xbmc.Keyboard('', 'Enter Search String')
+        keyboard.doModal()
+        if keyboard.isConfirmed() and keyboard.getText():
+            search_string = keyboard.getText()
+            xbmc.log('search gots a string: "%s"' % search_string)
+            if '*' not in search_string:
+                search_string = '*%s*' % search_string
+                xbmc.log('altered search string to: "%s"' % search_string)
+            path = 'title_-%s' % search_string
+            items, has_next_page = scraper.get_series(username, path, page, per_page,
+                                                      'title,ASC')
+            xbmc.log('items {}'.format(items))
+            xbmc.log('has_next_page {}'.format(has_next_page))
+
+            # Add context menu items for title and actor search
+            context_men = []
+            ListMovie = 'XBMC.Container.Update(%s)' % (
+                    sys.argv[0] + '?action=show_movies&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
+            for item in items:
+                try:
+                    for cast in item['info']['cast']:
+                        s_path = 'cast-%s' % cast
+                        context_men.append(('Movies with %s' % cast, ListMovie % ('', s_path, '', '', '-', '1')))
+
+                except:
+                    xbmc.log('has_next_page {}'.format(has_next_page))
+                    ""
+                plugintools.add_itemcontext(action='show_movie_files', title=item['label'], url=item['id'],
+                                            info_labels=item['info'],
+                                            thumbnail=item['thumbnail'], fanart=item['fanart'], page='0',
+                                            contextmenu=context_men, folder=True)
+
+            xbmc.log('search end')
+            xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
+
+
 def show_letters(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
     path = params.get('url')
@@ -2182,9 +2240,8 @@ def show_letters(params):
         if not authenticated:
             xbmcgui.Dialog().ok('AstreamWeb Notice', message)
             if status_code == 2 or status_code == 3:
-                dialog = xbmcgui.Dialog()
-                dialog.ok('[COLOR red]Required:[/COLOR] ',
-                          'Please remove a device connected to this account in settings -> Device Specific', )
+                xbmcgui.Dialog().ok('[COLOR red]Required:[/COLOR] ',
+                                    'Please remove a device connected to this account in settings -> Device Specific')
                 plugintools.open_settings_dialog()
                 sys.exit()
             else:
@@ -2374,7 +2431,7 @@ def __sendlog():
     logfilePath = os.path.join(LOGPATH, 'kodi.log')
 
     fp = open(logfilePath, 'r')
-    msg = fp.read()
+    msg = fp.read().encode()
     fp.close()
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
     params = {'data': base64.b64encode(msg), 'username': plugintools.get_setting('username')}
@@ -2506,6 +2563,7 @@ def __get_per_page():
         per_page = 200
         plugintools.set_setting('per_page', str(per_page))
     return per_page
+
 
 # show_einthusan_categories
 #############
@@ -2890,9 +2948,9 @@ def latestMovieshome(params):
         xbmcgui.Dialog().ok("AstreamWeb Notice", message)
         if status_code == 2 or status_code == 3:
             xbmcgui.Dialog().ok('[COLOR red]Required:[/COLOR] ',
-                      'Please remove a device connected to this account in settings -> Device Specific', )
+                                'Please remove a device connected to this account in settings -> Device Specific')
             plugintools.open_settings_dialog()
-            exit()
+            sys.exit()
 
         else:
             xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
@@ -3019,7 +3077,7 @@ def getseries_bycategory(category_id):
         xbmcgui.Dialog().ok("AstreamWeb Notice", message)
         if status_code == 2 or status_code == 3:
             xbmcgui.Dialog().ok('[COLOR green]required:[/COLOR] ',
-                                'Please remove a device connected to this account in settings -> Device Specific', )
+                                'Please remove a device connected to this account in settings -> Device Specific')
             plugintools.open_settings_dialog()
             sys.exit()
         else:
@@ -3083,6 +3141,7 @@ def getseries_bycategory(category_id):
                                     thumbnail=item['thumbnail'], page='0', contextmenu=context_men, folder=True)
 
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
+
 
 ###################################################################################################
 if __name__ == '__main__':
