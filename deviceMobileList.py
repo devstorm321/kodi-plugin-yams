@@ -60,4 +60,4 @@ for device in devices["mobiles"]:
 if k == 0:
     dialog.ok("Active mobile devices", ' No mobile device active')
 else:
-    dialog.ok("Active mobile devices", first, second, third)
+    dialog.ok("Active mobile devices", f'{first} {second} {third}')

@@ -14,7 +14,7 @@ digest = "bb33deceb9c51ab1fcf38ad78b4b1e835230285a857d8a99bd9dfd7373247ad7"
 
 scraper.__set_digest(digest)
 
-username, = auth_check()
+username = auth_check()[0]
 
 bypass = scraper.getBypassActive(username)
 

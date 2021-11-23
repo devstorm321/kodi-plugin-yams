@@ -54,7 +54,7 @@ def remove_device(user, passd, sess_id):
 
 for device in devices["boxes"]:
     if device["device_type"] == "box":
-        ip, location, appversion, sessionid = get_device_info()
+        ip, location, appversion, sessionid = get_device_info(device)
         if k == 0:
             dev.append(("{0}, {1}, {2},{3}".format(ip, location, appversion, sessionid)))
             k = 1
@@ -82,7 +82,7 @@ for device in devices["boxes"]:
 
 for device in devices["mobiles"]:
     if device["device_type"] == "mobile":
-        ip, location, appversion, sessionid = get_device_info()
+        ip, location, appversion, sessionid = get_device_info(device)
 
         if k == 0:
             dev.append(("{0}, {1}, {2},{3}".format(ip, location, appversion, sessionid)))
