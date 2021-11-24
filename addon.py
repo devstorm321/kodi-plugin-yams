@@ -2480,19 +2480,19 @@ def select_skin_language(langs=None):
     if not langs:
         langs = plugintools.get_setting('channellanguage')
     # selecting skin Languages
-    config1 = "https://astreamweb.com/kodi/skin/{0}/skin.estuary-mainmenu.DATA.xml".format(langs.lower(), category)
-    config2 = "https://astreamweb.com/kodi/skin/{0}/skin.estuary-videosubmenu.DATA.xml".format(langs.lower(), category)
+    mainmenu_config = f"https://astreamweb.com/kodi/skin/{langs.lower()}/skin.estuary-mainmenu.DATA.xml"
+    videosubmenu_config = f"https://astreamweb.com/kodi/skin/{langs.lower()}/skin.estuary-videosubmenu.DATA.xml"
     if not os.path.exists(xbmcvfs.translatePath('special://home/userdata/addon_data/')):
         os.mkdir(xbmcvfs.translatePath('special://home/userdata/addon_data/'))
     if not os.path.exists(xbmcvfs.translatePath('special://home/userdata/addon_data/script.skinshortcuts/')):
         os.mkdir(xbmcvfs.translatePath('special://home/userdata/addon_data/script.skinshortcuts/'))
     path = xbmcvfs.translatePath(os.path.join('special://home/userdata/addon_data/script.skinshortcuts/', ''))
-    settingsFile1 = os.path.join(path, 'skin.estuary-mainmenu.DATA.xml')
-    settingsFile2 = os.path.join(path, 'skin.estuary-videosubmenu.DATA.xml')
+    mainmenu_path = os.path.join(path, 'skin.estuary-mainmenu.DATA.xml')
+    videosubmenu_path = os.path.join(path, 'skin.estuary-videosubmenu.DATA.xml')
     if not os.path.exists(path):
         os.mkdir(path)
-    scraper._downloadOverride(config1, settingsFile1)
-    scraper._downloadOverride(config2, settingsFile2)
+    scraper._downloadOverride(mainmenu_config, mainmenu_path)
+    scraper._downloadOverride(videosubmenu_config, videosubmenu_path)
     xbmc.executebuiltin('UnloadSkin()')
     xbmc.executebuiltin('ReloadSkin()')
     xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
