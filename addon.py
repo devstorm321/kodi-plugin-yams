@@ -1588,7 +1588,18 @@ def catchupvod_lang(params):
 
 def catchupvod_channels(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')
-    vurl = params.get('url')
+    if not isauth_ok():
+        return
+
+    username = plugintools.get_setting('username')
+    password = plugintools.get_setting('password')
+
+    if 'lang' in params:
+        lang = params.get('lang')
+        vurl = f'''http://api.yamsonline.com/astream?username={username}&password={password}&name=VOD&mod=channels&cfg={lang}'''
+    else:
+        vurl = params.get('url')
+    # xbmc.log('catchupvod_channels url: %s' % vurl, xbmc.LOGINFO)
     if not isauth_ok():
         return
     response = urllib.request.urlopen(vurl).read().decode('utf-8')
