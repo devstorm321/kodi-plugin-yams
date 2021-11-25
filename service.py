@@ -156,8 +156,11 @@ def run():
         activity_info.start()
         xbmcgui.Window(10000).setProperty('My_Service_Running', 'True')
 
+        dialogtime = 0
         dialogbool = True
+        iptime = 0
         ipbool = True
+        subtime = 0
         subbool = True
         while not xbmc.Monitor().abortRequested():
             url = "https://api.yamsonline.com/api?task=pingbox&option=com_jsonapi&format=json&session=%s&user=%s&version=v2&ipaddress=%s&v=%s&digest=%s" % (
@@ -174,12 +177,14 @@ def run():
             xbmc.log(("activity url: %s" % url), level=xbmc.LOGINFO)
             try:
                 if subbool:
+                    subtime = 0
                     subbool = False
                     xbmc.log('subcheck for %s' % username)
                     import resources.modules.subscription_check as sub_check
                     username = __settings__.getSetting('username')
                     sub_check.setSubscriptionButton(username)
                 if ipbool:
+                    iptime = 0
                     ipbool = False
                     username = __settings__.getSetting("username")
                     scraper.__set_digest(digest)
@@ -189,6 +194,7 @@ def run():
                                   "Your account has been suspended due to sharing. Please contact support@yamsonline.com")
                         xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
                 if dialogbool:
+                    dialogtime = 0
                     dialogbool = False
                     username = __settings__.getSetting("username")
                     data = scraper.__get_json({'task': 'getexpiredate', 'username': username})
@@ -215,7 +221,7 @@ def run():
                                         user_id))
 
                 xbmc.log('checking now...', level=xbmc.LOGINFO)
-                return  # TODO needs review, to be removed
+                feeds = []
                 for url in RSS_URLS:
                     try:
                         feeds.append(feedparser.parse(url))
@@ -273,9 +279,8 @@ def run():
                             break
             except:
                 traceback.print_exc()
-                dialog = xbmcgui.Dialog()
                 if not __settings__.getSetting("username") or not __settings__.getSetting("password"):
-                    if dialog.yesno('No Credentials',
+                    if xbmcgui.Dialog().yesno('No Credentials',
                                     'Do you have an existing AstreamWeb Account?'):
                         __settings__.openSettings()
 

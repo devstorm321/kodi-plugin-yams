@@ -552,7 +552,7 @@ def isauth_ok():
     password = plugintools.get_setting('password')
     authenticated, message = scraper.check_login_stream(username, password)
     if not authenticated:
-        xbmcgui.Dialog().ok('AstreamWeb Notice', message)
+        # xbmcgui.Dialog().ok('AstreamWeb Notice', message)
         xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
     else:
         return True
