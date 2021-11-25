@@ -569,7 +569,7 @@ def isiptvauth_ok():
     password = plugintools.get_setting('password')
     authenticated, message = scraper.check_login_iptv(username, password)
     if not authenticated:
-        xbmcgui.Dialog().ok('AstreamWeb Notice', message)
+        # xbmcgui.Dialog().ok('AstreamWeb Notice', message)
         xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
     else:
         return True
@@ -917,7 +917,7 @@ def latestMovies(params):
     authenticated, message, status_code = scraper.check_login(username, password, plugintools.get_setting("session"))
 
     if not authenticated:
-        xbmcgui.Dialog().ok("AstreamWeb Notice", message)
+        # xbmcgui.Dialog().ok("AstreamWeb Notice", message)
         if status_code in [2, 3]:
             xbmcgui.Dialog().ok('[COLOR green]INFORMATION ONLY:[/COLOR] ',
                                 'Please remove a device connected to this account in settings -> Device Specific')
@@ -1174,7 +1174,7 @@ def show_sorting(params):
         authenticated, message, status_code = scraper.check_login(username, password,
                                                                   plugintools.get_setting('session'))
         if not authenticated:
-            xbmcgui.Dialog().ok('AstreamWeb Notice', message)
+            # xbmcgui.Dialog().ok('AstreamWeb Notice', message)
             if status_code == 2 or status_code == 3:
                 xbmcgui.Dialog().ok('[COLOR green]INFORMATION ONLY:[/COLOR] ',
                                     'Please remove a device connected to this account in settings -> Device Specific')
@@ -1244,7 +1244,7 @@ def show_movies(params):
             authenticated, message, status_code = scraper.check_login(username, password,
                                                                       plugintools.get_setting('session'))
             if not authenticated:
-                xbmcgui.Dialog().ok('AstreamWeb Notice', message)
+                # xbmcgui.Dialog().ok('AstreamWeb Notice', message)
                 if status_code == 2 or status_code == 3:
                     xbmcgui.Dialog().ok('[COLOR green]INFORMATION ONLY:[/COLOR] ',
                                         'Please remove a device connected to this account in settings -> Device Specific')
@@ -2916,7 +2916,7 @@ def latestMovieshome(params):
     password = plugintools.get_setting("password")
     authenticated, message, status_code = scraper.check_login(username, password, plugintools.get_setting("session"))
     if not authenticated:
-        xbmcgui.Dialog().ok("AstreamWeb Notice", message)
+        # xbmcgui.Dialog().ok("AstreamWeb Notice", message)
         if status_code == 2 or status_code == 3:
             xbmcgui.Dialog().ok('[COLOR red]Required:[/COLOR] ',
                                 'Please remove a device connected to this account in settings -> Device Specific')
