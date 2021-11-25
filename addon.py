@@ -763,8 +763,8 @@ def personal2(params):
         xbmc.log(f'''personal {json_data}''')
     except Exception as e:
         if 'KeyError' in str(e):
-            xbmcgui.Dialog().ok(
-                "AstreamWeb Notice", "No Movies found in Watchlist or you have not signed up for On Demand feature")
+            #xbmcgui.Dialog().ok(
+            #    "AstreamWeb Notice", "No Movies found in Watchlist or you have not signed up for On Demand feature")
             return
     for i in json_data:
         try:
@@ -846,8 +846,8 @@ def personal(params):
         json_data = json.loads(source)["data"]
         xbmc.log(f'''personal data:{json_data}''')
     except KeyError:
-        xbmcgui.Dialog().ok("AstreamWeb Notice",
-                            "No Movies found in Watchlist or you have not signed up for On Demand feature")
+        #xbmcgui.Dialog().ok("AstreamWeb Notice",
+        #                    "No Movies found in Watchlist or you have not signed up for On Demand feature")
         return
     except Exception as e:
         xbmc.log(f'''personal error {repr(e)}''')
