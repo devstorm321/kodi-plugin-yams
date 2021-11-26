@@ -12,6 +12,7 @@ import datetime as dt
 import traceback
 
 import importlib
+import zipfile
 
 from resources.modules import (plugintools, scraper, yamsutils, asiptvs, engchannels)
 from resources.modules.asiptvs import *
@@ -496,7 +497,7 @@ def __check_login():
                 #              dialog.ok('Initial Configuration', 'We need to install some Updates.')
                 scraper._downloadOverride(configUrl, configFile)
                 scraper.ZeroCachingSetting()
-                select_skin_language()
+                _select_skin_language()
         return True, status_code
     return False, status_code
 
@@ -2230,14 +2231,10 @@ def show_letters(params):
 ###########################################
 def show_maintenance(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
-    plugintools.add_item(action="show_clearcache", title='Clear Cache',
-                         thumbnail=__get_icon('clearcache'))
     plugintools.add_item(action="show_speedtest", title='Speedtest',
                          thumbnail=__get_icon('speed'))
     plugintools.add_item(action="show_ping", title='Ping',
                          thumbnail=__get_icon('ping'))
-    plugintools.add_item(action="font_size", title='Font Size',
-                         thumbnail=__get_icon('clearcache'))
     plugintools.add_item(action="send_log", title='Send log',
                          thumbnail=__get_icon('sendlog'))
     plugintools.add_item(action="debug_off", title='Disable Debugging Mode',
@@ -2252,10 +2249,7 @@ def show_maintenance(params):
                          thumbnail=__get_icon('resetastreamweb'))
     plugintools.add_item(action="select_skin_language2", title='Select Skin Language',
                          thumbnail=__get_icon('resetastreamweb'), folder=False)
-    #       plugintools.add_item(action="show_downloads",title='My Downloads',
-    #                                 thumbnail=__get_icon('my download'))
-    plugintools.add_item(action="show_removedevice1", title='Remove All Devices',
-                         thumbnail=__get_icon('resetastreamweb'))
+
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
 
 
@@ -2264,15 +2258,6 @@ def show_settings(params):
     xbmc.log('show_settings started')
     plugintools.open_settings_dialog()
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
-
-
-def show_clearcache(params):
-    scraper.clearCache()
-
-
-def show_removedevice1(params):
-    xbmc.executebuiltin('XBMC.RunScript(special://home/addons/plugin.video.yams/killSessions.py)', True)
-    xbmc.executebuiltin('Container.Refresh(plugin://plugin.video.yams)')
 
 
 def show_removedevice():
@@ -2300,22 +2285,6 @@ def debug_on(params):
         quit()
 
 
-def font_size(params):
-    path = xbmcvfs.translatePath(os.path.join('special://home/addons/skin.estuary/1080i', ''))
-    dialog = xbmcgui.Dialog()
-    fontSizes = ["Default", "1", "2", "3 (recommended)"]
-    fontSizes += [str(i) for i in range(4, 11)]
-    selectedFontSize = dialog.select("Select font size", fontSizes)
-    config = "https://astreamweb.com/kodi/skin/font/Font.xml"
-    if selectedFontSize != 0:
-        config = "https://astreamweb.com/kodi/skin/font/Font%i.xml" % selectedFontSize
-    settingsFile = os.path.join(path, 'Font.xml')
-    scraper._downloadOverride(config, settingsFile)
-    xbmc.executebuiltin('UnloadSkin()')
-    xbmc.executebuiltin('ReloadSkin()')
-    xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
-
-
 def show_speedtest(params):
     xbmc.executebuiltin('Runscript("special://home/addons/plugin.video.yams/fastload.py")')
 
@@ -2324,22 +2293,22 @@ def show_ping(params):
     xbmc.log("------------=> Ping...")
     progress = xbmcgui.DialogProgress()  # utils.progress
     progress.create('Ping', 'Calculating ping...')
-    progress.update(25, "", "Calculating ping to France Server...", "")
+    progress.update(25, "Calculating ping to France Server...")
     dcms = -1
     sjms = __ping("s4.yamsftp.net")
     if sjms == -1:
-        if dialog.ok('Error', "Impossible to ping to San Jose Server.", ''):
-            progress.update(50, "", "Calculating ping to Washington DC Server...", "")
+        if dialog.ok('Error', "Impossible to ping to San Jose Server."):
+            progress.update(50, "Calculating ping to Washington DC Server...")
             dcms = __ping("server.akshayan.me")
     else:
-        progress.update(50, "", "Calculating ping to Washington DC Server...", "")
+        progress.update(50, "Calculating ping to Washington DC Server...")
         dcms = __ping("server.akshayan.me")
     if dcms == -1:
-        dialog.ok('Error', "Impossible to ping to Washington DC Server.", '')
+        dialog.ok('Error', "Impossible to ping to Washington DC Server.")
     if dcms == -1 and sjms == -1:
-        progress.update(100, "", "Ping failed", "")
+        progress.update(100, "Ping failed")
         return
-    progress.update(100, "", "Ping finished", "")
+    progress.update(100, "Ping finished")
     dialog.ok('Result',
               "San Jose Server (" + (str(sjms) + " ms" if sjms != -1 else "Failed") + "), Washington DC Server (" + (
                   str(dcms) + " ms" if dcms != -1 else "Failed") + ")", '')
@@ -2445,7 +2414,8 @@ def handle_wait(time_to_wait, title, text):
         return False
 
 
-def select_skin_language(langs=None):
+def _select_skin_language(langs=None):
+    xbmc.log(f'language changes to {langs}', xbmc.LOGINFO)
     url = "https://yamshost.org/amember/api/check-access/by-login?_key=HODzCPbEpwmz4ufir2jimobile&login=%s" % username
     response = urllib.request.urlopen(url).read().decode('utf-8')
     jsonResp = json.loads(response)
@@ -2478,19 +2448,26 @@ def select_skin_language(langs=None):
     if not langs:
         langs = plugintools.get_setting('channellanguage')
     # selecting skin Languages
-    mainmenu_config = f"https://astreamweb.com/kodi/skin/{langs.lower()}/skin.estuary-mainmenu.DATA.xml"
-    videosubmenu_config = f"https://astreamweb.com/kodi/skin/{langs.lower()}/skin.estuary-videosubmenu.DATA.xml"
     if not os.path.exists(xbmcvfs.translatePath('special://home/userdata/addon_data/')):
         os.mkdir(xbmcvfs.translatePath('special://home/userdata/addon_data/'))
     if not os.path.exists(xbmcvfs.translatePath('special://home/userdata/addon_data/script.skinshortcuts/')):
         os.mkdir(xbmcvfs.translatePath('special://home/userdata/addon_data/script.skinshortcuts/'))
     path = xbmcvfs.translatePath(os.path.join('special://home/userdata/addon_data/script.skinshortcuts/', ''))
-    mainmenu_path = os.path.join(path, 'skin.estuary-mainmenu.DATA.xml')
-    videosubmenu_path = os.path.join(path, 'skin.estuary-videosubmenu.DATA.xml')
     if not os.path.exists(path):
         os.mkdir(path)
-    scraper._downloadOverride(mainmenu_config, mainmenu_path)
-    scraper._downloadOverride(videosubmenu_config, videosubmenu_path)
+    try:
+        # lang lib zip file download and extract
+        lib_file = f"https://astreamweb.com/kodi/skin/{langs.lower()}.zip"
+        lib_path = xbmcvfs.translatePath(os.path.join('special://home/userdata/astream.zip'))
+        extract_path = xbmcvfs.translatePath(os.path.join('special://home/userdata/'))
+        scraper._downloadOverride(lib_file, lib_path)
+
+        with zipfile.ZipFile(lib_path, 'r') as zip_ref:
+            zip_ref.extractall(extract_path)
+    except:
+        traceback.print_exc()
+        xbmcgui.Dialog().ok('Astreamweb', 'Error occured during setup')
+
     xbmc.executebuiltin('UnloadSkin()')
     xbmc.executebuiltin('ReloadSkin()')
     xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
@@ -2500,7 +2477,7 @@ def select_skin_language2(params=None):
     langs = ['Tamil', 'Telugu', 'Malayalam', 'Hindi']
     select = xbmcgui.Dialog().select("Select a skin language", langs)
     plugintools.set_setting('channellanguage', langs[select].lower())
-    select_skin_language(langs[select].lower())
+    _select_skin_language(langs[select].lower())
 
 
 def get_timezoneselect():

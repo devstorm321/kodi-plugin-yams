@@ -110,12 +110,12 @@ else:
     if dev_rem is not None:
         if dev_rem != 0:
             for i in dev_rem:
-                xbmc.log('remove device result: %s' % dev[i].split(',')[-1])
+                xbmc.log('remove device result: %s' % dev[i].split(',')[-3])
                 rem_conf = dialog.yesno("Please confirm you want to remove {}.".format(dev[i].split(',')[-2]),
                                         "Re-adding this device will cost you 5USD.")
                 if rem_conf:
-                    rem_suc, rem_rea = remove_device(username, password, dev[i].split(',')[-1])
+                    rem_suc, rem_rea = remove_device(username, password, dev[i].split(',')[-3])
                     if rem_suc:
-                        dialog.ok('remove device success', rem_rea)
+                        dialog.ok('Remove device success', rem_rea)
                     else:
-                        dialog.ok('remove device not success', rem_rea)
+                        dialog.ok('Remove device not success', rem_rea)

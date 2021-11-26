@@ -579,35 +579,6 @@ def __set_digest(hash):
     digest = hash
 
 
-def clearCache():
-    import shutil
-    xbmc_cache_path = os.path.join(xbmcvfs.translatePath('special://home'), 'cache')
-    print(('hwang paht xbmc_cache_path = ' + xbmc_cache_path))
-    if os.path.exists(xbmc_cache_path):
-        for root, dirs, files in os.walk(xbmc_cache_path):
-            file_count = 0
-            file_count += len(files)
-            if file_count > 0:
-
-                dialog = xbmcgui.Dialog()
-                if dialog.yesno("Delete XBMC Cache Files",
-                                str(file_count) + " files found\nDo you want to delete them?"):
-
-                    for f in files:
-                        try:
-                            os.unlink(os.path.join(root, f))
-                        except:
-                            pass
-                    for d in dirs:
-                        try:
-                            shutil.rmtree(os.path.join(root, d))
-                        except:
-                            pass
-
-            else:
-                pass
-
-
 ################################
 ###       Advanced XML       ###
 ################################
@@ -619,18 +590,13 @@ def _downloadOverride(url, oFile):
             os.remove(oFile)
 
         # Getting new file
-        link = Net.get(url).content
+        resp = Net.get(url)
+
+        link = resp.content.decode('utf-8')
+
         nFile = open(oFile, 'w')
-        nFile.write(link.decode('utf-8'))
+        nFile.write(link)
         nFile.close()
-
-        # Check write with cache
-        with open(oFile, 'r') as myfile:
-            data = myfile.read()
-        myfile.close()
-
-        if not (data == link):
-            return False
 
         return True
     except:

@@ -60,7 +60,7 @@ def findipv6(fqdn):
 
 def fast_com(verbose=False, maxtime=15, forceipv4=False, forceipv6=False):
     pDialog = xbmcgui.DialogProgress()
-    pDialog.create("[COLOR white]FAST.com[/COLOR]", "", "[COLOR white]Start speedtest against fast.com ...[/COLOR]")
+    pDialog.create("[COLOR white]FAST.com[/COLOR]", "[COLOR white]Start speedtest against fast.com ...[/COLOR]")
 
     '''
         verbose: print debug output
@@ -190,8 +190,7 @@ def fast_com(verbose=False, maxtime=15, forceipv4=False, forceipv6=False):
         delta = total - lasttotal
         speedkBps = (delta / sleepseconds) / (1024)
         percent += upd
-        pDialog.update(percent, "[COLOR white]Running speedtest against fast.com ...[/COLOR]", "",
-                       "[COLOR white]Speed: %s kBps[/COLOR]" % (speedkBps))
+        pDialog.update(percent, "[COLOR white]Running speedtest against fast.com ...[/COLOR]\n[COLOR white]Speed: %s kBps[/COLOR]" % (speedkBps))
         if verbose:
             print(("Loop", loop, "Total MB", total / (1024 * 1024), "Delta MB", delta / (1024 * 1024), "Speed kB/s:",
                    speedkBps, "aka Mbps %.1f" % (application_bytes_to_networkbits(speedkBps) / 1024)))
