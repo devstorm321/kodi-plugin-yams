@@ -163,18 +163,9 @@ def run():
         subtime = 0
         subbool = True
         while not xbmc.Monitor().abortRequested():
-            url = "https://api.yamsonline.com/api?task=pingbox&option=com_jsonapi&format=json&session=%s&user=%s&version=v2&ipaddress=%s&v=%s&digest=%s" % (
-                get_mac(), xbmcaddon.Addon('plugin.video.yams').getSetting("username"), ip,
-                xbmc.getInfoLabel('System.AddonVersion(plugin.video.yams)') + '- S' + xbmc.getInfoLabel(
-                    'System.AddonVersion(skin.estuary)') + '- APK' + xbmc.getInfoLabel(
-                    'System.AddonVersion(service.xbmc.versioncheck)') + '- OS' + xbmc.getInfoLabel(
-                    'System.OSVersionInfo') + '- KOD' + xbmc.getInfoLabel('System.BuildVersion').split(" ")[0],
-                api_digest)
-            url = url.replace(' ', '%20')
-
             xbmc.log('Sent activity info for SID(%s). Sleeping for 120 seconds.' % xbmcaddon.Addon(
                 'plugin.video.yams').getSetting("session"), level=xbmc.LOGINFO)
-            xbmc.log(("activity url: %s" % url), level=xbmc.LOGINFO)
+
             try:
                 if subbool:
                     subtime = 0

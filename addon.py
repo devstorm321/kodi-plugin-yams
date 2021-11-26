@@ -89,9 +89,9 @@ def home(params):
         xbmc.log(f'''Authenticated {authenticated}''', xbmc.LOGINFO)
         xbmc.log(f'''Status {status_code}''', xbmc.LOGINFO)
 
-        if ((plugintools.get_setting(
-                'myaccount') == 'true') and authenticated) or status_code == 4 or status_code == 5 or status_code == 8:
-            plugintools.add_item(action="account", title="My Account", thumbnail=__get_icon('account'), folder=True)
+        # if ((plugintools.get_setting(
+        #         'myaccount') == 'true') and authenticated) or status_code == 4 or status_code == 5 or status_code == 8:
+        #     plugintools.add_item(action="account", title="My Account", thumbnail=__get_icon('account'), folder=True)
 
         if status_code == 0 or status_code == 8:
             plugintools.add_item(action="show_restart", title="restart AstreamWeb",
@@ -139,7 +139,7 @@ def home(params):
             plugintools.add_item(action="history", title="History", thumbnail=__get_icon('watched_history'),
                                  folder=True)
 
-        if authenticated:
+        if authenticated and xbmc.getCondVisibility('!Skin.HasSetting(HomeMenuNoBasicButton)'):
             plugintools.add_item(action="show_einthusan_categories", title="Einthusan Movies",
                                  thumbnail=__get_icon('movies-subs'), folder=True)
 
@@ -299,12 +299,12 @@ def register_password():
     return str(currentUUID)
 
 
-def show_restart():
+def show_restart(param=None):
     xbmc.log('show_restart started')
     scraper.Newwindow()
 
 
-def show_restart1():
+def show_restart1(param=None):
     xbmc.log('show_restart1 started')
     scraper.Newwindow1()
 
@@ -751,8 +751,7 @@ def play_iptv_favourite(params):  # url, label, cid):
 ##############################################################################################################
 def personal2(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')
-    authenticated = __check_session()
-    if not authenticated:
+    if not isauth_ok():
         return
 
     url = 'http://api.astreamweb.com/listmovie.php'
@@ -832,10 +831,9 @@ def personal2link(params):
 
 def personal(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')
-    authenticated = __check_session()
-
-    if not authenticated:
+    if not isauth_ok():
         return
+
     username = plugintools.get_setting("username")
 
     url = f'''http://api.astreamweb.com/listmovie.php?username={username}'''
@@ -2169,7 +2167,7 @@ def searchBySeries(params):
             if '*' not in search_string:
                 search_string = '*%s*' % search_string
                 xbmc.log('altered search string to: "%s"' % search_string)
-            path = 'title_-%s' % search_string
+            path = 'title-%s' % search_string
             items, has_next_page = scraper.get_series(username, path, page, per_page,
                                                       'title,ASC')
             xbmc.log('items {}'.format(items))
@@ -2562,6 +2560,9 @@ def get_einthusan():
 
 # show_einthusan_categories
 def show_einthusan_categories(params):
+    if not isauth_ok():
+        return
+
     xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
     languages = ["Hindi", "Tamil", "Telugu", "Malayalam", "Kannada", "Bengali", "Marathi", "Punjabi"]
     for lang in languages:
@@ -2702,6 +2703,8 @@ def get_einthusan_location():
 
 # show_einthusan_movies
 def show_einthusan_movies(params):
+    if not isauth_ok():
+        return
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     page = params.get("page")
     post = params.get("extra")
