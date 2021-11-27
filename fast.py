@@ -28,8 +28,9 @@ def gethtmlresult(url, result, index):
     i = 1
     while True:
         chunk = req.read(CHUNK)
-        if not chunk: break
-        result[index] = i * CHUNK
+        if not chunk:
+            break
+        result[index] = i * int(CHUNK)
         i = i + 1
 
 
@@ -75,7 +76,7 @@ def fast_com(verbose=False, maxtime=15, forceipv4=False, forceipv6=False):
     except:
         # no connection at all?
         return 0
-    response = urlresult.read()
+    response = urlresult.read().decode('utf-8')
     for line in response.split('\n'):
         # We're looking for a line like
         #           <script src="/app-40647a.js"></script>
@@ -88,7 +89,7 @@ def fast_com(verbose=False, maxtime=15, forceipv4=False, forceipv6=False):
     if verbose:
         print(("javascript url is", url))
     urlresult = urllib.request.urlopen(url)
-    allJSstuff = urlresult.read()  # this is a obfuscated Javascript file
+    allJSstuff = urlresult.read().decode('utf-8')  # this is a obfuscated Javascript file
     '''
     # OLD STUFF ... beautiful, but needs the js-beautifier module, which was a non-stardard requirement
     res = jsbeautifier.beautify(allJSstuff) # ... so un-obfuscate it
@@ -139,7 +140,7 @@ def fast_com(verbose=False, maxtime=15, forceipv4=False, forceipv6=False):
             print("No connection possible")  # probably IPv6, or just no network
         return 0  # no connection, thus no speed
 
-    jsonresult = urlresult.read()
+    jsonresult = urlresult.read().decode('utf-8')
     parsedjson = json.loads(jsonresult)
 
     # Prepare for getting those URLs in a threaded way:
@@ -179,8 +180,8 @@ def fast_com(verbose=False, maxtime=15, forceipv4=False, forceipv6=False):
     lasttotal = 0
     highestspeedkBps = 0
     # maxdownload = 60  # MB
-    nrloops = maxtime / sleepseconds
-    upd = 100 / nrloops
+    nrloops = int(maxtime / sleepseconds)
+    upd = int(100 / nrloops)
     percent = 0
     for loop in range(nrloops):
         total = 0

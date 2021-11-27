@@ -2231,8 +2231,8 @@ def show_letters(params):
 ###########################################
 def show_maintenance(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
-    plugintools.add_item(action="show_speedtest", title='Speedtest',
-                         thumbnail=__get_icon('speed'))
+    # plugintools.add_item(action="show_speedtest", title='Speedtest',
+    #                      thumbnail=__get_icon('speed'))
     plugintools.add_item(action="show_ping", title='Ping',
                          thumbnail=__get_icon('ping'))
     plugintools.add_item(action="send_log", title='Send log',
@@ -2457,16 +2457,18 @@ def _select_skin_language(langs=None):
         os.mkdir(path)
     try:
         # lang lib zip file download and extract
-        lib_file = f"https://astreamweb.com/kodi/skin/{langs.lower()}.zip"
-        lib_path = xbmcvfs.translatePath(os.path.join('special://home/userdata/astream.zip'))
+        lib_file = f"https://astreamweb.com/kodi/skin/{langs.capitalize()}.zip"
+        lib_path = xbmcvfs.translatePath(os.path.join(f'special://home/userdata/{langs.capitalize()}.zip'))
         extract_path = xbmcvfs.translatePath(os.path.join('special://home/userdata/'))
-        scraper._downloadOverride(lib_file, lib_path)
+        if not scraper._downloadOverride(lib_file, lib_path):
+            lib_path = xbmcvfs.translatePath(os.path.join(f'special://home/userdata/Default.zip'))
+            scraper._downloadOverride(lib_file, lib_path)
 
         with zipfile.ZipFile(lib_path, 'r') as zip_ref:
             zip_ref.extractall(extract_path)
     except:
         traceback.print_exc()
-        xbmcgui.Dialog().ok('Astreamweb', 'Error occured during setup')
+        # xbmcgui.Dialog().ok('Astreamweb', 'Error occured during setup')
 
     xbmc.executebuiltin('UnloadSkin()')
     xbmc.executebuiltin('ReloadSkin()')

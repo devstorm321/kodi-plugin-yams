@@ -591,12 +591,15 @@ def _downloadOverride(url, oFile):
 
         # Getting new file
         resp = Net.get(url)
-
-        link = resp.content.decode('utf-8')
-
-        nFile = open(oFile, 'w')
-        nFile.write(link)
-        nFile.close()
+        xbmc.log('_download resp header %s' % repr(resp.headers), xbmc.LOGINFO)
+        if resp.headers['Content-Type'] == 'application/zip':
+            nFile = open(oFile, 'wb')
+            nFile.write(resp.content)
+            nFile.close()
+        else:
+            nFile = open(oFile, 'w')
+            nFile.write(resp.content.decode('utf-8'))
+            nFile.close()
 
         return True
     except:
