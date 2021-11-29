@@ -1527,8 +1527,6 @@ def play_indian_channel(params):  # id, cat, iconimg, name):
 
 def show_eng_channels(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
-    if not isiptvauth_ok():
-        return
     engchannels.show_english_channels(params)
 
 
@@ -2649,8 +2647,6 @@ def show_einthusan_search(params):
             '<div class="block1">.*?href=".*?watch\/(.*?)\/\?lang=(.*?)".*?src="(.*?)".*?<h3>(.*?)</h3>.+?i class(.+?)<p').findall(
             html)
 
-        nextpage = re.findall('data-disabled="([^"]*)" href="(.+?)"', html)[-1]
-
         for movie, lang, image, name, ishd in match:
             image = 'http:' + image
             movie = str(name) + ',' + str(movie) + ',' + lang + ','
@@ -2662,9 +2658,13 @@ def show_einthusan_search(params):
             # addDir(name, MOVIES_URL + str(movie)+'/?lang='+lang, 2, image, lang)
             plugintools.add_item(action="play_einthusan", title=name, url=movie, thumbnail=image, isPlayable=True,
                                  folder=False)
-        if nextpage[0] != 'true':
-            plugintools.add_item(action="show_einthusan_movies", title=name, thumbnail=image,
-                                 extra='https://einthusan.ca/' + nextpage[1], page="2")
+        try:
+            nextpage = re.findall('data-disabled="([^"]*)" href="(.+?)"', html)[-1]
+            if nextpage[0] != 'true':
+                plugintools.add_item(action="show_einthusan_movies", title=name, thumbnail=image,
+                                     extra='https://einthusan.ca/' + nextpage[1], page="2")
+        except:
+            pass
 
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
 
