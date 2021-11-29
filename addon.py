@@ -1527,6 +1527,8 @@ def play_indian_channel(params):  # id, cat, iconimg, name):
 
 def show_eng_channels(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
+    if not isiptvauth_ok():
+        return
     engchannels.show_english_channels(params)
 
 

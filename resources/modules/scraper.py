@@ -412,6 +412,412 @@ def get_seasons(movie_id, username, password, seasn):
     return items
 
 
+def get_series_files(movie_id, username, password):
+    xbmc.log('get_series_files started with movie_id=%s, username=%s' % (movie_id,
+                                                                         username))
+    # location
+    r_eu = re.compile('s10.yamsftp.net', re.IGNORECASE)
+    r_us = re.compile('s1.yamsftp.net', re.IGNORECASE)
+    # songs
+    r_videosongs = re.compile('Video Songs', re.IGNORECASE)
+    # valid fileprefix
+    r_valid = re.compile('(avi|mkv|iso|mp4|ts|mpg|wmv|flv|dat|m4v)$', re.IGNORECASE)
+    # quality
+    r_low = re.compile('(pdvd|pre-|predvd|DVDscr|pirate|cam|hdcam)', re.IGNORECASE)
+    r_1080 = re.compile('(1080)')
+    r_2160 = re.compile('(4K)|(2160)|(UltraHD)|(Ultra HD)', re.IGNORECASE)
+    r_720 = re.compile('(720)')
+    r_good = re.compile('mkv$', re.IGNORECASE)
+    r_med = re.compile('(avi|mpg|ts|iso|mp4|dat)$', re.IGNORECASE)
+    # stream
+    r_stream = re.compile('flv$', re.IGNORECASE)
+    # tv show
+    r_serials = re.compile('S([0-9]+)E([0-9]+)', re.IGNORECASE)
+    # invalid server
+    r_invalid_serv = re.compile('s3.yamsftp.net', re.IGNORECASE)
+    # 3D Movies
+    r_3d = re.compile('3D Movies', re.IGNORECASE)
+    # languages
+    r_tamil = re.compile('tamil', re.IGNORECASE)
+    r_telugu = re.compile('telugu', re.IGNORECASE)
+    r_hindi = re.compile('hindi', re.IGNORECASE)
+    r_mala = re.compile('malayalam', re.IGNORECASE)
+    # Override
+    r_override = re.compile('209.212.145.158', re.IGNORECASE)
+
+    xbmc.log('get_series_files start')
+    request_dict = {'task': 'series',
+                    'user': username,
+                    'id': movie_id,
+                    'cleancache': 1}
+    json_data = __get_json(request_dict)
+    nginx = json_data['data'][0]['nginx']
+    videos = list()
+
+    for file in nginx:
+        name = __decrypt(file['name'])
+        path = __decrypt(file['name'])
+        server = __decrypt(file['server'])
+        if not re.search(r_valid, name):
+            xbmc.log('getVideo invalid: "%s"' % name)
+            continue
+        if re.search(r_invalid_serv, server):
+            xbmc.log('getVideo wrong server "%s" for file %s' % (server, name))
+            continue
+        url = __get_server_url(server, path, username, password,
+                               v=ACCESS_CODES['PLAYBACK'])
+        xbmc.log('getVideo url server "%s" ' % (url))
+        xbmc.log('getVideo name server "%s" ' % (name))
+        # is tv-serials
+        if re.search(r_serials, name):
+            season, episode = re.search(r_serials, name).groups()
+            xbmc.log('getseason season episode "%s" "%s" ' % (season, episode))
+            videos.append({'season': season,
+                           'episode': episode,
+                           'label': name,
+                           'url': url})
+        # is movie, needs quality and language tag
+        else:
+            # detect quality
+            if re.search(r_1080, name):
+                quality = 'Super High'
+            elif re.search(r_2160, name):
+                quality = '4K Ultra HD'
+            elif re.search(r_720, name):
+                quality = 'High'
+            elif re.search(r_good, name):
+                quality = 'Good'
+            elif re.search(r_med, name):
+                quality = 'Medium'
+            elif re.search(r_stream, name):
+                quality = 'Stream'
+            else:
+                quality = 'Unknown'
+            if re.search(r_low, name):
+                quality = 'Low'
+            # detect language
+            if re.search(r_tamil, name + path):
+                language = 'Tamil'
+            elif re.search(r_telugu, name + path):
+                language = 'Telugu'
+            elif re.search(r_hindi, name + path):
+                language = 'Hindi'
+            elif re.search(r_mala, name + path):
+                language = 'Malayalam'
+            else:
+                language = ''
+            xbmc.log('getVideo append: "%s" with quality "%s"' % (name, quality))
+
+            # Override .mp4 on live.yamsonline.com
+            if re.search(r_med, name) and re.search(r_override, url):
+                quality = 'Stream'
+
+            label = '[%s Quality]' % (quality)
+            # if language
+            if language:
+                label = label + ' [%s]' % (language)
+            # is EU server
+            if re.search(r_eu, server):
+                label = label + ' [EU]'
+            if (re.search(r_1080, name) or re.search(r_720, name)) and re.search(r_us, server):
+                label = label + ' [US]'
+            # is video song
+            if re.search(r_videosongs, path):
+                label = label + ' [Video Song]'
+            # is 3D Movies
+            if re.search(r_3d, path):
+                label = label + ' [3D Movies]'
+
+            label = label + ' - %s' % (name)
+            thumbnail = json_data['data'][0]['thumbnail']
+            plot = json_data['data'][0]['plot']
+            videos.append({
+                'label': label,
+                'url': url,
+                'thumbnail': thumbnail,
+                'plot': plot
+            })
+
+    return videos
+
+
+def get_youtube_playlist(channel, per_page, sorting, pageToken=None):
+    xbmc.log('Getting playlist %s %s' % (channel, pageToken))
+    nextPage = None
+    prevPage = None
+
+    shows = list()
+    if pageToken is None:
+        url = urlopen(YOUTUBE_BASEAPI + YOUTUBE_PLAYLIST % (channel, str(per_page)))
+    else:
+        url = urlopen(YOUTUBE_BASEAPI + YOUTUBE_PLAYLIST_PAGE % (channel, str(per_page), pageToken))
+
+    play_list = json.load(url)
+    num_entries = play_list['pageInfo']['totalResults']
+
+    if 'nextPageToken' in play_list:
+        nextPage = play_list['nextPageToken']
+    if 'prevPageToken' in play_list:
+        prevPage = play_list['prevPageToken']
+
+    if num_entries > 0:
+        for play in play_list['items']:
+            # Get HQ thumbnail
+            thumbnail = ''
+            if 'thumbnails' in play['snippet']:
+                thumb = play['snippet']['thumbnails']
+                if 'high' in thumb:
+                    thumbnail = thumb['high']['url']
+                elif 'medium' in thumb:
+                    thumbnail = thumb['medium']['url']
+                elif 'default' in thumb:
+                    thumbnail = thumb['default']['url']
+
+            shows.append({'name': play['snippet']['title'],
+                          'icon': thumbnail,
+                          'playlist': play['id']})
+
+    return shows, nextPage, prevPage
+
+
+def get_youtube_playitem(channel, per_page, sorting, pageToken=None):
+    xbmc.log('Getting playlist for item %s %s' % (channel, pageToken))
+    nextPage = None
+    prevPage = None
+
+    shows = list()
+    if pageToken is None:
+        url = urlopen(YOUTUBE_BASEAPI + YOUTUBE_PLAYLISTITEM % (channel, str(per_page)))
+    else:
+        url = urlopen(YOUTUBE_BASEAPI + YOUTUBE_PLAYLISTITEM_PAGE % (channel, str(per_page), pageToken))
+
+    play_list = json.load(url)
+    num_entries = play_list['pageInfo']['totalResults']
+
+    if 'nextPageToken' in play_list:
+        nextPage = play_list['nextPageToken']
+    if 'prevPageToken' in play_list:
+        prevPage = play_list['prevPageToken']
+
+    if num_entries > 0:
+        for play in play_list['items']:
+            # Get HQ thumbnail
+            thumbnail = ''
+            if 'thumbnails' in play['snippet']:
+                thumb = play['snippet']['thumbnails']
+                if 'high' in thumb:
+                    thumbnail = thumb['high']['url']
+                elif 'medium' in thumb:
+                    thumbnail = thumb['medium']['url']
+                elif 'default' in thumb:
+                    thumbnail = thumb['default']['url']
+
+            shows.append({'name': play['snippet']['title'],
+                          'icon': thumbnail,
+                          'channel': play['contentDetails']['videoId']})
+
+    return shows, nextPage, prevPage
+
+
+'''
+    request_dict = {
+    'task' : 'vod',
+    'sort' : sorting,
+    'per_page' : per_page,
+    'page' : page
+    }
+    json_data = __get_json(request_dict)
+    items = json_data['data']
+    '''
+
+
+def get_youtube_playlist_icon(playlist_id):
+    url = urlopen(YOUTUBE_SEARCH % playlist_id)
+    snippet = json.load(url)
+
+    thumbnail = ''
+    for item in snippet['items']:
+        if "thumbnails" in item['snippet']:
+            thumb = item['snippet']['thumbnails']
+            if 'high' in thumb:
+                thumbnail = thumb['high']['url']
+            elif 'medium' in thumb:
+                thumbnail = thumb['medium']['url']
+            elif 'default' in thumb:
+                thumbnail = thumb['default']['url']
+
+    return thumbnail
+
+
+def get_youtube_sections(page, per_page, sorting):
+    xbmc.log('get_youtube_sections started')
+
+    url = '{0}?digest={1}'.format(VOD_URL, digest)
+    xbmc.log('vod_url:{0}'.format(url))
+    try:
+        response = urlopen(url)
+    except HTTPError:
+        dialog = xbmcgui.Dialog()
+        dialog.ok('Error with VOD Authentication', 'Access Error')
+        raise ApiError('HTTPError')
+
+    tree = ET.parse(response)
+    sections = list()
+
+    for section in tree.getroot():
+        name = section.find('title').text
+        icon = section.find('icon').text
+        type = int(section.find('type').text)
+        data = list()
+        if type != 1:
+            for channel in section.find('list'):
+                data.append({'name': channel.get('name'),
+                             'icon': channel.find('icon').text.replace(' ', '%20'),
+                             'channel': channel.find('url').text})
+        else:
+            for playlist in section.find('list'):
+                data.append({'name': playlist.find('title').text,
+                             'id': playlist.find('id').text})
+
+        sections.append({'name': name,
+                         'type': section.find('type').text,
+                         'icon': icon,
+                         'list': data})
+
+    num_entries = len(sections)
+    has_next_page = (int(page) * int(per_page) < num_entries)
+
+    return sections, has_next_page
+
+
+def get_youtube_channels(page, per_page, sorting):
+    xbmc.log('get_youtube_channels started')
+
+    url = VOD_URL + '?digest=' + digest
+    xbmc.log('vod_url:' + url)
+    try:
+        response = urlopen(url)
+    except HTTPError:
+        dialog = xbmcgui.Dialog()
+        dialog.ok('Error with VOD Authentication', 'Access Error')
+        raise ApiError('HTTPError')
+
+    tree = ET.parse(response)
+    channels = list()
+
+    for item in tree.getroot():
+        channels.append({'name': item.get('name'),
+                         'icon': item.find('icon').text.replace(' ', '%20'),
+                         'channel': item.find('url').text})
+
+    num_entries = len(channels)
+    has_next_page = (int(page) * int(per_page) < num_entries)
+
+    return channels, has_next_page
+
+
+def get_channellive_seasons(lang, page, per_page, sorting, grabVideo=False):
+    xbmc.log('Getting season list for language {0}'.format(lang))
+    xml_url = 'https://astreamweb.com/kodi/RokuGateway.xml'
+    try:
+        resp = urlopen(xml_url)
+        if resp.getcode() != 200:
+            dialog = xbmcgui.Dialog()
+            dialog.ok('Exception', 'Unable to retrieve information: Code: ' + str(resp.getcode()))
+            return {}, 0
+
+    except Exception as e:
+        dialog = xbmcgui.Dialog()
+        dialog.ok('Exception', 'Unable to retrieve information; Message: ' + repr(e))
+        return {}, 0
+
+    resp_xml = resp.read()
+    root = ET.fromstring(resp_xml)
+    channel_list = dict()
+    for child in root:
+        a = dict()
+        a['sd_img'] = child.attrib['sd_img']
+        a['child'] = child
+        channel_list[child.attrib['title']] = a
+
+    if page == '1':
+        start_index = page
+    else:
+        start_index = (int(page) - 1) * per_page
+    num_entries = len(list(channel_list.items()))
+    if num_entries == 0 and grabVideo:
+        xbmc.log('No channels.')
+        dialog = xbmcgui.Dialog()
+        dialog.ok('Exception', 'No Channels to show.')
+    else:
+        has_next_page = ((int(start_index) + int(per_page)) < num_entries)
+        return channel_list, has_next_page
+
+
+def get_channellive_prog(root, page, per_page, sorting):
+    channel_list = dict()
+    for child in root:
+        a = dict()
+        a['description'] = child.attrib['description']
+        a['feed'] = child.attrib['feed']
+        channel_list[child.attrib['title']] = a
+
+    if page == '1':
+        start_index = page
+    else:
+        start_index = (int(page) - 1) * per_page
+    num_entries = len(list(channel_list.items()))
+    if num_entries == 0:
+        xbmc.log('No episode.')
+        dialog = xbmcgui.Dialog()
+        dialog.ok('Exception', 'No episode to show.')
+    else:
+        has_next_page = ((int(start_index) + int(per_page)) < num_entries)
+        return channel_list, has_next_page
+
+
+def get_channellive_vod(vodfeed, page, per_page, sorting):
+    try:
+        resp = urlopen(vodfeed)
+        if resp.getcode() != 200:
+            dialog = xbmcgui.Dialog()
+            dialog.ok('Exception', 'Unable to retrieve information: Code: ' + str(resp.getcode()))
+            return {}, 0
+
+    except Exception as e:
+        dialog = xbmcgui.Dialog()
+        dialog.ok('Exception', 'Unable to retrieve information; Message: ' + repr(e))
+        return {}, 0
+
+    resp_xml = resp.read()
+    root = ET.fromstring(resp_xml)
+    vod_list = dict()
+    for child in root:
+        if child.tag == 'item':
+            a = dict()
+            a['sdImg'] = child.attrib['sdImg']
+            for child2 in child:
+                if child2.tag == 'media':
+                    for child3 in child2:
+                        if child3.tag == 'streamUrl':
+                            a['streamUrl'] = child3.text
+                if child2.tag == 'title':
+                    a['title'] = child2.text
+            vod_list[a['title']] = a
+    if page == '1':
+        start_index = page
+    else:
+        start_index = (int(page) - 1) * per_page
+    num_entries = len(list(vod_list.items()))
+    if num_entries == 0:
+        xbmc.log('No Vods.')
+        dialog = xbmcgui.Dialog()
+        dialog.ok('Exception', 'No Vods to show.')
+    else:
+        has_next_page = ((int(start_index) + int(per_page)) < num_entries)
+        return vod_list, has_next_page
+
+
 def check_login(username, password, session=None):
     request_dict = {
         'task': 'checklogin',
