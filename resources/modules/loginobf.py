@@ -1,80 +1,8 @@
-import re
-import traceback
-
-BASE_URL = "https://einthusan.tv"
-LOGIN_USERNAME = "kilavan8@gmail.com"
-LOGIN_PASSWORD = "654321"
-USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 " \
-             "Safari/537.36 "
-LANGUAGE = "tamil"
-
-
-def login_info(s, refererurl):
-    language = LANGUAGE
-    headers = {
-        "Origin": BASE_URL,
-        "Referer": refererurl,
-        "User-Agent": USER_AGENT}
-    try:
-        html1 = s.get(
-            BASE_URL + "/login/?lang=" + language, headers=headers, allow_redirects=False,
-        ).text
-
-        csrf1 = re.findall("data-pageid=[\"'](.*?)[\"']", html1)[0]
-
-        if "&#43;" in csrf1:
-            csrf1 = csrf1.replace("&#43;", "+")
-
-        headers["X-Requested-With"] = "XMLHttpRequest"
-        headers["Referer"] = BASE_URL + "/login/?lang=" + language
-
-        postdata2 = {
-            "xEvent": "Login",
-            "xJson": '{"Email":"'
-                     + LOGIN_USERNAME
-                     + '","Password":"'
-                     + LOGIN_PASSWORD
-                     + '"}',
-            "arcVersion": 3,
-            "appVersion": 59,
-            "tabID": csrf1 + "48",
-            "gorilla.csrf.Token": csrf1,
-        }
-        html2 = s.post(
-            BASE_URL + "/ajax/login/?lang=" + language,
-            headers=headers,
-            cookies=s.cookies,
-            data=postdata2,
-            allow_redirects=False,
-        )
-
-        html3 = s.get(
-            BASE_URL
-            + "/account/?flashmessage=success%3A%3A%3AYou+are+now+logged+in.&lang="
-            + language,
-            headers=headers,
-            cookies=s.cookies,
-        ).text
-
-        csrf3 = re.findall("data-pageid=[\"'](.*?)[\"']", html3)[0]
-
-        postdata4 = {
-            "xEvent": "notify",
-            "xJson": '{"Alert":"SUCCESS","Heading":"AWESOME!","Line1":"You+are+now+logged+in.","Buttons":[]}',
-            "arcVersion": 3,
-            "appVersion": 59,
-            "tabID": csrf1 + "48",
-            "gorilla.csrf.Token": csrf3,
-        }
-
-        html4 = s.post(
-            BASE_URL + "/ajax/account/?lang=" + language,
-            headers=headers,
-            cookies=s.cookies,
-            data=postdata4,
-        )
-    except:
-        traceback.print_exc()
-        return s, False
-
-    return s, True
+import base64, codecs
+magic = 'aW1wb3J0IHJlCmltcG9ydCB0cmFjZWJhY2sKCkJBU0VfVVJMID0gImh0dHBzOi8vZWludGh1c2FuLnR2IgpMT0dJTl9VU0VSTkFNRSA9ICJraWxhdmFuOEBnbWFpbC5jb20iCkxPR0lOX1BBU1NXT1JEID0gIjY1NDMyMSIKVVNFUl9BR0VOVCA9ICJNb3ppbGxhLzUuMCAoV2luZG93cyBOVCAxMC4wOyBXT1c2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzcyLjAuMzYyNi4xMjEgIiBcCiAgICAgICAgICAgICAiU2FmYXJpLzUzNy4zNiAiCkxBTkdVQUdFID0gInRhbWlsIgoKCmRlZiBsb2dpbl9pbmZvKHMsIHJlZmVyZXJ1cmwpOgogICAgbGFuZ3VhZ2UgPSBMQU5HVUFHRQogICAgaGVhZGVycyA9IHsKICAgICAgICAiT3JpZ2luIjogQkFTRV9VUkwsCiAgICAgICAgIlJlZmVyZXIiOiByZWZlcmVydXJsLAogICAgICAgICJVc2VyLUFnZW50IjogVVNFUl9BR0VOVH0KICAgIHRyeToKICAgICAgICBodG1sMSA9IHMuZ2V0KAogICAgICAgICAgICBCQVNFX1VSTCArICIvbG9naW4vP2xhbmc9IiArIGxhbmd1YWdlLCBoZWFkZXJzPWhlYWRlcnMsIGFsbG93X3JlZGlyZWN0cz1GYWxzZSwKICAgI'
+love = 'PNtVPNcYaEyrUDXPvNtVPNtVPNtL3AlMwRtCFOlMF5znJ5xLJkfXPWxLKEuYKOuM2IcMQ1oKPVaKFthXw8cJ1jvW10vYPObqT1fZFyoZS0XPvNtVPNtVPNtnJLtVvLwAQZ7VvOcovOwp3WzZGbXVPNtVPNtVPNtVPNtL3AlMwRtCFOwp3WzZF5lMKOfLJAyXPVzVmDmBlVfVPVeVvxXPvNtVPNtVPNtnTIuMTIlp1fvJP1FMKS1MKA0MJDgI2y0nPWqVQ0tVyuAGRu0qUOFMKS1MKA0VtbtVPNtVPNtVTuyLJEypaAoVyWyMzIlMKVvKFN9VRWOH0IsIIWZVPftVv9fo2qcov8/oTShMm0vVPftoTShM3IuM2HXPvNtVPNtVPNtpT9mqTEuqTRlVQ0trjbtVPNtVPNtVPNtVPNvrRI2MJ50VwbtVxkiM2yhVvjXVPNtVPNtVPNtVPNtVauXp29hVwbtW3fvEJ1unJjvBvVaPvNtVPNtVPNtVPNtVPNtVPNtVPNtVPftGR9UFH5sIIASHx5OGHHXVPNtVPNtVPNtVPNtVPNtVPNtVPNtXlNaVvjvHTSmp3qipzDvBvVaPvNtVPNtVPNtVPNtVPNtVPNtVPNtVPftGR9UFH5sHRSGH1qCHxDXVPNtVPNtVPNtVPNtVPNtVPNtVPNtXlNaVa0aYNbtVPNtVPNtVPNtVPNvLKWwIzIlp2yiovV6VQZfPvNtVPNtVPNtVPNtVPWupUOJMKWmnJ9hVwbtAGxfPvNtVPNtVPNtVP'
+god = 'AgICJ0YWJJRCI6IGNzcmYxICsgIjQ4IiwKICAgICAgICAgICAgImdvcmlsbGEuY3NyZi5Ub2tlbiI6IGNzcmYxLAogICAgICAgIH0KICAgICAgICBodG1sMiA9IHMucG9zdCgKICAgICAgICAgICAgQkFTRV9VUkwgKyAiL2FqYXgvbG9naW4vP2xhbmc9IiArIGxhbmd1YWdlLAogICAgICAgICAgICBoZWFkZXJzPWhlYWRlcnMsCiAgICAgICAgICAgIGNvb2tpZXM9cy5jb29raWVzLAogICAgICAgICAgICBkYXRhPXBvc3RkYXRhMiwKICAgICAgICAgICAgYWxsb3dfcmVkaXJlY3RzPUZhbHNlLAogICAgICAgICkKCiAgICAgICAgaHRtbDMgPSBzLmdldCgKICAgICAgICAgICAgQkFTRV9VUkwKICAgICAgICAgICAgKyAiL2FjY291bnQvP2ZsYXNobWVzc2FnZT1zdWNjZXNzJTNBJTNBJTNBWW91K2FyZStub3crbG9nZ2VkK2luLiZsYW5nPSIKICAgICAgICAgICAgKyBsYW5ndWFnZSwKICAgICAgICAgICAgaGVhZGVycz1oZWFkZXJzLAogICAgICAgICAgICBjb29raWVzPXMuY29va2llcywKICAgICAgICApLnRleHQKCiAgICAgICAgY3NyZjMgPSByZS5maW5kYWxsKCJkYXRhLXBhZ2VpZD1bXCInXSguKj8pW1wiJ10iLCBodG1sMyl'
+destiny = 'oZS0XPvNtVPNtVPNtpT9mqTEuqTR0VQ0trjbtVPNtVPNtVPNtVPNvrRI2MJ50VwbtVz5iqTyzrFVfPvNtVPNtVPNtVPNtVPW4FaAiovV6VPq7VxSfMKW0VwbvH1IQD0IGHlVfVxuyLJEcozpvBvWOI0IGG01SVFVfVxkcozHkVwbvJJ91X2SlMFgho3peoT9aM2IxX2yhYvVfVxW1qUEioaZvBygqsFpfPvNtVPNtVPNtVPNtVPWupzAJMKWmnJ9hVwbtZljXVPNtVPNtVPNtVPNtVzSjpSMypaAco24vBvN1BFjXVPNtVPNtVPNtVPNtVaEuLxyRVwbtL3AlMwRtXlNvAQtvYNbtVPNtVPNtVPNtVPNvM29lnJkfLF5wp3WzYyEin2IhVwbtL3AlMwZfPvNtVPNtVPNtsDbXVPNtVPNtVPObqT1fAPN9VUZhpT9mqPtXVPNtVPNtVPNtVPNtDxSGEI9IHxjtXlNvY2SdLKtiLJAwo3IhqP8/oTShMm0vVPftoTShM3IuM2HfPvNtVPNtVPNtVPNtVTuyLJEypaZ9nTIuMTIlpljXVPNtVPNtVPNtVPNtL29in2yypm1mYzAio2gcMKZfPvNtVPNtVPNtVPNtVTEuqTR9pT9mqTEuqTR0YNbtVPNtVPNtVPxXVPNtVTI4L2IjqQbXVPNtVPNtVPO0pzSwMJWuL2fhpUWcoaEsMKuwXPxXVPNtVPNtVPOlMKE1pz4tpljtEzSfp2HXPvNtVPOlMKE1pz4tpljtIUW1MDb='
+joy = '\x72\x6f\x74\x31\x33'
+trust = eval('\x6d\x61\x67\x69\x63') + eval('\x63\x6f\x64\x65\x63\x73\x2e\x64\x65\x63\x6f\x64\x65\x28\x6c\x6f\x76\x65\x2c\x20\x6a\x6f\x79\x29') + eval('\x67\x6f\x64') + eval('\x63\x6f\x64\x65\x63\x73\x2e\x64\x65\x63\x6f\x64\x65\x28\x64\x65\x73\x74\x69\x6e\x79\x2c\x20\x6a\x6f\x79\x29')
+eval(compile(base64.b64decode(eval('\x74\x72\x75\x73\x74')),'<string>','exec'))
