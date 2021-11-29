@@ -2638,25 +2638,27 @@ def show_einthusan_search(params):
     keyb.doModal()
     if keyb.isConfirmed():
         search_term = urllib.parse.quote_plus(keyb.getText())
-        postData = 'https://einthusan.ca/movie/results/?' + url + '&query=' + search_term
-        headers = {
-            'Origin': 'https://einthusan.ca',
-            'Referer': 'https://einthusan.ca/movie/browse/?' + url,
-            'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36'}
+        search_url = 'https://einthusan.ca/movie/results/?' + url + '&query=' + search_term
+        # headers = {
+        #     'Origin': 'https://einthusan.ca',
+        #     'Referer': 'https://einthusan.ca/movie/browse/?' + url,
+        #     'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36'}
 
-        html = requests.get(postData, headers=headers).text
+        html = requests.get(search_url).text
         match = re.compile(
             '<div class="block1">.*?href=".*?watch\/(.*?)\/\?lang=(.*?)".*?src="(.*?)".*?<h3>(.*?)</h3>.+?i class(.+?)<p').findall(
             html)
+
+        xbmc.log('eth search resp: %s' % html, xbmc.LOGINFO)
 
         for movie, lang, image, name, ishd in match:
             image = 'http:' + image
             movie = str(name) + ',' + str(movie) + ',' + lang + ','
             if 'ultrahd' in ishd:
                 name = name + '[COLOR blue]- Ultra HD[/COLOR]'
-                movie = movie + 'itshd,' + postData
+                movie = movie + 'itshd,' + search_url
             else:
-                movie = movie + 'itsnothd,' + postData
+                movie = movie + 'itsnothd,' + search_url
             # addDir(name, MOVIES_URL + str(movie)+'/?lang='+lang, 2, image, lang)
             plugintools.add_item(action="play_einthusan", title=name, url=movie, thumbnail=image, isPlayable=True,
                                  folder=False)
