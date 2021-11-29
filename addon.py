@@ -2976,6 +2976,7 @@ def list_home_movie(params):  # id, page):
 def show_livetv(params):
     if xbmc.getCondVisibility('!Skin.HasSetting(HomeMenuNoBasicButton)'):
         vurl = params.get('url')
+        lang = params.get('lang')
         agent = '1'
         xbmc.log('__get_json show_hotstarplay vijayURL url: %s' % vurl)
         if vurl == '':
@@ -2983,16 +2984,19 @@ def show_livetv(params):
         if 'username' in vurl:  # vurl == 'password':
             # xbmc.log('__get_json show_hotstarplay passe par if url: %s' % vurl)
             # username = plugintools.get_setting('username')
-            # password = plugintools.get_setting('password')
+            password = plugintools.get_setting('password')
             # langs = plugintools.get_setting('channellanguage')
-            # if langs.lower() == 'tamil':
-            #     vurl = "https://astreamweb.com/kodi/web/channels/json.php?lang=TAM&username=" + username + "&password=" + password
-            # elif langs.lower() == 'telugu':
-            #     vurl = "https://astreamweb.com/kodi/web/channels/json.php?lang=TEL&username=" + username + "&password=" + password
-            # elif langs.lower() == 'malayalam':
-            #     vurl = "https://astreamweb.com/kodi/web/channels/json.php?lang=MAL&username=" + username + "&password=" + password
-            # elif langs.lower() == 'hindi':
-                vurl = "https://astreamweb.com/kodi/web/channels/json.php?lang=HIN&username=" + username + "&password=" + password
+            if lang:
+                if lang.lower() == 'tamil':
+                    vurl = "https://astreamweb.com/kodi/web/channels/json.php?lang=TAM&username=" + username + "&password=" + password
+                elif lang.lower() == 'telugu':
+                    vurl = "https://astreamweb.com/kodi/web/channels/json.php?lang=TEL&username=" + username + "&password=" + password
+                elif lang.lower() == 'malayalam':
+                    vurl = "https://astreamweb.com/kodi/web/channels/json.php?lang=MAL&username=" + username + "&password=" + password
+                elif lang.lower() == 'hindi':
+                    vurl = "https://astreamweb.com/kodi/web/channels/json.php?lang=HIN&username=" + username + "&password=" + password
+            else:
+                vurl = "https://astreamweb.com/kodi/web/channels/json.php?lang=TEL&username=" + username + "&password=" + password
 
         response = urllib.request.urlopen(vurl).read().decode('utf-8')
         nodes = json.loads(response)
