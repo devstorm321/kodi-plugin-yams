@@ -7,6 +7,7 @@ from urllib.request import pathname2url
 from urllib.request import urlopen, Request
 
 import requests as Net
+import zipfile
 
 from . import rijndael
 
@@ -612,71 +613,16 @@ def _downloadOverride(url, oFile):
 
 def ZeroCachingSetting():
     try:
-        dialog = xbmcgui.Dialog()
+        lib_file = "https://astreamweb.com/kodi/skin/Default.zip"
+        lib_path = xbmcvfs.translatePath(os.path.join('special://home/userdata/Default.zip'))
+        extract_path = xbmcvfs.translatePath(os.path.join('special://home/userdata/'))
+        if not _downloadOverride(lib_file, lib_path):
+            lib_path = xbmcvfs.translatePath(os.path.join('special://home/userdata/Default.zip'))
+            _downloadOverride(lib_file, lib_path)
 
-        path = xbmcvfs.translatePath(os.path.join('special://home/', ''))
+        with zipfile.ZipFile(lib_path, 'r') as zip_ref:
+            zip_ref.extractall(extract_path)
 
-        if xbmc.getCondVisibility('System.Platform.Android'):
-            advUrl = 'https://astreamweb.com/kodi/android/advancedsettings.xml'
-        else:
-            advUrl = 'https://astreamweb.com/kodi/advancedsettings.xml'
-        advance = os.path.join(path, 'userdata', 'advancedsettings.xml')
-
-        # guiUrl = 'http://astreamweb.com/kodi/guisettings.xml'
-        # guisettings = os.path.join(path, 'userdata', 'guisettings.xml')
-
-        actUrl = 'https://astreamweb.com/kodi/actors.txt'
-        actsettings = os.path.join(path, 'userdata', 'actors.txt')
-
-        kbUrl = 'https://astreamweb.com/kodi/keyboard.xml'
-        kbPath = os.path.join(path, 'userdata', 'keymaps', )
-        if not os.path.exists(kbPath):
-            os.makedirs(kbPath)
-        remote = os.path.join(kbPath, 'keyboard.xml')
-
-        kbUrl1 = 'https://astreamweb.com/kodi/subtitles/settings.xml'
-        kbPath1 = os.path.join(path, 'userdata', 'addon_data', 'service.subtitles.opensubtitles', )
-        if not os.path.exists(kbPath1):
-            os.makedirs(kbPath1)
-        subtitle = os.path.join(kbPath1, 'settings.xml')
-
-        verUrl = 'https://astreamweb.com/kodi/settingsversion.xml'
-        verPath = os.path.join(path, 'addons', 'service.xbmc.versioncheck', 'resources')
-        if not os.path.exists(verPath):
-            os.makedirs(verPath)
-        versettings = os.path.join(verPath, 'settings.xml')
-
-        # Retrieve major version
-        # version_installed = get_installedversion()
-        # xbmc.log(version_installed)
-
-        if not _downloadOverride(advUrl, advance):
-            dialog.ok(MaintenanceTitle,
-                      'There was an issue applying FireTV advanced settings. Please check your log file.')
-            return
-
-        if not _downloadOverride(actUrl, actsettings):
-            dialog.ok(MaintenanceTitle, 'There was an issue applying search update. Please check your log file.')
-            return
-        if not _downloadOverride(verUrl, versettings):
-            dialog.ok(MaintenanceTitle, 'There was an issue Disabling VersionCheck. Please check your log file.')
-            return
-        if not _downloadOverride(kbUrl1, subtitle):
-            dialog.ok(MaintenanceTitle, 'There was an issue Disabling VersionCheck. Please check your log file.')
-            return
-
-        # if dialog.yesno('Fire TV Only', 'Are you using a Fire TV Device?'):
-        #    kbResult = _downloadOverride(kbUrl, remote)
-        #    if not kbResult:
-        if not _downloadOverride(kbUrl, remote):
-            dialog.ok(MaintenanceTitle,
-                      'There was an issue applying FireTV remote settings. Please check your log file.')
-            return
-
-        # if (version_installed['major'] > 15):
-        #    if not _downloadOverride(setUrl, settings):
-        #        dialog.ok(MaintenanceTitle, 'There was an issue applying FireTV gui settings. Please check your log file.')
-        #        return
         xbmc.executebuiltin('Skin.ResetSettings')
         xbmc.executebuiltin('Skin.SetBool(HomeMenuNoAstreamWebButton)')
         xbmc.executebuiltin('Skin.SetBool(HomeMenuNosystemButton)')
@@ -727,6 +673,7 @@ def Calibration():
               'On the following page please use the arrow keys to adjust the screen to your Device so u can see the '
               'blue arrow on top \n left and do the same for buttom right. Exit by pressing back button once '
               'completed.')
+    xbmc.executebuiltin('Dialog.Close(busydialog)')
     xbmc.executebuiltin('ActivateWindow(screencalibration)')
 
 

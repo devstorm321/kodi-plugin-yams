@@ -54,9 +54,9 @@ import xbmcgui
 import xbmcplugin
 import xbmcvfs
 
-ADDON_ID = xbmcaddon.Addon().getAddonInfo('id')
+ADDON_ID = xbmcaddon.Addon('plugin.video.yams').getAddonInfo('id')
 ADDONTITLE = 'AStreamWeb'
-PATH = xbmcaddon.Addon().getAddonInfo('path')
+PATH = xbmcaddon.Addon('plugin.video.yams').getAddonInfo('path')
 HOME = xbmcvfs.translatePath('special://home/')
 
 ADDON = xbmcvfs.translatePath(os.path.join(PATH, 'addon.xml'))

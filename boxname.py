@@ -23,7 +23,7 @@ def boxname(params=None):
             xbmcvfs.translatePath(os.path.join(os.getenv('HOME') + "/Library/Application Support/OSConfig/", '')),
             "boxname")
 
-    if os.path.exists(boxnamePath) and params is not 'rename':
+    if os.path.exists(boxnamePath) and params != 'rename':
         try:
             uuidFile = open(boxnamePath, 'r')
             currentUUID = uuidFile.read()

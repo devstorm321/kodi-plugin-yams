@@ -4,8 +4,6 @@
         <setting type="lsep" label="User credentials" />
         <setting id="username" type="text" label="Username" default="" />
         <setting id="password" type="text" option="hidden" label="Password" default="" />
-        <setting type="lsep" label="Auto Start" />
-        <setting id="autostart" type="bool" label="Auto Start AstreamWeb" default="true" />
     </category>
     <category label="Device Specific">
         <setting type="lsep" label="Remove Sharing Restriction"/>
@@ -17,7 +15,7 @@
         <setting id="deviceList" label="Remove one or more Devices" type="action" action="RunScript(special://home/addons/plugin.video.yams/deviceList.py)" />
 
         <setting type="lsep" label="Active devices"/>
-        <setting id="boxname" label="Rename this device" type="action" action="RunPlugin(plugin://plugin.video.yams/boxname?action=boxname&title=&url=&thumbnail=&plot=&extra=&page=)" />
+        <setting id="boxname" label="Rename this device" type="action" action="RunScript(special://home/addons/plugin.video.yams/boxname.py)" />
         <setting id="deviceBoxList" label="List all active box devices" type="action" action="RunScript(special://home/addons/plugin.video.yams/deviceBoxList.py)"/>
         <setting id="deviceMobileList" label="List all active mobile devices" type="action" action="RunScript(special://home/addons/plugin.video.yams/deviceMobileList.py)"/>
     </category>

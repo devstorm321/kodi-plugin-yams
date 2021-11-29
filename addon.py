@@ -69,7 +69,7 @@ def run():
         else:
             dialog.ok('APP EXPIRED',
                       "Please upgrade app(current:" + xbmc.getInfoLabel(
-                          "System.BuildVersion") + "),\nFollow guide: http://tiny.cc/upgrd\nsupport line: 001 (484) 272-2496")
+                          "System.BuildVersion") + "),\nFollow guide: http://tiny.cc/newinstall")
             return
     else:
         if xbmc.getInfoLabel("System.BuildVersion") >= "19.3":
@@ -78,7 +78,7 @@ def run():
         else:
             dialog.ok('APP EXPIRED',
                       "Please upgrade app(current:" + xbmc.getInfoLabel(
-                          "System.BuildVersion") + "),\nFollow guide: http://tiny.cc/upgrd\nsupport line: 001 (484) 272-2496")
+                          "System.BuildVersion") + "),\nFollow guide: http://tiny.cc/newinstall")
             return
 
 
@@ -319,14 +319,13 @@ def __check_login():
     password = plugintools.get_setting('password')
 
     if not username or not password:
-        if dialog.yesno('No Credentials',
-                        'Do you have an existing AstreamWeb Account?'):
+        if not username or not password:
             register_username()
             register_password()
             xbmc.executebuiltin('UnloadSkin()')
             xbmc.executebuiltin('ReloadSkin()')
             xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
-        return False
+        return True
 
     if plugintools.get_setting('session'):
         authenticated, message, status_code = scraper.check_login(username, password,
@@ -471,26 +470,23 @@ def __check_login():
         configUrl = 'https://astreamweb.com/kodi/astreamweb.config'
 
         if not os.path.exists(configFile1):
-            TypeOfMessage = "t"
-            (NewImage, NewMessage) = Common.FetchNews()
-            Common.CheckNews(TypeOfMessage, NewImage, NewMessage, False)
+            # TypeOfMessage = "t"
+            # (NewImage, NewMessage) = Common.FetchNews()
+            # Common.CheckNews(TypeOfMessage, NewImage, NewMessage, False)
             #           dialog.ok('Initial Configuration',
             #              'This is your first time running AstreamWeb. We need to install some configuration files.')
-
-            dialog.ok('Name This Device',
-                      'In the following page, Name this device (e.g. Living Room)')
             boxname(params)
-            xbmc.executebuiltin("ActivateWindow(busydialog)")
             scraper._downloadOverride(configUrl1, configFile1)
             scraper._downloadOverride(configUrl, configFile)
             scraper.ZeroCachingSetting()
             xbmc.executebuiltin("Dialog.Close(busydialog)")
             select_skin_language2()
-            time.sleep(6)
+            time.sleep(4)
             xbmc.executebuiltin('Skin.SetBool(ActivateServices)')
             dialog.ok('A Restart is Required',
-                      'Kodi Will now exit in 10 seconds - If not then please restart your device.')
-            xbmc.executebuiltin('XBMC.AlarmClock(shutdowntimer,XBMC.Quit(),0.5,true)')
+                      'If AstreamWeb Does not restart, then hold down the Select and Play/Pause keys on the remote together for about 5 seconds or restart device.')
+            xbmc.executebuiltin('Dialog.Close(busydialog)')
+            xbmc.executebuiltin('Quit')
 
         else:
             if not os.path.exists(configFile):
@@ -1597,8 +1593,8 @@ def catchupvod_channels(params):
         lang = params.get('lang')
         vurl = f'''http://api.yamsonline.com/astream?username={username}&password={password}&name=VOD&mod=channels&cfg={lang}'''
     else:
-        vurl = params.get('url')
-    # xbmc.log('catchupvod_channels url: %s' % vurl, xbmc.LOGINFO)
+        vurl = f'''http://api.yamsonline.com/astream?username={username}&password={password}&name=VOD&mod=channels&cfg=tamil'''
+    xbmc.log('catchupvod_channels url: %s' % vurl, xbmc.LOGINFO)
     if not isauth_ok():
         return
     response = urllib.request.urlopen(vurl).read().decode('utf-8')
@@ -1795,8 +1791,7 @@ def show_series_files(params):
     idx = params.get("url")
     page = params.get("page")
     authenticated = __check_session()
-    servers = {"Auto Select Best Server": "api.yamsonline.com", "Service Not Available": "api.yamsonline.com",
-               "Servie Not Available": "api.yamsonline.com"}
+    servers = {"Auto Select Best Server": "api.yamsonline.com"}
     try:
         server = servers[plugintools.get_setting("movieserver")]
     except:
@@ -2984,17 +2979,17 @@ def show_livetv(params):
         if vurl == '':
             vurl = vijayVODUrl_ori
         if 'username' in vurl:  # vurl == 'password':
-            xbmc.log('__get_json show_hotstarplay passe par if url: %s' % vurl)
-            username = plugintools.get_setting('username')
-            password = plugintools.get_setting('password')
-            langs = plugintools.get_setting('channellanguage')
-            if langs.lower() == 'tamil':
-                vurl = "https://astreamweb.com/kodi/web/channels/json.php?lang=TAM&username=" + username + "&password=" + password
-            elif langs.lower() == 'telugu':
-                vurl = "https://astreamweb.com/kodi/web/channels/json.php?lang=TEL&username=" + username + "&password=" + password
-            elif langs.lower() == 'malayalam':
-                vurl = "https://astreamweb.com/kodi/web/channels/json.php?lang=MAL&username=" + username + "&password=" + password
-            elif langs.lower() == 'hindi':
+            # xbmc.log('__get_json show_hotstarplay passe par if url: %s' % vurl)
+            # username = plugintools.get_setting('username')
+            # password = plugintools.get_setting('password')
+            # langs = plugintools.get_setting('channellanguage')
+            # if langs.lower() == 'tamil':
+            #     vurl = "https://astreamweb.com/kodi/web/channels/json.php?lang=TAM&username=" + username + "&password=" + password
+            # elif langs.lower() == 'telugu':
+            #     vurl = "https://astreamweb.com/kodi/web/channels/json.php?lang=TEL&username=" + username + "&password=" + password
+            # elif langs.lower() == 'malayalam':
+            #     vurl = "https://astreamweb.com/kodi/web/channels/json.php?lang=MAL&username=" + username + "&password=" + password
+            # elif langs.lower() == 'hindi':
                 vurl = "https://astreamweb.com/kodi/web/channels/json.php?lang=HIN&username=" + username + "&password=" + password
 
         response = urllib.request.urlopen(vurl).read().decode('utf-8')

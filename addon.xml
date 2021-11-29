@@ -11,8 +11,6 @@
   </extension>
   <extension point="xbmc.service" library="service.py" start="startup">
   </extension>
-  <extension point="xbmc.service" library="autostart.py" start="login">
-  </extension>
   <extension point="xbmc.addon.metadata">
     <platform>all</platform>
     <summary lang="en">Astreamweb Plugin Note</summary>
