@@ -476,16 +476,16 @@ def __check_login():
             #           dialog.ok('Initial Configuration',
             #              'This is your first time running AstreamWeb. We need to install some configuration files.')
             boxname(params)
+            xbmc.executebuiltin('ActivateWindow(busydialognocancel)')
             scraper._downloadOverride(configUrl1, configFile1)
             scraper._downloadOverride(configUrl, configFile)
             scraper.ZeroCachingSetting()
-            xbmc.executebuiltin("Dialog.Close(busydialog)")
+            xbmc.executebuiltin('Dialog.Close(busydialognocancel)')
             select_skin_language2()
             time.sleep(4)
             xbmc.executebuiltin('Skin.SetBool(ActivateServices)')
             dialog.ok('A Restart is Required',
                       'If AstreamWeb Does not restart, then hold down the Select and Play/Pause keys on the remote together for about 5 seconds or restart device.')
-            xbmc.executebuiltin('Dialog.Close(busydialog)')
             xbmc.executebuiltin('Quit')
 
         else:
@@ -2652,7 +2652,7 @@ def show_einthusan_search(params):
             '<div class="block1">.*?href=".*?watch\/(.*?)\/\?lang=(.*?)".*?src="(.*?)".*?<h3>(.*?)</h3>.+?i class(.+?)<p').findall(
             html)
 
-        xbmc.log('eth search resp: %s' % html, xbmc.LOGINFO)
+
 
         for movie, lang, image, name, ishd in match:
             image = 'http:' + image
@@ -3002,6 +3002,10 @@ def show_livetv(params):
                     vurl = "https://astreamweb.com/kodi/web/channels/json.php?lang=MAL&username=" + username + "&password=" + password
                 elif lang.lower() == 'hindi':
                     vurl = "https://astreamweb.com/kodi/web/channels/json.php?lang=HIN&username=" + username + "&password=" + password
+            else:
+                langs1 = plugintools.get_setting('channellanguage')
+                langs2 = langs1[0:3]
+                vurl = "https://astreamweb.com/kodi/web/channels/json.php?lang=" + langs2 + "&username=" + username + "&password=" + password
 
         response = urllib.request.urlopen(vurl).read().decode('utf-8')
         nodes = json.loads(response)
