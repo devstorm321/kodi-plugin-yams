@@ -2182,7 +2182,7 @@ def searchBySeries(params):
                 except:
                     xbmc.log('has_next_page {}'.format(has_next_page))
                     ""
-                plugintools.add_itemcontext(action='show_movie_files', title=item['label'], url=item['id'],
+                plugintools.add_itemcontext(action='show_series_files', title=item['label'], url=item['id'],
                                             info_labels=item['info'],
                                             thumbnail=item['thumbnail'], fanart=item['fanart'], page='0',
                                             contextmenu=context_men, folder=True)
@@ -2364,10 +2364,13 @@ def __sendlog():
     logfilePath = os.path.join(LOGPATH, 'kodi.log')
 
     fp = open(logfilePath, 'r')
-    msg = fp.read().encode()
+    msg = fp.read()
     fp.close()
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-    params = {'data': base64.b64encode(msg), 'username': plugintools.get_setting('username')}
+    try:
+        params = {'data': base64.b64encode(msg).encode(), 'username': plugintools.get_setting('username')}
+    except:
+        params = {'data': base64.b64encode(msg), 'username': plugintools.get_setting('username')}
     url = 'https://astreamweb.com/kodi/web/kodilog.php'
     return postHtml(url, params, headers)
     # print utils.postHtml(url, params, headers)
@@ -2981,12 +2984,14 @@ def show_livetv(params):
         lang = params.get('lang')
         agent = '1'
         xbmc.log('__get_json show_hotstarplay vijayURL url: %s' % vurl)
+
+        username = plugintools.get_setting('username')
+        password = plugintools.get_setting('password')
+
         if vurl == '':
-            vurl = vijayVODUrl_ori
+            vurl = "https://astreamweb.com/kodi/web/channels/json.php?lang=TEL&username=" + username + "&password=" + password
         if 'username' in vurl:  # vurl == 'password':
             # xbmc.log('__get_json show_hotstarplay passe par if url: %s' % vurl)
-            # username = plugintools.get_setting('username')
-            password = plugintools.get_setting('password')
             # langs = plugintools.get_setting('channellanguage')
             if lang:
                 if lang.lower() == 'tamil':
@@ -2997,8 +3002,6 @@ def show_livetv(params):
                     vurl = "https://astreamweb.com/kodi/web/channels/json.php?lang=MAL&username=" + username + "&password=" + password
                 elif lang.lower() == 'hindi':
                     vurl = "https://astreamweb.com/kodi/web/channels/json.php?lang=HIN&username=" + username + "&password=" + password
-            else:
-                vurl = "https://astreamweb.com/kodi/web/channels/json.php?lang=TEL&username=" + username + "&password=" + password
 
         response = urllib.request.urlopen(vurl).read().decode('utf-8')
         nodes = json.loads(response)
