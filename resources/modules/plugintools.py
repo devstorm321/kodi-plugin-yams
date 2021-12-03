@@ -132,7 +132,7 @@ def add_item(action="", title="", plot="", url="", thumbnail="", fanart="", icon
     listitem.setArt({'icon': "DefaultVideo.png", 'thumb': thumbnail})
 
     if info_labels is None:
-        info_labels = {"Title": title, "FileName": title, "Plot": plot}
+        info_labels = {"Title": title, "Plot": plot}
         listitem.setInfo("video", info_labels)
     if thumbnail != "":
         listitem.setArt({'poster': thumbnail, 'icon': thumbnail})  # ,"fanart" : thumbnail if not fanart else fanart})
@@ -199,7 +199,7 @@ def add_itemcontext(action="", title="", plot="", url="", thumbnail="", fanart="
     listitem = xbmcgui.ListItem(title)
     listitem.setArt({'icon': "DefaultVideo.png", 'thumb': thumbnail})
     if info_labels is None:
-        info_labels = {"Title": title, "FileName": title, "Plot": plot}
+        info_labels = {"Title": title, "Plot": plot}
         listitem.setInfo("video", info_labels)
     if thumbnail != "":
         listitem.setArt({'poster': thumbnail, 'icon': thumbnail})  # ,"fanart" : thumbnail if not fanart else fanart})

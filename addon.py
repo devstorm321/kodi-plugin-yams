@@ -1003,7 +1003,7 @@ def show_movie_files(params):
         except:
             traceback.print_exc()
             scraper.notifyError("AStreamWeb", msg="Movie not available yet, please contact support.")
-        xbmc.log('show_movie_files got {}'.format(videos))
+        # xbmc.log('show_movie_files got {}'.format(videos))
         added_seasons = list()
         oneUrl = len(videos) == 100
         xbmc.log('oneUrl {}'.format(oneUrl))
@@ -2857,7 +2857,7 @@ def play_einthusan(params):
     import html.parser
     # htm=getUrl(mainurl,headers=headers,cookieJar=cookieJar)
     xbmc.log(mainurl, level=xbmc.LOGINFO)
-    htm = s.get(mainurl, headers=headers, cookies=s.cookies).text
+    htm = s.get(mainurl, headers=headers, cookies=s.cookies, verify=False).text
 
     if ('SORRY' in htm) and ('Remaining quota is for premium members' in htm):
         dialog.ok("[COLOR white] Astreamweb[/COLOR]",
@@ -2872,7 +2872,7 @@ def play_einthusan(params):
     gid = h.unescape(gid).encode("utf-8")
     postdata = {'xEvent': 'UIVideoPlayer.PingOutcome', 'xJson': jdata, 'arcVersion': '3', 'appVersion': '59',
                 'gorilla.csrf.Token': gid}
-    rdata = s.post(mainurlajax, headers=headers, data=postdata, cookies=s.cookies).text
+    rdata = s.post(mainurlajax, headers=headers, data=postdata, cookies=s.cookies, verify=False).text
     r = json.loads(rdata)["Data"]["EJLinks"]
     xbmc.log(base64.b64decode(decodeEInth(r)).decode("utf-8"), level=xbmc.LOGINFO)
     lnk = json.loads(base64.b64decode(decodeEInth(r)).decode("utf-8"))["HLSLink"]
