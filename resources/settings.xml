@@ -2,33 +2,33 @@
 <settings version="1">
     <section id="plugin.video.yams">
         <category id="login" label="Login">
-            <group type="lsep" label="User credentials" />
-                <setting id="username" type="text" label="Username" default="" />
-                <setting id="password" type="text" option="hidden" label="Password" default="" />
+            <group type="lsep" label="User credentials">
+                <setting id="username" type="string" label="Username" default="" />
+                <setting id="password" type="string" option="hidden" label="Password" default="" />
             </group>
         </category>
         <category id="device_specific" label="Device Specific">
-            <group id="lsr" type="lsep" label="Remove Sharing Restriction"/>
+            <group id="lsr" type="lsep" label="Remove Sharing Restriction">
                 <setting id="1daybypass" label="1 day pass (Maximum 10 Times)" type="action" action="RunScript(special://home/addons/plugin.video.yams/1dayByPass.py)" />
                 <setting id="5daybypass" label="5 day pass (Maximum  3 Times)" type="action" action="RunScript(special://home/addons/plugin.video.yams/5dayByPass.py)"/>
                 <setting id="getbypass" label="Is daypass active?" type="action" action="RunScript(special://home/addons/plugin.video.yams/checkBypassActive.py)"/>
             </group>
-            <group id="rdfa" type="lsep" label="Remove Devices From Account" />
+            <group id="rdfa" type="lsep" label="Remove Devices From Account">
             <!--setting id="killsessions" label="Remove All Devices" type="action" action="RunScript(special://home/addons/plugin.video.yams/killSessionset.py)" /-->
                 <setting id="deviceList" label="Remove one or more Devices" type="action" action="RunScript(special://home/addons/plugin.video.yams/deviceList.py)" />
             </group>
-            <group id="ad" type="lsep" label="Active devices"/>
+            <group id="ad" type="lsep" label="Active devices">
                 <setting id="boxname" label="Rename this device" type="action" action="RunScript(special://home/addons/plugin.video.yams/boxname.py)" />
                 <setting id="deviceBoxList" label="List all active box devices" type="action" action="RunScript(special://home/addons/plugin.video.yams/deviceBoxList.py)"/>
                 <setting id="deviceMobileList" label="List all active mobile devices" type="action" action="RunScript(special://home/addons/plugin.video.yams/deviceMobileList.py)"/>
             </group>
         </category>
         <category id="general" label="General">
-            <group id="listing" type="lsep" label="Listing" />
+            <group id="listing" type="lsep" label="Listing">
                 <setting id="per_page" type="slider" label="Movies per Page (max 200)" range="1,100,200" option="int"
                      default="200" />
              </group>
-            <group id="download_settings" type="lsep" label="Download Setting" />
+            <group id="download_settings" type="lsep" label="Download Setting">
                 <setting id="download_location" type="folder"  label="Select a download location." default=""/>
             </group>
             <group id="tz">
@@ -37,7 +37,7 @@
         </category>
 
         <category id="services" label="Services">
-            <group id="ssv" type="lsep" label=" Select Service Visible" />
+            <group id="ssv" type="lsep" label=" Select Service Visible">
                 <setting id="myaccount" type="bool" label="My Account" default="true" />
         		<setting id="favourites" type="bool" label="Favourites" default="true" />
                 <setting id="myfavourite" type="bool" label="My favourites" default="false" />
@@ -71,14 +71,14 @@
         </category>
 
         <category id="apply_settings" label="Apply Settings Now">
-            <group id="group_ad" label="Apply Settings" />
+            <group id="group_ad" label="Apply Settings">
                 <setting type="action" label="Apply Settings Now" action="Container.Refresh" option="close" default="" />
             </group>
         </category>
         <category id="einthusan_premium" label="Einthusan Premium">
-            <group id="user_credentials" type="lsep" label="User credentials" />
-                <setting id="usereinthusan" type="text" label="Username" default="" />
-                <setting id="passeinthusan" type="text" option="hidden" label="Password" default="" />
+            <group id="user_credentials" type="lsep" label="User credentials">
+                <setting id="usereinthusan" type="string" label="Username" default="" />
+                <setting id="passeinthusan" type="string" option="hidden" label="Password" default="" />
             </group>
         </category>
     </section>
