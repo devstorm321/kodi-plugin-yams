@@ -1,77 +1,85 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<settings>
-    <category label="Login">
-        <setting type="lsep" label="User credentials" />
-        <setting id="username" type="text" label="Username" default="" />
-        <setting id="password" type="text" option="hidden" label="Password" default="" />
-    </category>
-    <category label="Device Specific">
-        <setting type="lsep" label="Remove Sharing Restriction"/>
-        <setting id="1daybypass" label="1 day pass (Maximum 10 Times)" type="action" action="RunScript(special://home/addons/plugin.video.yams/1dayByPass.py)" />
-        <setting id="5daybypass" label="5 day pass (Maximum  3 Times)" type="action" action="RunScript(special://home/addons/plugin.video.yams/5dayByPass.py)"/>
-        <setting id="getbypass" label="Is daypass active?" type="action" action="RunScript(special://home/addons/plugin.video.yams/checkBypassActive.py)"/>
-        <setting type="lsep" label="Remove Devices From Account" />
-        <!--setting id="killsessions" label="Remove All Devices" type="action" action="RunScript(special://home/addons/plugin.video.yams/killSessionset.py)" /-->
-        <setting id="deviceList" label="Remove one or more Devices" type="action" action="RunScript(special://home/addons/plugin.video.yams/deviceList.py)" />
+<settings version="1">
+    <section id="plugin.video.yams">
+        <category id="login" label="Login">
+            <group type="lsep" label="User credentials" />
+                <setting id="username" type="text" label="Username" default="" />
+                <setting id="password" type="text" option="hidden" label="Password" default="" />
+            </group>
+        </category>
+        <category id="device_specific" label="Device Specific">
+            <group id="lsr" type="lsep" label="Remove Sharing Restriction"/>
+                <setting id="1daybypass" label="1 day pass (Maximum 10 Times)" type="action" action="RunScript(special://home/addons/plugin.video.yams/1dayByPass.py)" />
+                <setting id="5daybypass" label="5 day pass (Maximum  3 Times)" type="action" action="RunScript(special://home/addons/plugin.video.yams/5dayByPass.py)"/>
+                <setting id="getbypass" label="Is daypass active?" type="action" action="RunScript(special://home/addons/plugin.video.yams/checkBypassActive.py)"/>
+            </group>
+            <group id="rdfa" type="lsep" label="Remove Devices From Account" />
+            <!--setting id="killsessions" label="Remove All Devices" type="action" action="RunScript(special://home/addons/plugin.video.yams/killSessionset.py)" /-->
+                <setting id="deviceList" label="Remove one or more Devices" type="action" action="RunScript(special://home/addons/plugin.video.yams/deviceList.py)" />
+            </group>
+            <group id="ad" type="lsep" label="Active devices"/>
+                <setting id="boxname" label="Rename this device" type="action" action="RunScript(special://home/addons/plugin.video.yams/boxname.py)" />
+                <setting id="deviceBoxList" label="List all active box devices" type="action" action="RunScript(special://home/addons/plugin.video.yams/deviceBoxList.py)"/>
+                <setting id="deviceMobileList" label="List all active mobile devices" type="action" action="RunScript(special://home/addons/plugin.video.yams/deviceMobileList.py)"/>
+            </group>
+        </category>
+        <category id="general" label="General">
+            <group id="listing" type="lsep" label="Listing" />
+                <setting id="per_page" type="slider" label="Movies per Page (max 200)" range="1,100,200" option="int"
+                     default="200" />
+             </group>
+            <group id="download_settings" type="lsep" label="Download Setting" />
+                <setting id="download_location" type="folder"  label="Select a download location." default=""/>
+            </group>
+            <group id="tz">
+                <setting id="globaltimezone" type="select" label="Global timezone" values="None|America/Los Angeles|America/Chicago|America/Denver|America/New York|Europe/London|Europe/Amsterdam|" default="None"/>
+            </group>
+        </category>
 
-        <setting type="lsep" label="Active devices"/>
-        <setting id="boxname" label="Rename this device" type="action" action="RunScript(special://home/addons/plugin.video.yams/boxname.py)" />
-        <setting id="deviceBoxList" label="List all active box devices" type="action" action="RunScript(special://home/addons/plugin.video.yams/deviceBoxList.py)"/>
-        <setting id="deviceMobileList" label="List all active mobile devices" type="action" action="RunScript(special://home/addons/plugin.video.yams/deviceMobileList.py)"/>
-    </category>
-    <category label="General">
-        <setting type="lsep" label="Listing" />
-        <setting id="per_page" type="slider" label="Movies per Page (max 200)" range="1,100,200" option="int"
-                 default="200" />
-        <setting type="lsep" label="Download Setting" />
-        <setting id="download_location" type="folder"  label="Select a download location." default=""/>
-        <setting type="sep"/>
-        <setting id="globaltimezone" type="select" label="Global timezone" values="None|America/Los Angeles|America/Chicago|America/Denver|America/New York|Europe/London|Europe/Amsterdam|" default="None"/>
-    </category>
+        <category id="services" label="Services">
+            <group id="ssv" type="lsep" label=" Select Service Visible" />
+                <setting id="myaccount" type="bool" label="My Account" default="true" />
+        		<setting id="favourites" type="bool" label="Favourites" default="true" />
+                <setting id="myfavourite" type="bool" label="My favourites" default="false" />
+                <setting id="iptvfavourites" type="bool" label="IPTV Favourites" default="false" />
+                <setting id="mynotify" type="bool" label="My Notify" default="false" />
+                <setting id="catchup" type="bool" label="Catchup" default="true" />
+        		<setting id="searchmovies" type="bool" label="Search Movies" default="true" />
+                <setting id="allvideoondemand" type="bool" label="All Video On Demand" default="true" />
+                <setting id="Bestvod" type="bool" label="TimeShift" default="true" />
+        		<setting id="CatchUpVod" type="bool" label="Catch Up VOD" default="true" />
+                <setting id="livetv" type="bool" label="Live TV" default="true" />
+                <setting id="englishchannels" type="bool" label="English Channels" default="true" />
+                <setting id="hindimovies" type="bool" label="Hindi/Tamil/Telugu/Malayam Movies" default="true" />
+                <setting id="englishmovieshd" type="bool" label="English Movies in HD" default="true" />
+                <setting id="musicvideo" type="bool" label="Latest Trailer" default="true" />
+                <setting id="kidzzone" type="bool" label="Kidz Zone" default="true" />
+                <setting id="latesttrailer" type="bool" label="Latest Trailer" default="true" />
+                <setting id="4KMovies" type="bool" label="4K Movies" default="true" />
+                <setting id="bluray" type="bool" label="Bluray" default="false" />
+                <setting id="latestmovies" type="bool" label="Latest Movies" default="true" />
+                <setting id="3dmovies" type="bool" label="3D Movies" default="false" />
+                <setting id="videosongshd" type="bool" label="Video Songs HD" default="true" />
+                <setting id="tamilcomedy" type="bool" label="Tamil Comedy" default="true" />
+                <setting id="tamilseries" type="bool" label="Tamil Series" default="true" />
+                <setting id="concertandstageshows" type="bool" label="Concert and stage shows" default="false" />
+                <setting id="digitalisaithendral" type="bool" label="Digital Isai Thendral" default="false" />
+                <setting id="mydownloads" type="bool" label="My Downloads" default="true" />
+                <setting id="maintenance" type="bool" label="Maintenace Tools" default="true" />
+                <setting id="settings" type="bool" label="Settings" default="true" />
+            </group>
+        </category>
 
-    <category label="Services">
-        <setting type="lsep" label=" Select Service Visible" />
-        <setting type="sep"/>
-        <setting id="myaccount" type="bool" label="My Account" default="true" />
-		<setting id="favourites" type="bool" label="Favourites" default="true" />
-        <setting id="myfavourite" type="bool" label="My favourites" default="false" />
-        <setting id="iptvfavourites" type="bool" label="IPTV Favourites" default="false" />
-        <setting id="mynotify" type="bool" label="My Notify" default="false" />
-        <setting id="catchup" type="bool" label="Catchup" default="true" />
-		<setting id="searchmovies" type="bool" label="Search Movies" default="true" />
-        <setting id="allvideoondemand" type="bool" label="All Video On Demand" default="true" />
-        <setting id="Bestvod" type="bool" label="TimeShift" default="true" />
-		<setting id="CatchUpVod" type="bool" label="Catch Up VOD" default="true" />
-        <setting id="livetv" type="bool" label="Live TV" default="true" />
-        <setting id="englishchannels" type="bool" label="English Channels" default="true" />
-        <setting id="hindimovies" type="bool" label="Hindi/Tamil/Telugu/Malayam Movies" default="true" />
-        <setting id="englishmovieshd" type="bool" label="English Movies in HD" default="true" />
-        <setting id="musicvideo" type="bool" label="Latest Trailer" default="true" />
-        <setting id="kidzzone" type="bool" label="Kidz Zone" default="true" />
-        <setting id="latesttrailer" type="bool" label="Latest Trailer" default="true" />
-        <setting id="4KMovies" type="bool" label="4K Movies" default="true" />
-        <setting id="bluray" type="bool" label="Bluray" default="false" />
-        <setting id="latestmovies" type="bool" label="Latest Movies" default="true" />
-        <setting id="3dmovies" type="bool" label="3D Movies" default="false" />
-        <setting id="videosongshd" type="bool" label="Video Songs HD" default="true" />
-        <setting id="tamilcomedy" type="bool" label="Tamil Comedy" default="true" />
-        <setting id="tamilseries" type="bool" label="Tamil Series" default="true" />
-        <setting id="concertandstageshows" type="bool" label="Concert and stage shows" default="false" />
-        <setting id="digitalisaithendral" type="bool" label="Digital Isai Thendral" default="false" />
-        <setting id="mydownloads" type="bool" label="My Downloads" default="true" />
-        <setting id="maintenance" type="bool" label="Maintenace Tools" default="true" />
-        <setting id="settings" type="bool" label="Settings" default="true" />
-    </category>
-
-    <category label="Apply Settings Now">
-        <setting type="lsep" label="Apply Settings" />
-        <setting type="sep" />
-        <setting type="action" label="Apply Settings Now" action="Container.Refresh" option="close" default="" />
-    </category>
-    <category label="Einthusan Premium">
-        <setting type="lsep" label="User credentials" />
-        <setting id="usereinthusan" type="text" label="Username" default="" />
-        <setting id="passeinthusan" type="text" option="hidden" label="Password" default="" />
-    </category>
-
+        <category id="apply_settings" label="Apply Settings Now">
+            <group id="group_ad" label="Apply Settings" />
+                <setting type="action" label="Apply Settings Now" action="Container.Refresh" option="close" default="" />
+            </group>
+        </category>
+        <category id="einthusan_premium" label="Einthusan Premium">
+            <group id="user_credentials" type="lsep" label="User credentials" />
+                <setting id="usereinthusan" type="text" label="Username" default="" />
+                <setting id="passeinthusan" type="text" option="hidden" label="Password" default="" />
+            </group>
+        </category>
+    </section>
 </settings>

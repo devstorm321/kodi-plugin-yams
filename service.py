@@ -130,6 +130,9 @@ def app_active():
 
 
 def run():
+    if not xbmc.getCondVisibility('Skin.HasSetting(Activateservices)'):
+        return
+
     scraper.__set_digest(digest)
     api_digest = scraper.digest
 

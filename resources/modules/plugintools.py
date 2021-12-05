@@ -46,6 +46,10 @@ import urllib.parse
 import urllib.parse
 import urllib.request
 import urllib.request
+import urllib3
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
 from os import path as os_path
 
 import xbmc

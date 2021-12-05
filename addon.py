@@ -6,6 +6,7 @@ import urllib.parse
 import requests
 import subprocess
 import re
+import html
 
 from os import path as os_path
 import datetime as dt
@@ -481,9 +482,11 @@ def __check_login():
             scraper._downloadOverride(configUrl, configFile)
             scraper.ZeroCachingSetting()
             xbmc.executebuiltin('Dialog.Close(busydialognocancel)')
+            time.sleep(1)
             select_skin_language2()
-            time.sleep(4)
+            xbmc.executebuiltin('ActivateWindow(busydialognocancel)')
             xbmc.executebuiltin('Skin.SetBool(ActivateServices)')
+            xbmc.executebuiltin('Dialog.Close(busydialognocancel)')
             dialog.ok('A Restart is Required',
                       'If AstreamWeb Does not restart, then hold down the Select and Play/Pause keys on the remote together for about 5 seconds or restart device.')
             xbmc.executebuiltin('Quit')
@@ -874,7 +877,7 @@ def personallink(params):
     url = 'http://api.astreamweb.com/listmovie.php?username=' + username
     source = requests.get(url).content
     json_data = json.loads(source)["data"]
-    xbmc.log('personal ' + json_data)
+    #xbmc.log('personal ' + json_data)
     page = params.get('page')
     for i in json_data:
         if str(i["movie_id"]) == page:
@@ -2348,11 +2351,9 @@ def __averageList(lst):
 
 def send_log(params):
     choice = xbmcgui.Dialog().yesno('AstreamWeb',
-                                    'Have you ensured to enable debuging log, and execute the problem and only hereafter click on send log.')
+                                    'Have you ensured to enable [COLOR red]debuging mode[/COLOR], and execute the problem and only hereafter click on send log.')
     if choice == 1:
-        res = __sendlog()
-        if res == 'sent':
-            dialog.ok('Success', "Log sent", '')
+        xbmc.executebuiltin("RunAddon(script.kodi.loguploader)")
     else:
         dialog.ok('AstreamWeb',
                   "Please click on [COLOR red]Enable Debuging Mode[/COLOR] Icon under Maintenance Icon, and then run the problem again and hereafter click on Send Log.",
@@ -2869,7 +2870,7 @@ def play_einthusan(params):
     jdata = '{"EJOutcomes":"%s","NativeHLS":false}' % lnk
     h = html.parser.HTMLParser()
     gid = re.findall('data-pageid=["\'](.*?)["\']', htm)[0]
-    gid = h.unescape(gid).encode("utf-8")
+    gid = html.unescape(gid).encode("utf-8")
     postdata = {'xEvent': 'UIVideoPlayer.PingOutcome', 'xJson': jdata, 'arcVersion': '3', 'appVersion': '59',
                 'gorilla.csrf.Token': gid}
     rdata = s.post(mainurlajax, headers=headers, data=postdata, cookies=s.cookies, verify=False).text
