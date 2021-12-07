@@ -24,6 +24,7 @@ from resources.modules.loginobf import login_info
 import xbmc, xbmcaddon, xbmcgui, xbmcplugin, xbmcvfs
 import common as Common
 from boxname import boxname
+from downloader import downloadAPK
 
 # import SimpleDownloader as downloader
 # downloader = downloader.SimpleDownloader()
@@ -91,9 +92,6 @@ def home(params):
         xbmc.log(f'''Authenticated {authenticated}''', xbmc.LOGINFO)
         xbmc.log(f'''Status {status_code}''', xbmc.LOGINFO)
 
-        # if ((plugintools.get_setting(
-        #         'myaccount') == 'true') and authenticated) or status_code == 4 or status_code == 5 or status_code == 8:
-        #     plugintools.add_item(action="account", title="My Account", thumbnail=__get_icon('account'), folder=True)
 
         if status_code == 0 or status_code == 8:
             plugintools.add_item(action="show_restart", title="restart AstreamWeb",
@@ -104,22 +102,22 @@ def home(params):
                                  thumbnail=__get_icon('resetastreamweb'), folder=False)
 
         # 1 Add Link to Favourites
-        if (plugintools.get_setting('mynotify') == 'true') and authenticated:
+        if authenticated:
             plugintools.add_item(action="api_yamsonline_providers", title="My Notify", thumbnail=__get_icon('notify'),
                                  page='1', extra='notify', folder=True)  # pagenum = '1'
 
-        if (plugintools.get_setting('myfavourite') == 'true') and authenticated:
+        if authenticated:
             plugintools.add_item(action="api_yamsonline_providers", title="My Favourite", thumbnail=__get_icon('hint'),
                                  page='1', extra='favorite', folder=True)  # pagenum = '1'
 
         xbmc.log('show_index end')
-        if (plugintools.get_setting('iptvfavourite') == 'true') and xbmc.getCondVisibility(
+        if xbmc.getCondVisibility(
                 '!Skin.HasSetting(HomeMenuNoBasicButton)') and authenticated:
             plugintools.add_item(action="show_iptv_favourite", title="IPTV Favourite", thumbnail=__get_icon('iptvf'),
                                  page='1', folder=True)  # pagenum = '1'
 
         # 2 Add search movies
-        if (plugintools.get_setting('searchmovies') == 'true') and authenticated:
+        if authenticated:
             plugintools.add_item(action="search", title="Multi Search", thumbnail=__get_icon('Search by title'),
                                  folder=True)
 
@@ -130,7 +128,7 @@ def home(params):
             plugintools.add_item(action="personal2", title="Group", thumbnail=__get_icon('group'), folder=True)
 
         # 4.5 Add Live TV2
-        if (plugintools.get_setting('livetv') == 'true') and xbmc.getCondVisibility(
+        if xbmc.getCondVisibility(
                 '!Skin.HasSetting(HomeMenuNoBasicButton)') and authenticated:
             livestream_servers = []
             livestream_servers.append({'region': 'World Server', 'serno': '1'})
@@ -145,36 +143,36 @@ def home(params):
             plugintools.add_item(action="show_einthusan_categories", title="Einthusan Movies",
                                  thumbnail=__get_icon('movies-subs'), folder=True)
 
-        if (plugintools.get_setting('catchup') == 'true') and xbmc.getCondVisibility(
+        if xbmc.getCondVisibility(
                 '!Skin.HasSetting(HomeMenuNoBasicButton)') and authenticated:
             plugintools.add_item(action="catchup_providers", title="Catchup", thumbnail=__get_icon('catchup'),
                                  folder=True)
 
         # 10 Latest Movies
-        if (plugintools.get_setting('latestmovies') == 'true') and authenticated:
+        if authenticated:
             plugintools.add_item(action="latestMovies", title="Latest Movie", thumbnail=__get_icon('latestmovies'),
                                  folder=True)
 
         # 5 Add Languages Movies Hindi/Tamil/Telugu/Malayam Movies
-        if (plugintools.get_setting('hindimovies') == 'true') and authenticated:
+        if authenticated:
             langs = scraper.get_langs()
             for node in langs:
                 plugintools.add_item(action="show_sorting", title=node['name'], url='language-%s' % node['id'],
                                      thumbnail=__get_icon(node['name']), folder=True)
 
         # 9 Add English Movies
-        if (plugintools.get_setting('englishmovieshd') == 'true') and authenticated:
+        if authenticated:
             plugintools.add_item(action="show_movies", title="English Movies", thumbnail=__get_icon('English'),
                                  url='category-122', extra='-', page='1', folder=True)
 
         # 9 Add English Movies
-        if ((plugintools.get_setting('kidzzone') == 'true') and xbmc.getCondVisibility(
+        if (xbmc.getCondVisibility(
                 '!Skin.HasSetting(HomeMenuNoBasicButton)') and authenticated):
             plugintools.add_item(action="show_movies", title="Dubbed Movies", thumbnail=__get_icon('dubbed'),
                                  url='category-300', extra='-', page='1', folder=True)
 
         # 10 Add Kidz Zone Movies
-        if (plugintools.get_setting('kidzzone') == 'true') and authenticated:
+        if authenticated:
             plugintools.add_item(action="show_movies", title="Kidz Zone", thumbnail=__get_icon('kidz_zone'),
                                  url='category-63', extra='-', page='1', folder=True)
 
@@ -183,22 +181,22 @@ def home(params):
                                  url='category-301', extra='-', page='1', folder=True)
 
         # 10 Add 4k Movies
-        if ((plugintools.get_setting('4KMovies') == 'true') and xbmc.getCondVisibility(
+        if (xbmc.getCondVisibility(
                 '!Skin.HasSetting(HomeMenuNoBasicButton)') and authenticated):
             plugintools.add_item(action="show_movies", title="4K Movies", thumbnail=__get_icon('4KMovies'),
                                  url='category-202', extra='-', page='1', folder=True)
 
-        if (plugintools.get_setting('musicvideo') == 'true') and authenticated:
+        if authenticated:
             plugintools.add_item(action="show_movies", title="Video Songs Bluray", thumbnail=__get_icon('Musicvideo'),
                                  url='category-112', extra='-', page='1', folder=True)
 
         # 12 Add Comedy
-        if (plugintools.get_setting('tamilcomedy') == 'true') and authenticated:
+        if authenticated:
             plugintools.add_item(action="show_movies", title='Tamil Comedy', thumbnail=__get_icon('Tamil Comedy'),
                                  url='category-76', extra='-', page='1', folder=True)
 
         # Add Maintenance Tool
-        if (plugintools.get_setting('maintenance') == 'true') and authenticated:
+        if authenticated:
             plugintools.add_item(action="show_maintenance", title="Maintenance Tools",
                                  thumbnail=__get_icon('maintenance'), folder=True)
 
@@ -990,10 +988,7 @@ def show_movie_files(params):
     authenticated = __check_session()
     servers = {"Auto Select Best Server": "api.yamsonline.com", "Service Not Available": "api.yamsonline.com",
                "Servie Not Available": "api.yamsonline.com"}
-    try:
-        server = servers[plugintools.get_setting("movieserver")]
-    except:
-        server = "api.yamsonline.com"
+    server = "api.yamsonline.com"
 
     if not authenticated:
         return  # dialog.ok('AstreamWeb Notice', message)
@@ -1540,7 +1535,7 @@ def catchup_providers(params):
     if not isauth_ok():
         return
 
-    if ((plugintools.get_setting('CatchUpVod') == 'true') and xbmc.getCondVisibility(
+    if (xbmc.getCondVisibility(
             '!Skin.HasSetting(HomeMenuNoBasicButton)')):
         plugintools.add_item(action='catchupvod_lang', title='14 Days VOD Catchup', thumbnail=__get_icon('timeshift'),
                              extra='name,ASC', page='1')
@@ -1795,10 +1790,7 @@ def show_series_files(params):
     page = params.get("page")
     authenticated = __check_session()
     servers = {"Auto Select Best Server": "api.yamsonline.com"}
-    try:
-        server = servers[plugintools.get_setting("movieserver")]
-    except:
-        server = "api.yamsonline.com"
+    server = "api.yamsonline.com"
 
     if not authenticated:
         return  # dialog.ok('AstreamWeb Notice', message)
@@ -2248,8 +2240,15 @@ def show_maintenance(params):
     plugintools.add_item(action="select_skin_language2", title='Select Skin Language',
                          thumbnail=__get_icon('resetastreamweb'), folder=False)
 
+    plugintools.add_item(action="download_install_apk", title='Download AstreamIPTV',
+                         thumbnail=__get_icon('resetastreamweb'), folder=False)
+
+
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
 
+
+def download_install_apk(params):
+    downloadAPK()
 
 # settings
 def show_settings(params):
@@ -2495,7 +2494,7 @@ def get_timezone_in_hours():
                  "America/New York": -4,
                  "Europe/London": 1,
                  "Europe/Amsterdam": 2}
-    chosenTimezone = plugintools.get_setting("globaltimezone")
+    chosenTimezone = None
     keys = list(timezones.keys())
 
     if (chosenTimezone == "None" or chosenTimezone == '') or chosenTimezone not in keys:
@@ -2946,10 +2945,7 @@ def list_home_movie(params):  # id, page):
     authenticated = __check_session()
     servers = {"Auto Select Best Server": "api.yamsonline.com", "Service Not Available": "api.yamsonline.com",
                "Servie Not Available": "api.yamsonline.com"}
-    try:
-        server = servers[plugintools.get_setting("movieserver")]
-    except:
-        server = "api.yamsonline.com"
+    server = "api.yamsonline.com"
 
     if not authenticated:
         return  # dialog.ok('AstreamWeb Notice', message)
