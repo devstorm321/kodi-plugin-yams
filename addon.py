@@ -24,7 +24,6 @@ from resources.modules.loginobf import login_info
 import xbmc, xbmcaddon, xbmcgui, xbmcplugin, xbmcvfs
 import common as Common
 from boxname import boxname
-from downloader import downloadAPK
 
 # import SimpleDownloader as downloader
 # downloader = downloader.SimpleDownloader()
@@ -1090,33 +1089,15 @@ def play_vod(params):
     title = params.get("title")
     plugintools.play_resolved_url(urllink, title=title)
     time.sleep(3)
-    if xbmc.Player().isPlaying() == False:
+    if not xbmc.Player().isPlaying():
         response = urllib.request.urlopen(urllink).read().decode('utf-8')
         json_data = json.loads(response)
         try:
             for item in json_data:
                 description = json_data['description']
-            #                xbmc.log('ooooooooooooooooooooooooooo %s' % label)
             xbmc.executebuiltin('Notification(%s,,10000,)' % description)
         except:
             xbmc.log('addon > play_vod > response: %s' % repr(json_data), xbmc.LOGINFO)
-
-
-#
-
-def play_vod1(params):
-    urllink = params.get("url")
-    title = params.get("title")
-    plugintools.play_resolved_url(urllink, title=title)
-    time.sleep(3)
-    if not xbmc.Player().isPlaying():
-        response = urllib.request.urlopen(urllink).read().decode('utf-8')
-        json_data = json.loads(response)
-        for item in json_data:
-            description = json_data['description']
-        #                xbmc.log('ooooooooooooooooooooooooooo %s' % label)
-        xbmc.executebuiltin('Notification(%s,,10000,)' % description)
-
 
 #
 def show_langs(params):
@@ -1414,7 +1395,7 @@ def show_hotstarsublist_ori(params):
     items.reverse()
     if 'username' in vurl:
         for node in items:
-            plugintools.add_item(action="play_vod1", url=node['url'], title=node['title'], thumbnail=node['imageUrl'],
+            plugintools.add_item(action="play_vod", url=node['url'], title=node['title'], thumbnail=node['imageUrl'],
                                  isPlayable=True, folder=False)
     else:
         for node in items:
@@ -1551,6 +1532,11 @@ def catchup_providers(params):
     if xbmc.getCondVisibility('Skin.HasSetting(HomeMenuNoPremiumButton)'):
         plugintools.add_item(action='show_eng1', title='Premium English VOD (Movies only)',
                              thumbnail=__get_icon('evodm'), folder=True)
+
+    if xbmc.getCondVisibility('Skin.HasSetting(HomeMenuNoPremiumButton)'):
+        plugintools.add_item(action='more_cathup', title='More Cathup',
+                             thumbnail=__get_icon('tv-shows'), folder=True)
+
     # if xbmc.getCondVisibility('!Skin.HasSetting(HomeMenuNoBasicButton)'):
     # plugintools.add_item(action='show_hotstar_ori',title='HotStar (US & CA Only)',thumbnail=__get_icon('hotstar'),url='HotStar',folder=True)
 
@@ -1575,6 +1561,45 @@ def catchupvod_lang(params):
     plugintools.add_item(action='catchupvod_channels', url=yuppUrl + "hindi", title='Hindi',
                          thumbnail=__get_icon('hindi_movies_tv'))
     xbmc.log('catchupvod_lang end')
+
+    xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
+
+
+def more_cathup(params):
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
+    if not isauth_ok():
+        return
+
+    vurl = "https://api.yamsonline.com/api?task=catchtamil"
+
+    if not isauth_ok():
+        return
+
+    response = urllib.request.urlopen(vurl).read().decode('utf-8')
+    nodes = json.loads(response)
+    for node in nodes['channel_all']:
+        v_url = vurl + "&channel=" + urllib.parse.quote(node['name'].strip())
+        plugintools.add_item(
+            action='more_cathup_channels',
+            title=node['name'],
+            url=v_url,
+            folder=True)
+
+    xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
+
+
+def more_cathup_channels(params):
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
+    vurl = params.get('url')
+
+    xbmc.log(vurl, xbmc.LOGINFO)
+
+    response = urllib.request.urlopen(vurl).read().decode('utf-8')
+
+    nodes = json.loads(response)
+    for node in nodes['episode_data']:
+        plugintools.add_item(action="play_vod", title=node['series_name'], url=secure_catchupvod_url(node['video_mp4']),
+                             thumbnail=node['series_img'], isPlayable=True, folder=False)
 
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
 
@@ -2240,15 +2265,8 @@ def show_maintenance(params):
     plugintools.add_item(action="select_skin_language2", title='Select Skin Language',
                          thumbnail=__get_icon('resetastreamweb'), folder=False)
 
-    plugintools.add_item(action="download_install_apk", title='Download AstreamIPTV',
-                         thumbnail=__get_icon('resetastreamweb'), folder=False)
-
-
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
 
-
-def download_install_apk(params):
-    downloadAPK()
 
 # settings
 def show_settings(params):
@@ -3010,7 +3028,7 @@ def show_livetv(params):
         items.reverse()
         if 'username' in vurl:
             for node in items:
-                plugintools.add_item(action="play_vod1", url=node['url'], title=node['title'],
+                plugintools.add_item(action="play_vod", url=node['url'], title=node['title'],
                                      thumbnail=node['imageUrl'],
                                      isPlayable=True, folder=False)
         else:

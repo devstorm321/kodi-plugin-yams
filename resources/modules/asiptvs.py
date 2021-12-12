@@ -12,7 +12,6 @@ from . import plugintools
 
 params = plugintools.get_params()
 __get_icon = plugintools.__get_icon
-per_page = int(plugintools.get_setting('per_page'))
 
 username = plugintools.get_setting('username')
 password = plugintools.get_setting('password')

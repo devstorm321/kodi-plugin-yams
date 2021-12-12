@@ -14,8 +14,6 @@ except:
 
 params = plugintools.get_params()
 
-per_page = int(plugintools.get_setting('per_page'))
-
 username = plugintools.get_setting('username')
 password = plugintools.get_setting('password')
 base = "https://astreamweb.com/kodi/web/iptv/m3u2json.php"
