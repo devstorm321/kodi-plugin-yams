@@ -16,11 +16,7 @@ import resources.modules.scraper as scraper
 import resources.modules.yamsutils as yamsutils
 from resources.modules.scraper import get_mac
 
-try:
-    import simplejson as json
-except:
-    print(('Plugin Error', 'simplejson import error: limited functionality'))
-    pass
+import json
 
 import threading
 from urllib.request import urlopen
@@ -295,6 +291,8 @@ def show_msg(msg):
 
 def get_shown_items():
     try:
+        if os.stat(FILE).st_size == 0:
+            return []
         with open(FILE, mode='r') as f:
             items_already_shown = json.load(f)
     except IOError:
@@ -310,7 +308,7 @@ def add_shown_item(item):
     xbmc.log('add_shown_item adding: %s' % repr(item))
     items_already_shown.append(item)
     with open(FILE, mode='w') as f:
-        json.dump(items_already_shown, f.encode(), indent=1)
+        json.dump(items_already_shown, f, indent=1)
 
 
 def log(text):

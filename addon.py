@@ -1537,6 +1537,11 @@ def catchup_providers(params):
         plugintools.add_item(action='more_cathup', title='More Cathup',
                              thumbnail=__get_icon('tv-shows'), folder=True)
 
+    if xbmc.getCondVisibility('Skin.HasSetting(HomeMenuNoPremiumButton)'):
+        plugintools.add_item(action='news_fun_cathup', title='News and Fun Cathup',
+                             thumbnail=__get_icon('tv-shows'), folder=True)
+
+
     # if xbmc.getCondVisibility('!Skin.HasSetting(HomeMenuNoBasicButton)'):
     # plugintools.add_item(action='show_hotstar_ori',title='HotStar (US & CA Only)',thumbnail=__get_icon('hotstar'),url='HotStar',folder=True)
 
@@ -1567,42 +1572,153 @@ def catchupvod_lang(params):
 
 def more_cathup(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
-    if not isauth_ok():
-        return
-
-    vurl = "https://api.yamsonline.com/api?task=catchtamil"
 
     if not isauth_ok():
         return
+
+    username = plugintools.get_setting('username')
+    password = plugintools.get_setting('password')
+
+    vurl = "https://api.yamsonline.com/api?username=" + username + "&password=" + password + "&task=catchtamil&type=channel"
 
     response = urllib.request.urlopen(vurl).read().decode('utf-8')
     nodes = json.loads(response)
-    for node in nodes['channel_all']:
-        v_url = vurl + "&channel=" + urllib.parse.quote(node['name'].strip())
+    for node in nodes:
+        v_url = "https://api.yamsonline.com/api?task=catchtamil&type=shows&channel=" + urllib.parse.quote(node['name'].strip())
+
         plugintools.add_item(
             action='more_cathup_channels',
             title=node['name'],
             url=v_url,
+            thumbnail=node['thumb_img'],
+            folder=True)
+
+    # Add all shows
+    v_url = "https://api.yamsonline.com/api?task=catchtamil&type=shows"
+    plugintools.add_item(
+        action='more_cathup_shows',
+        title='All Shows',
+        url=v_url,
+        thumbnail=__get_icon('personal'),
+        folder=True)
+
+    xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
+
+
+def news_fun_cathup(params):
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
+
+    if not isauth_ok():
+        return
+
+    username = plugintools.get_setting('username')
+    password = plugintools.get_setting('password')
+    vurl = "https://astreamweb.com/kodi/youtube/api.php?task=youtube&listplaylist=yes"
+
+    response = urllib.request.urlopen(vurl).read().decode('utf-8')
+    nodes = json.loads(response)
+    for node in nodes:
+        v_url = "https://astreamweb.com/kodi/youtube/api.php?task=youtube&playlistname=" + urllib.parse.quote(node['playlist_name'].strip())
+
+        plugintools.add_item(
+            action='news_fun_cathup_videos',
+            title=node['playlist_name'],
+            url=v_url,
+            thumbnail=__get_icon('personal'),
             folder=True)
 
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
 
 
-def more_cathup_channels(params):
+def news_fun_cathup_videos(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')
-    vurl = params.get('url')
 
-    xbmc.log(vurl, xbmc.LOGINFO)
+    vurl = params.get('url')
+    response = urllib.request.urlopen(vurl).read().decode('utf-8')
+    nodes = json.loads(response)
+
+    username = plugintools.get_setting('username')
+    password = plugintools.get_setting('password')
+
+    for node in nodes:
+        v_url = node['playback_url'] + '&username=' + username + '&password=' + password
+        plugintools.add_itemcontext(action="play_vod",
+                                    title=node['title'],
+                                    url=v_url,
+                                    thumbnail=node['thumb_url'], folder=False, isPlayable=True)
+
+    xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
+
+
+
+def more_cathup_shows(params):
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
+    vurl = params.get('url')
 
     response = urllib.request.urlopen(vurl).read().decode('utf-8')
 
     nodes = json.loads(response)
-    for node in nodes['episode_data']:
-        plugintools.add_item(action="play_vod", title=node['series_name'], url=secure_catchupvod_url(node['video_mp4']),
-                             thumbnail=node['series_img'], isPlayable=True, folder=False)
+    for node in nodes:
+        v_url = "https://api.yamsonline.com/api?task=catchtamil&type=episodes&show_name=" + urllib.parse.quote(node['show_name']) + "&username=" + username + "&password=" + password
+        plugintools.add_item(
+            action='more_cathup_by_name',
+            title=node['show_name'],
+            url=v_url,
+            thumbnail=node['thumb_img'],
+            folder=True)
 
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
 
+
+
+def more_cathup_channels(params):
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
+    vurl = params.get('url')
+
+    if not isauth_ok():
+        return
+
+    username = plugintools.get_setting('username')
+    password = plugintools.get_setting('password')
+
+
+    response = urllib.request.urlopen(vurl).read().decode('utf-8')
+
+    nodes = json.loads(response)
+    for node in nodes:
+        v_url = "https://api.yamsonline.com/api?task=catchtamil&type=episodes&show_name=" + urllib.parse.quote(node['show_name']) + "&username=" + username + "&password=" + password
+        plugintools.add_item(
+            action='more_cathup_by_name',
+            title=node['show_name'],
+            url=v_url,
+            thumbnail=node['thumb_img'],
+            folder=True)
+
+    xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
+
+
+def more_cathup_by_name(params):
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
+
+    vurl = params.get('url')
+
+    xbmc.log('url %s' % vurl , xbmc.LOGINFO)
+
+    response = urllib.request.urlopen(vurl).read().decode('utf-8')
+
+    nodes = json.loads(response)
+    for node in nodes:
+        if node['video_mp4']:
+            url = node['video_mp4']
+        else:
+            url = node['vimeo_video_urls']
+
+        plugintools.add_itemcontext(action="play_vod",
+                                    title=node['episode_slug'],
+                                    url=url,
+                                    thumbnail=node['series_img'], folder=False, isPlayable=True)
+
+    xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
 
 def catchupvod_channels(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')
