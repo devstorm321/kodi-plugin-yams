@@ -1090,14 +1090,18 @@ def play_vod(params):
     plugintools.play_resolved_url(urllink, title=title)
     time.sleep(3)
     if not xbmc.Player().isPlaying():
-        response = urllib.request.urlopen(urllink).read().decode('utf-8')
-        json_data = json.loads(response)
+        try:
+            response = urllib.request.urlopen(urllink).read().decode('utf-8')
+            json_data = json.loads(response)
+        except:
+            pass
         try:
             for item in json_data:
                 description = json_data['description']
             xbmc.executebuiltin('Notification(%s,,10000,)' % description)
         except:
-            xbmc.log('addon > play_vod > response: %s' % repr(json_data), xbmc.LOGINFO)
+            pass
+            #xbmc.log('addon > play_vod > response: %s' % repr(json_data), xbmc.LOGINFO)
 
 #
 def show_langs(params):
@@ -1641,7 +1645,8 @@ def news_fun_cathup_videos(params):
     password = plugintools.get_setting('password')
 
     for node in nodes:
-        v_url = node['playback_url'] + '&username=' + username + '&password=' + password
+        tmp = node['playback_url'].split('?')
+        v_url = tmp[0] + '?name=' + urllib.parse.quote(tmp[1].split('=')[1]) + '&username=' + username + '&password=' + password
         plugintools.add_itemcontext(action="play_vod",
                                     title=node['title'],
                                     url=v_url,

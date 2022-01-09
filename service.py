@@ -119,10 +119,10 @@ def app_active():
         xbmc.log('Sent activity info for SID(%s). Sleeping for 120 second.' % xbmcaddon.Addon(
             'plugin.video.yams').getSetting("session"))
         for i in range(0, 120):
-            time.sleep(1)
             importlib.reload(threading)
+            xbmc.Monitor().waitForAbort(1)
             if xbmc.Monitor().abortRequested():
-                break
+                return
 
 
 def run():
@@ -130,8 +130,6 @@ def run():
         return
 
     scraper.__set_digest(digest)
-    api_digest = scraper.digest
-
     try:
         ip = urllib.request.urlopen("https://astreamweb.com/kodi/ip.php").read().decode('utf-8')
     except Exception as e:
@@ -147,14 +145,12 @@ def run():
     authenticated, message, status_code = scraper.check_login(username, password,
                                                               xbmcaddon.Addon('plugin.video.yams').getSetting(
                                                                   'session'))
-    if not authenticated:
-        pass
-    else:
+    if authenticated:
         __settings__.setSetting("username", __settings__.getSetting("username"))
         activity_info = threading.Thread(target=app_active)
         activity_info.start()
-        xbmcgui.Window(10000).setProperty('My_Service_Running', 'True')
 
+        xbmcgui.Window(10000).setProperty('My_Service_Running', 'True')
         dialogtime = 0
         dialogbool = True
         iptime = 0
@@ -263,16 +259,17 @@ def run():
                         subtime += 1
                         if subtime >= SUBCHECK_INTERVAL:
                             subbool = True
-                        print(("SUBCHECK TIME, %i, %i" % (subtime, SUBCHECK_INTERVAL)))
-                        time.sleep(1)
+                        xbmc.log("SUBCHECK TIME, %i, %i" % (subtime, SUBCHECK_INTERVAL))
+                        xbmc.Monitor().waitForAbort(1)
                         if xbmc.Monitor().abortRequested():
                             break
-            except:
-                traceback.print_exc()
+            except Exception as e:
                 if not __settings__.getSetting("username") or not __settings__.getSetting("password"):
                     if xbmcgui.Dialog().yesno('No Credentials',
                                     'Do you have an existing AstreamWeb Account?'):
                         __settings__.openSettings()
+                elif xbmc.Monitor().abortRequested():
+                    break
 
 
 def get_feed(url):
