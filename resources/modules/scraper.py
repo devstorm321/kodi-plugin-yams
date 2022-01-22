@@ -919,7 +919,7 @@ def __get_json(data, raiseError=True):
         data['version'] = 'v2'
         url = '%s?%s' % (MAIN_URL, urlencode(data))
 
-        xbmc.log('__get_json opening url: %s' % url)
+        xbmc.log('__get_json opening url: %s' % url, xbmc.LOGINFO)
         response = urlopen(url).read().decode('utf-8')
         # xbmc.log('response: ' + response.decode('utf-8'), level=xbmc.LOGINFO)
 

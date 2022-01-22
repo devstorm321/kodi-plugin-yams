@@ -14,6 +14,7 @@ import traceback
 
 import importlib
 import zipfile
+import math
 
 from resources.modules import (plugintools, scraper, yamsutils, asiptvs, engchannels)
 from resources.modules.asiptvs import *
@@ -208,7 +209,7 @@ def home(params):
 def __get_icon(title):
     title = title.replace(' ', '_')
     icon_path = xbmcvfs.translatePath(
-        os.path.join(Path, 'resources', 'images', f'''{title}.png'''))
+        os.path.join(Path, 'resources', 'images', f'''{title}.webp'''))
 
     if os_path.isfile(icon_path):
         return icon_path
@@ -243,7 +244,7 @@ def register_username():
             traceback.print_exc()
             print('<<< traceback end <<<')
     else:
-        input_username = xbmcgui.Dialog().input('username', 'username')
+        input_username = xbmcgui.Dialog().input('username', '')
         plugintools.set_setting('username', input_username)
         currentUUID = input_username
         try:
@@ -284,7 +285,7 @@ def register_password():
             traceback.print_exc()
             print('<<< traceback end <<<')
     else:
-        input_password = xbmcgui.Dialog().input('password', 'password')
+        input_password = xbmcgui.Dialog().input('password', '')
         plugintools.set_setting('password', input_password)
         currentUUID = input_password
         try:
@@ -474,18 +475,31 @@ def __check_login():
             #           dialog.ok('Initial Configuration',
             #              'This is your first time running AstreamWeb. We need to install some configuration files.')
             boxname(params)
+            select_device()
+            xbmc.Monitor().waitForAbort(2)
             xbmc.executebuiltin('ActivateWindow(busydialognocancel)')
-            scraper._downloadOverride(configUrl1, configFile1)
-            scraper._downloadOverride(configUrl, configFile)
+            devicetype = plugintools.get_setting('devicetype')      
+            if ('cube' in devicetype):
+                xbmc.executebuiltin('Skin.SetBool(highenddevice)')
+                xbmc.executebuiltin('Skin.Reset(%s)' % 'lowenddevice')
+            else:
+                xbmc.executebuiltin('Skin.SetBool(lowenddevice)')
+                xbmc.executebuiltin('Skin.Reset(%s)' % 'highenddevice')
             scraper.ZeroCachingSetting()
+            devicetype = plugintools.get_setting('devicetype')      
+            if ('cube' in devicetype):
+                xbmc.executebuiltin('Skin.SetBool(highenddevice)')
+                xbmc.executebuiltin('Skin.Reset(%s)' % 'lowenddevice')
+            else:
+                xbmc.executebuiltin('Skin.SetBool(lowenddevice)')
+                xbmc.executebuiltin('Skin.Reset(%s)' % 'highenddevice')
             xbmc.executebuiltin('Dialog.Close(busydialognocancel)')
-            time.sleep(1)
+            xbmc.sleep(1000)        
             select_skin_language2()
-            xbmc.executebuiltin('ActivateWindow(busydialognocancel)')
+            xbmc.sleep(1000)
             xbmc.executebuiltin('Skin.SetBool(ActivateServices)')
-            xbmc.executebuiltin('Dialog.Close(busydialognocancel)')
             dialog.ok('A Restart is Required',
-                      'If AstreamWeb Does not restart, then hold down the Select and Play/Pause keys on the remote together for about 5 seconds or restart device.')
+                      'If AstreamWeb Does not restart, then hold down the Select and Play/Pause keys on the remote together for about 5 seconds or restart device.')        
             xbmc.executebuiltin('Quit')
 
         else:
@@ -720,7 +734,7 @@ def play_iptv_favourite(params):  # url, label, cid):
         play1 = f'''{html_content}?|User-Agent={USER_AGENT}'''
         plugintools.play_resolved_url(play1)
 
-        time.sleep(3)
+        xbmc.Monitor().waitForAbort(1)
         if xbmc.Player().isPlaying() is False:
             xbmc.executebuiltin('Notification(Channel Unavailable at this moment,,10000,)')
         # xbmc.Player().play(play1)
@@ -736,7 +750,7 @@ def play_iptv_favourite(params):  # url, label, cid):
         plugintools.play_resolved_url(
             base64.b64decode(url).decode('utf-8') + "&username=" + username + "&password=" + password)
 
-        time.sleep(3)
+        xbmc.Monitor().waitForAbort(1)
         if xbmc.Player().isPlaying() is False:
             xbmc.executebuiltin('Notification(Channel Unavailable at this moment,,10000,)')
 
@@ -762,7 +776,18 @@ def personal2(params):
             #xbmcgui.Dialog().ok(
             #    "AstreamWeb Notice", "No Movies found in Watchlist or you have not signed up for On Demand feature")
             return
-    for i in json_data:
+
+    total_videos = len(json_data)
+    page = params.get("page") if params.get("page") else '1'
+    per_page = '14' if 'widget' in params and params['widget'] == 'true' else __get_per_page()
+    page_count = math.ceil(total_videos / int(per_page))
+
+    if int(page) > 1:
+        prev_page = str(int(page) - 1)
+        plugintools.add_item(title='<< %s %s <<' % ('Page', prev_page),
+                             action='personal2', page=prev_page, extra='')
+
+    for i in json_data[:int(per_page)]:
         try:
             title = i["title"]
             thumbnail = i["poster_url"].replace('\\', '')
@@ -777,12 +802,17 @@ def personal2(params):
             if 'list index out of range' in str(e):
                 pass  # plugintools.add_item(action='', url='',title=i)
 
+    if page_count > int(page):
+        next_page = str(int(page) + 1)
+        plugintools.add_item(title='>> %s %s >>' % ('Page', next_page),
+                             action='personal2', page=next_page, extra='')
+
     # xbmcplugin.addSortMethod(int(sys.argv[1]), xbmcplugin.SORT_METHOD_LABEL)
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
 
 
 def personal2link(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
     authenticated = __check_session()
     if not authenticated:
         return
@@ -847,7 +877,10 @@ def personal(params):
     except Exception as e:
         xbmc.log(f'''personal error {repr(e)}''')
         return
-    for i in json_data:
+
+    data = json_data[:14] if 'widget' in params and params['widget'] == 'true' else json_data
+
+    for i in data:
         try:
             title = i["title"]
             thumbnail = i["poster_url"].replace('\\', '')
@@ -864,7 +897,7 @@ def personal(params):
 
 
 def personallink(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
     authenticated = __check_session()
     if not authenticated:
         return
@@ -905,6 +938,7 @@ def personallink(params):
 def latestMovies(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     authenticated = __check_session()
+
     if not authenticated:
         return
     username = plugintools.get_setting("username")
@@ -922,14 +956,19 @@ def latestMovies(params):
             xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
         return False
 
-    videos = scraper.__get_json(
+    page = params.get("page") if params.get("page") else '1'
+    per_page = '14' if 'widget' in params and params['widget'] == 'true' else __get_per_page()
+    sorting = params.get('extra') if params.get('extra') else ''
+
+    result = scraper.__get_json(
         {
             "task": "movies",
             "without_files": "1",
             "user": username,
-            "per_page": "200",
-            "page": "1"
-        })["data"]
+            "per_page": per_page,
+            "page": page
+        })
+    videos = result["data"]
     items = [{
         'label': re.sub('\([ 0-9]*?\)', '', video['title']),
         'thumbnail': video['cover'].replace(' ', '%20'),
@@ -960,6 +999,11 @@ def latestMovies(params):
     ListMovie = 'XBMC.Container.Update(%s)' % (
             sys.argv[0] + '?action=show_movies&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
 
+    if int(page) > 1:
+        prev_page = str(int(page) - 1)
+        plugintools.add_item(title='<< %s %s <<' % ('Page', prev_page),
+                             action='latestMovies', extra=sorting, page=prev_page)
+
     for item in items:
         try:
             context_men = [('Movie information', 'XBMC.Action(Info)')]
@@ -975,9 +1019,17 @@ def latestMovies(params):
         plugintools.add_itemcontext(action='show_movie_files', title=item['label'], url=item['id'],
                                     info_labels=item['info'],
                                     thumbnail=item['thumbnail'], fanart=item['fanart'], iconImage=item['iconImage'],
-                                    page='0', contextmenu=context_men, folder=True)
-    xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
+                                    page=page, contextmenu=context_men, folder=True)
 
+    
+    total_page = math.ceil(int(result['pagination']['count']) / int(per_page))
+
+    if total_page > int(page):
+        next_page = str(int(page) + 1)
+        plugintools.add_item(title='>> %s %s >>' % ('Page', next_page),
+                             action='latestMovies', extra=sorting, page=next_page)
+
+    xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
 
 def show_movie_files(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
@@ -1011,9 +1063,7 @@ def show_movie_files(params):
         if not videos:  # items:
             dialog = xbmcgui.Dialog()
             dialog.ok('No Videos',
-                      'movie will be available shortly',
-                      'Alternative contact support',
-                      'Movie-ID: %s' % id)
+                      'Movie will be available shortly. Movie-ID: %s' % id)
             return
 
         for video in videos:
@@ -1076,9 +1126,7 @@ def show_movie_files(params):
         if not videos:
             dialog = xbmcgui.Dialog()
             dialog.ok('No Videos',
-                      'movie will be available shortly',
-                      'Alternative contact support',
-                      'Movie-ID: %s' % id)
+                      'Movie will be available shortly. Movie-ID: %s' % id)
         else:
             xbmcplugin.addSortMethod(int(sys.argv[1]), xbmcplugin.SORT_METHOD_EPISODE)
             xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
@@ -1088,7 +1136,7 @@ def play_vod(params):
     urllink = params.get("url")
     title = params.get("title")
     plugintools.play_resolved_url(urllink, title=title)
-    time.sleep(3)
+    xbmc.Monitor().waitForAbort(1)
     if not xbmc.Player().isPlaying():
         try:
             response = urllib.request.urlopen(urllink).read().decode('utf-8')
@@ -1101,7 +1149,6 @@ def play_vod(params):
             xbmc.executebuiltin('Notification(%s,,10000,)' % description)
         except:
             pass
-            #xbmc.log('addon > play_vod > response: %s' % repr(json_data), xbmc.LOGINFO)
 
 #
 def show_langs(params):
@@ -1235,7 +1282,88 @@ def show_movies(params):
                 xbmc.log('show_movies started with path="%s", sorting="%s", page="%s"' %
                          (path, sorting, page))
             username = plugintools.get_setting('username')
-            per_page = __get_per_page()
+
+            per_page = '14' if 'widget' in params and params['widget'] == 'true' else __get_per_page()
+
+            items, has_next_page = scraper.get_movies(username, path, page, per_page, sorting)
+            xbmc.log('items {}'.format(items))
+            xbmc.log('has_next_page {}'.format(has_next_page))
+            # Add context menu items for title and actor search
+            ListSearch = 'XBMC.Container.Update(%s)' % (
+                    sys.argv[0] + '?action=search&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
+            ListMovie = 'XBMC.Container.Update(%s)' % (
+                    sys.argv[0] + '?action=show_movies&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
+
+            is_update = (not page == '1')
+            xbmc.log('is_update {}.'.format(is_update))
+            if int(page) > 1:
+                prev_page = str(int(page) - 1)
+                plugintools.add_item(title='<< %s %s <<' % ('Page', prev_page),
+                                     action='show_movies', url=path, extra=sorting, page=prev_page)
+
+            for item in items:
+                try:
+                    context_men = [('Movie information', 'XBMC.Action(Info)'),
+                                   ('Search for Movies by title', ListSearch % ('', '', '', '', '', ''))]
+
+                    for cast in item['info']['cast']:
+                        s_path = 'cast-%s' % cast
+                        context_men.append(
+                            ('Movies with %s' % cast, ListMovie % ('', s_path, '', '', 'title%2CASC', '1')))
+
+                except:
+                    traceback.print_exc()
+
+                plugintools.add_itemcontext(action='show_movie_files', title=item['label'], url=item['id'],
+                                            info_labels=item['info'],
+                                            thumbnail=item['thumbnail'], fanart=item['fanart'], page='0',
+                                            contextmenu=context_men, folder=True)
+
+            # add pagination-items
+            if has_next_page:
+                next_page = str(int(page) + 1)
+                xbmc.log('has_next_page {} , next_page {}.'.format(has_next_page, next_page))
+                plugintools.add_item(title='>> %s %s >>' % ('Page', next_page),
+                                     action='show_movies', url=path, extra=sorting, page=next_page)
+            xbmc.log('show_movies end')
+
+            xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True, updateListing=is_update)
+    except:
+        traceback.print_exc()
+
+
+def show_movies_widget(params):
+    try:
+        xbmcplugin.setContent(int(sys.argv[1]), 'movies')
+        path = params.get('url')
+        # sorting = 'title,ASC'#
+        # title = params.get('title')
+        sorting = params.get('extra')
+        page = '0'
+
+        authenticated = __check_session()
+        if not authenticated:
+            return  # dialog.ok('AstreamWeb Notice', message)
+        else:
+            username = plugintools.get_setting('username')
+            password = plugintools.get_setting('password')
+            authenticated, message, status_code = scraper.check_login(username, password,
+                                                                      plugintools.get_setting('session'))
+            if not authenticated:
+                # xbmcgui.Dialog().ok('AstreamWeb Notice', message)
+                if status_code == 2 or status_code == 3:
+                    xbmcgui.Dialog().ok('[COLOR green]INFORMATION ONLY:[/COLOR] ',
+                                        'Please remove a device connected to this account in settings -> Device Specific')
+                    plugintools.open_settings_dialog()
+                    sys.exit()
+                else:
+                    xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
+                return False
+            else:
+                xbmc.log('show_movies started with path="%s", sorting="%s", page="%s"' %
+                         (path, sorting, page))
+            username = plugintools.get_setting('username')
+            per_page = __get_per_page_widget()
             items, has_next_page = scraper.get_movies(username, path, page, per_page, sorting)
             xbmc.log('items {}'.format(items))
             xbmc.log('has_next_page {}'.format(has_next_page))
@@ -1447,7 +1575,7 @@ def show_hotstarplayvideo(params):
 
     plugintools.direct_play(html)
 
-    time.sleep(3)
+    xbmc.Monitor().waitForAbort(1)
     if xbmc.Player().isPlaying() == False:
         xbmc.executebuiltin('Notification(Channel Unavailable at this moment,,10000,)')
 
@@ -1503,7 +1631,7 @@ def play_indian_channel(params):  # id, cat, iconimg, name):
             itemToPlay = xbmcgui.ListItem(iconImage=urllib.parse.unquote(iconimg), label=name)
             xbmc.Player().play(playlist, listitem=itemToPlay, windowed=False)
 
-            time.sleep(3)
+            xbmc.Monitor().waitForAbort(1)
             if xbmc.Player().isPlaying() is False:
                 xbmc.executebuiltin('Notification(Channel Unavailable at this moment,,10000,)')
 
@@ -1538,11 +1666,11 @@ def catchup_providers(params):
                              thumbnail=__get_icon('evodm'), folder=True)
 
     if xbmc.getCondVisibility('Skin.HasSetting(HomeMenuNoPremiumButton)'):
-        plugintools.add_item(action='more_cathup', title='More Cathup',
+        plugintools.add_item(action='more_cathup', title='Popular Catchup',
                              thumbnail=__get_icon('tv-shows'), folder=True)
 
     if xbmc.getCondVisibility('Skin.HasSetting(HomeMenuNoPremiumButton)'):
-        plugintools.add_item(action='news_fun_cathup', title='News and Fun Cathup',
+        plugintools.add_item(action='news_fun_cathup', title='Youtube Catchup',
                              thumbnail=__get_icon('tv-shows'), folder=True)
 
 
@@ -1561,13 +1689,13 @@ def catchupvod_lang(params):
     yuppUrl = "http://api.yamsonline.com/astream?username=" + username + "&password=" + password + "&name=VOD&mod=channels&cfg="
 
     if xbmc.getCondVisibility('!Skin.HasSetting(HomeMenuNoBasicButton)'):
-        plugintools.add_item(action='catchupvod_channels', url=yuppUrl + "tamil", title='Tamil',
+        plugintools.add_item(action='catchupvod_channels', url=yuppUrl + "tamil", title='Tamil', extra='tamil',
                              thumbnail=__get_icon('tamil_movies_tv'))
-    plugintools.add_item(action='catchupvod_channels', url=yuppUrl + "telugu", title='Telugu',
+    plugintools.add_item(action='catchupvod_channels', url=yuppUrl + "telugu", title='Telugu', extra='telugu',
                          thumbnail=__get_icon('telugu_movies_tv'))
-    plugintools.add_item(action='catchupvod_channels', url=yuppUrl + "malayalam", title='Malay',
+    plugintools.add_item(action='catchupvod_channels', url=yuppUrl + "malayalam", title='Malayalam', extra='malayalam',
                          thumbnail=__get_icon('malayalam_movies_tv'))
-    plugintools.add_item(action='catchupvod_channels', url=yuppUrl + "hindi", title='Hindi',
+    plugintools.add_item(action='catchupvod_channels', url=yuppUrl + "hindi", title='Hindi', extra='hindi',
                          thumbnail=__get_icon('hindi_movies_tv'))
     xbmc.log('catchupvod_lang end')
 
@@ -1638,32 +1766,44 @@ def news_fun_cathup_videos(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')
 
     vurl = params.get('url')
+    self_url = vurl
     response = urllib.request.urlopen(vurl).read().decode('utf-8')
     nodes = json.loads(response)
 
     username = plugintools.get_setting('username')
     password = plugintools.get_setting('password')
 
-    for node in nodes:
+    per_page = '14' if 'widget' in params and params['widget'] == 'true' else __get_per_page()
+
+    for node in nodes[:int(per_page)]:
         tmp = node['playback_url'].split('?')
         v_url = tmp[0] + '?name=' + urllib.parse.quote(tmp[1].split('=')[1]) + '&username=' + username + '&password=' + password
+
+
         plugintools.add_itemcontext(action="play_vod",
                                     title=node['title'],
                                     url=v_url,
                                     thumbnail=node['thumb_url'], folder=False, isPlayable=True)
+
+    if 'widget' in params and params['widget'] == 'true' and len(nodes) > int(per_page):
+        plugintools.add_item(action='news_fun_cathup_videos', url=self_url, title='>> %s %s >>' % ('Page', 2))
 
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
 
 
 
 def more_cathup_shows(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     vurl = params.get('url')
+    self_url = vurl
 
     response = urllib.request.urlopen(vurl).read().decode('utf-8')
 
     nodes = json.loads(response)
-    for node in nodes:
+
+    per_page = '14' if 'widget' in params and params['widget'] == 'true' else __get_per_page()
+
+    for node in nodes[:int(per_page)]:
         v_url = "https://api.yamsonline.com/api?task=catchtamil&type=episodes&show_name=" + urllib.parse.quote(node['show_name']) + "&username=" + username + "&password=" + password
         plugintools.add_item(
             action='more_cathup_by_name',
@@ -1672,12 +1812,16 @@ def more_cathup_shows(params):
             thumbnail=node['thumb_img'],
             folder=True)
 
+    if 'widget' in params and params['widget'] == 'true' and len(nodes) > int(per_page):
+        plugintools.add_item(action='more_cathup_shows', url=self_url, title='>> %s %s >>' % ('Page', 2))
+
+
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
 
 
 
 def more_cathup_channels(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
+    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     vurl = params.get('url')
 
     if not isauth_ok():
@@ -1707,8 +1851,6 @@ def more_cathup_by_name(params):
 
     vurl = params.get('url')
 
-    xbmc.log('url %s' % vurl , xbmc.LOGINFO)
-
     response = urllib.request.urlopen(vurl).read().decode('utf-8')
 
     nodes = json.loads(response)
@@ -1733,19 +1875,24 @@ def catchupvod_channels(params):
     username = plugintools.get_setting('username')
     password = plugintools.get_setting('password')
 
-    if 'lang' in params:
-        lang = params.get('lang')
-        vurl = f'''http://api.yamsonline.com/astream?username={username}&password={password}&name=VOD&mod=channels&cfg={lang}'''
-    else:
-        vurl = f'''http://api.yamsonline.com/astream?username={username}&password={password}&name=VOD&mod=channels&cfg=tamil'''
+    lang = params.get('extra') if 'extra' in params else 'tamil'
+    vurl = f'''http://api.yamsonline.com/astream?username={username}&password={password}&name=VOD&mod=channels&cfg={lang}'''
+
     xbmc.log('catchupvod_channels url: %s' % vurl, xbmc.LOGINFO)
     if not isauth_ok():
         return
     response = urllib.request.urlopen(vurl).read().decode('utf-8')
     nodes = json.loads(response)
-    for node in nodes:
+
+    per_page = '14' if 'widget' in params and params['widget'] == 'true' else __get_per_page()
+
+    for node in nodes[:int(per_page)]:
         plugintools.add_item(action='catchupvod_dates', title=node['Description'], url=vurl + "&chanid=" + node['ID'],
                              thumbnail=node['Imgpath'], folder=True)
+
+    if 'widget' in params and params['widget'] == 'true' and len(nodes) > int(per_page):
+        lang = params.get('title').lower() if 'title' in params else 'tamil'
+        plugintools.add_item(action='catchupvod_channels', url='', title='>> %s %s >>' % ('Page', 2), extra=lang)
 
     xbmc.log('catchupvod_channels end')
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
@@ -1842,17 +1989,20 @@ def show_eng2(params):
 
 
 #########################################
-# getseries
+# Premium TV Shows'
 def getseries(params):
-    getseries_bycategory('82')
+    params.update({'category_id': '82'})
+    getseries_bycategory(params)
 
-
+# Premium Indian TV series
 def getseries3(params):
-    getseries_bycategory('78')
+    params.update({'category_id': '78'})
+    getseries_bycategory(params)
 
-
+# Premium TV series
 def getseries2(params):
-    getseries_bycategory('')
+    params.update({'category_id': ''})
+    getseries_bycategory(params)
 
 
 # series
@@ -2369,8 +2519,10 @@ def show_maintenance(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
     # plugintools.add_item(action="show_speedtest", title='Speedtest',
     #                      thumbnail=__get_icon('speed'))
-    plugintools.add_item(action="show_ping", title='Ping',
-                         thumbnail=__get_icon('ping'))
+    #plugintools.add_item(action="show_ping", title='Ping',
+    #                     thumbnail=__get_icon('ping'))
+    plugintools.add_item(action="select_device_maintenance", title='Update Device Type',
+                         thumbnail=__get_icon('resetastreamweb'))
     plugintools.add_item(action="send_log", title='Send log',
                          thumbnail=__get_icon('sendlog'))
     plugintools.add_item(action="debug_off", title='Disable Debugging Mode',
@@ -2517,7 +2669,7 @@ def __sendlog():
 
 def show_zerosetting(params):
     dialog = xbmcgui.Dialog()
-    dialog.ok('AstreamWeb Maintenance', 'Installing configuration files.')
+    dialog.ok('AstreamWeb Maintenance', 'Installing configuration files, Please restart device.')
     scraper.ZeroCachingSetting()
 
 
@@ -2540,7 +2692,7 @@ def handle_wait(time_to_wait, title, text):
         secs_left = str((time_to_wait - secs))
         remaining_display = "Still " + str(secs_left) + "seconds left"
         mensagemprogresso.update(percent, text, remaining_display)
-        xbmc.sleep(1000)
+        xbmc.Monitor().waitForAbort(1)
         if mensagemprogresso.iscanceled():
             cancelled = True
             break
@@ -2585,13 +2737,6 @@ def _select_skin_language(langs=None):
     if not langs:
         langs = plugintools.get_setting('channellanguage')
     # selecting skin Languages
-    if not os.path.exists(xbmcvfs.translatePath('special://home/userdata/addon_data/')):
-        os.mkdir(xbmcvfs.translatePath('special://home/userdata/addon_data/'))
-    if not os.path.exists(xbmcvfs.translatePath('special://home/userdata/addon_data/script.skinshortcuts/')):
-        os.mkdir(xbmcvfs.translatePath('special://home/userdata/addon_data/script.skinshortcuts/'))
-    path = xbmcvfs.translatePath(os.path.join('special://home/userdata/addon_data/script.skinshortcuts/', ''))
-    if not os.path.exists(path):
-        os.mkdir(path)
     try:
         # lang lib zip file download and extract
         lib_file = f"https://astreamweb.com/kodi/skin/{langs.capitalize()}.zip"
@@ -2607,17 +2752,53 @@ def _select_skin_language(langs=None):
         traceback.print_exc()
         # xbmcgui.Dialog().ok('Astreamweb', 'Error occured during setup')
 
-    xbmc.executebuiltin('UnloadSkin()')
-    xbmc.executebuiltin('ReloadSkin()')
-    xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
-
 
 def select_skin_language2(params=None):
     langs = ['Tamil', 'Telugu', 'Malayalam', 'Hindi']
-    select = xbmcgui.Dialog().select("Select a skin language", langs)
+    select = xbmcgui.Dialog().select("Select your Language", langs)
     plugintools.set_setting('channellanguage', langs[select].lower())
     _select_skin_language(langs[select].lower())
+            
 
+def select_device(params=None):
+    device = ['FireTV 4K Stick', 'Fire TV Cube Or Max']
+    select = xbmcgui.Dialog().select("Select your Device Type", device)
+    plugintools.set_setting('devicetype', device[select].lower())
+
+def select_device_maintenance(params=None):
+    select_device()
+    xbmc.sleep(1000)
+    devicetype = plugintools.get_setting('devicetype')  
+    if ('cube' in devicetype):
+        xbmc.executebuiltin('Skin.SetBool(highenddevice)')
+        xbmc.executebuiltin('Skin.Reset(%s)' % 'lowenddevice')
+    else:
+        xbmc.executebuiltin('Skin.SetBool(lowenddevice)')
+        xbmc.executebuiltin('Skin.Reset(%s)' % 'highenddevice')
+    if xbmc.getCondVisibility('Skin.HasSetting(lowenddevice)'):
+        lib_file = "https://astreamweb.com/kodi/skin/lowenddevice.zip"
+    else:
+        lib_file = "https://astreamweb.com/kodi/skin/highenddevice.zip"
+    if xbmc.getCondVisibility("System.Platform.Android") == 1 or xbmc.getCondVisibility("system.platform.tvos") == 1:
+        lib_path = xbmcvfs.translatePath(os.path.join('special://xbmc/devicetype.zip'))
+        extract_path = xbmcvfs.translatePath(os.path.join('special://xbmc/'))
+        if not scraper._downloadOverride(lib_file, lib_path):
+            lib_path = xbmcvfs.translatePath(os.path.join('special://xbmc/devicetype.zip'))
+            scraper._downloadOverride(lib_file, lib_path)
+    elif xbmc.getCondVisibility("System.Platform.Windows") == 1 or xbmc.getCondVisibility("system.platform.osx") == 1:
+        lib_path = xbmcvfs.translatePath(os.path.join('special://home/devicetype.zip'))
+        extract_path = xbmcvfs.translatePath(os.path.join('special://home/'))
+        if not scraper._downloadOverride(lib_file, lib_path):
+            lib_path = xbmcvfs.translatePath(os.path.join('special://home/devicetype.zip'))
+            scraper._downloadOverride(lib_file, lib_path)
+    
+
+    with zipfile.ZipFile(lib_path, 'r') as zip_ref:
+        zip_ref.extractall(extract_path)
+    xbmc.sleep(1000)
+    xbmc.executebuiltin('ReloadSkin()')
+    xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
+    
 
 def get_timezoneselect():
     timezone = ['None', 'America/Los Angeles', 'America/Chicago', 'America/New York', 'Europe/London',
@@ -2626,27 +2807,15 @@ def get_timezoneselect():
     plugintools.set_setting('globaltimezone', timezone[select])
 
 
-def get_timezone_in_hours():
-    timezones = {"America/Los Angeles": -7,
-                 "America/Chicago": -5,
-                 "America/Denver": -6,
-                 "America/New York": -4,
-                 "Europe/London": 1,
-                 "Europe/Amsterdam": 2}
-    chosenTimezone = None
-    keys = list(timezones.keys())
-
-    if (chosenTimezone == "None" or chosenTimezone == '') or chosenTimezone not in keys:
-        return None
-    else:
-        return timezones[chosenTimezone]
-
-
 def __get_per_page():
     per_page = int(plugintools.get_setting('per_page'))
     if per_page not in (list(range(1, 200))):
         per_page = 200
         plugintools.set_setting('per_page', str(per_page))
+    return per_page
+
+def __get_per_page_widget():
+    per_page = '14'
     return per_page
 
 
@@ -2870,10 +3039,6 @@ def show_einthusan_movies(params):
                     movie = movie + 'itshd,' + referurl
                 else:
                     movie = movie + 'itsnothd,' + referurl
-                if 'youtube' in trailer:
-                    trail = trailer.split('watch?v=')[1].split('">')[0]
-                else:
-                    trail = None
                 # addDir(name, MOVIES_URL + str(movie)+'/?lang='+lang, 2, image, lang)
                 plugintools.add_item(action="play_einthusan", title=name, url=movie, thumbnail=image, isPlayable=True,
                                      folder=False)
@@ -3022,102 +3187,18 @@ def play_einthusan(params):
     plugintools.play_resolved_url(urlnew)
     s.close()
 
-    time.sleep(3)
+    xbmc.Monitor().waitForAbort(1)
     if xbmc.Player().isPlaying() is False:
         xbmc.executebuiltin('Notification(Channel Unavailable at this moment,,10000,)')
 
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
 
 
-################################################
-def latestMovieshome(params):
-    xbmcplugin.setContent(int(sys.argv[1]), 'movies')
-    authenticated = __check_session()
-    if not authenticated:
-        return
-    username = plugintools.get_setting("username")
-    password = plugintools.get_setting("password")
-    authenticated, message, status_code = scraper.check_login(username, password, plugintools.get_setting("session"))
-    if not authenticated:
-        # xbmcgui.Dialog().ok("AstreamWeb Notice", message)
-        if status_code == 2 or status_code == 3:
-            xbmcgui.Dialog().ok('[COLOR red]Required:[/COLOR] ',
-                                'Please remove a device connected to this account in settings -> Device Specific')
-            plugintools.open_settings_dialog()
-            sys.exit()
-
-        else:
-            xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
-        return False
-    items = scraper.__get_json(
-        {
-            "task": "movies",
-            "without_files": "1",
-            "user": username,
-            "per_page": "30",
-            "page": "1"
-        })["data"]
-    listitems = []
-    for item in items:
-        path = 'plugin://plugin.video.yams/?action=list_home_movie&title={}&url={}&thumbnail={}&plot={}&extra={}&page={}'.format(
-            item['title'], item['id'], '', '', '', '0')
-        listitem = xbmcgui.ListItem(label=item["title"],
-                                    label2=re.sub('\([ 0-9]*?\)', '', item['title']),
-                                    path=path)
-
-        listitem.setArt({'icon': item['cover'].replace(' ', '%20'),
-                         'thumb': item['cover'].replace(' ', '%20'),
-                         'poster': item['cover'].replace(' ', '%20')})
-        listitems.append((path, listitem, False))
-    listitems.insert(0, listitems.pop())
-    listitems.insert(0, listitems.pop())
-
-    handle = int(sys.argv[1])
-    xbmcplugin.addDirectoryItems(handle=handle, items=listitems, totalItems=len(listitems))
-    xbmcplugin.endOfDirectory(handle)
-
-
-# @plugin.route('/home_movie/<id>/<page>')
-def list_home_movie(params):  # id, page):
-    id = params.get('url')
-    page = params.get('page')
-    authenticated = __check_session()
-    servers = {"Auto Select Best Server": "api.yamsonline.com", "Service Not Available": "api.yamsonline.com",
-               "Servie Not Available": "api.yamsonline.com"}
-    server = "api.yamsonline.com"
-
-    if not authenticated:
-        return  # dialog.ok('AstreamWeb Notice', message)
-    else:
-        xbmc.log('show_movie_files started for movie_id=%s, page=%s' % (id, page))
-        username = plugintools.get_setting('username')
-        password = plugintools.get_setting('password')
-        try:
-            videos = scraper.get_movie_files(id, username, password)
-        except:
-            scraper.notifyError("AStreamWeb", msg="Movie not available yet, please contact support.")
-            return
-        xbmc.log('show_movie_files got %d items' % len(videos))
-
-        select_list = []
-        links = []
-        for video in videos:
-            movie_path = video['url'].replace("server.akshayan.me", server)
-            movie = xbmcgui.ListItem(label=video['label'], path=movie_path)
-            select_list.append(movie)
-            links.append(movie_path)
-
-        select = xbmcgui.Dialog().select("Movies", select_list)
-        if select >= 0:
-            xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
-            xbmc.Player().play(item=links[select], listitem=select_list[select])
-        return 0
-
-
 def show_livetv(params):
     if xbmc.getCondVisibility('!Skin.HasSetting(HomeMenuNoBasicButton)'):
         vurl = params.get('url')
-        lang = params.get('lang')
+        self_url = vurl
+        lang = params.get('extra')
         agent = '1'
         xbmc.log('__get_json show_hotstarplay vijayURL url: %s' % vurl)
 
@@ -3127,8 +3208,6 @@ def show_livetv(params):
         if vurl == '':
             vurl = "https://astreamweb.com/kodi/web/channels/json.php?lang=TEL&username=" + username + "&password=" + password
         if 'username' in vurl:  # vurl == 'password':
-            # xbmc.log('__get_json show_hotstarplay passe par if url: %s' % vurl)
-            # langs = plugintools.get_setting('channellanguage')
             if lang:
                 if lang.lower() == 'tamil':
                     vurl = "https://astreamweb.com/kodi/web/channels/json.php?lang=TAM&username=" + username + "&password=" + password
@@ -3138,15 +3217,21 @@ def show_livetv(params):
                     vurl = "https://astreamweb.com/kodi/web/channels/json.php?lang=MAL&username=" + username + "&password=" + password
                 elif lang.lower() == 'hindi':
                     vurl = "https://astreamweb.com/kodi/web/channels/json.php?lang=HIN&username=" + username + "&password=" + password
+                else:
+                    vurl = "https://astreamweb.com/kodi/web/channels/json.php?lang=" + lang + "&username=" + username + "&password=" + password
             else:
-                langs1 = plugintools.get_setting('channellanguage')
-                langs2 = langs1[0:3]
-                vurl = "https://astreamweb.com/kodi/web/channels/json.php?lang=" + langs2 + "&username=" + username + "&password=" + password
+                lang = plugintools.get_setting('channellanguage')[0:3]
+                vurl = "https://astreamweb.com/kodi/web/channels/json.php?lang=" + lang + "&username=" + username + "&password=" + password
 
         response = urllib.request.urlopen(vurl).read().decode('utf-8')
         nodes = json.loads(response)
-        items = [x for x in nodes]
+
+        per_page = '14' if 'widget' in params and params['widget'] == 'true' else __get_per_page()
+
+        items = [x for x in nodes][:int(per_page)]
+
         items.reverse()
+
         if 'username' in vurl:
             for node in items:
                 plugintools.add_item(action="play_vod", url=node['url'], title=node['title'],
@@ -3158,17 +3243,22 @@ def show_livetv(params):
                                      thumbnail=node['imageUrl'],
                                      page=agent,
                                      isPlayable=True, folder=False)
-        xbmc.log('show_livetv end')
+
+        if 'widget' in params and params['widget'] == 'true' and len(nodes) > int(per_page):
+            plugintools.add_item(action='show_livetv', url=self_url, title='>> %s %s >>' % ('Page', 2), extra=lang)
+
         xbmcplugin.endOfDirectory(int(sys.argv[1]))
         xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     else:
         return False
 
 
-def getseries_bycategory(category_id):
+def getseries_bycategory(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     if not isauth_ok():
         return
+    
+    category_id = params['category_id']
     username = plugintools.get_setting("username")
     password = plugintools.get_setting("password")
     authenticated, message, status_code = scraper.check_login(username, password, plugintools.get_setting("session"))
@@ -3182,14 +3272,22 @@ def getseries_bycategory(category_id):
         else:
             xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
         return False
-    videos = scraper.__get_json({
+
+    page = params.get("page") if params.get("page") else '1'
+    per_page = '14' if 'widget' in params and params['widget'] == 'true' else __get_per_page()
+    sorting = params.get('extra') if params.get('extra') else ''
+
+    result = scraper.__get_json({
         "task": "series",
         "category": category_id,
         "without_files": "1",
         "user": username,
-        "per_page": "300",
-        "page": "1"
-    })["data"]
+        "per_page": per_page,
+        "page": page
+    })
+
+    videos = result["data"]
+
     items = [{
         'label': re.sub('\([ 0-9]*?\)', '', video['title']),
         'thumbnail': video['cover'].replace(' ', '%20'),
@@ -3221,6 +3319,19 @@ def getseries_bycategory(category_id):
     ListMovie = 'XBMC.Container.Update(%s)' % (
             sys.argv[0] + '?action=show_series&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
 
+    if int(page) > 1:
+        prev_page = str(int(page) - 1)
+        if category_id == '':
+            plugintools.add_item(title='<< %s %s <<' % ('Page', prev_page),
+                                 action='getseries2', extra=sorting, page=prev_page)
+        elif category_id == '78':
+            plugintools.add_item(title='<< %s %s <<' % ('Page', prev_page),
+                                 action='getseries3', extra=sorting, page=prev_page)
+        elif category_id == '82':
+            plugintools.add_item(title='<< %s %s <<' % ('Page', prev_page),
+                                 action='getseries', extra=sorting, page=prev_page)
+
+
     for item in items:
         xbmc.log('getseries info {}'.format(item["info"]["cast"]))
         xbmc.log('getseries info {}'.format(item["id"]))
@@ -3238,6 +3349,25 @@ def getseries_bycategory(category_id):
         plugintools.add_itemcontext(action='show_series_files', title=item['label'], url=item['id'],
                                     info_labels=item['info'],
                                     thumbnail=item['thumbnail'], page='0', contextmenu=context_men, folder=True)
+
+    total_page = math.ceil(int(result['pagination']['count']) / int(per_page))
+
+
+    if total_page > int(page):
+        if 'widget' in params and params['widget'] == 'true':
+            next_page = '1'
+        else:
+            next_page = str(int(page) + 1)
+
+        if category_id == '':
+            plugintools.add_item(title='>> %s %s >>' % ('Page', next_page),
+                                 action='getseries2', extra=sorting, page=next_page)
+        elif category_id == '78':
+            plugintools.add_item(title='>> %s %s >>' % ('Page', next_page),
+                                 action='getseries3', extra=sorting, page=next_page)
+        elif category_id == '82':
+            plugintools.add_item(title='>> %s %s >>' % ('Page', next_page),
+                                 action='getseries', extra=sorting, page=next_page)
 
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
 
