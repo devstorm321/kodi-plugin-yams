@@ -24,6 +24,7 @@ from resources.modules.loginobf import login_info
 
 import xbmc, xbmcaddon, xbmcgui, xbmcplugin, xbmcvfs
 import common as Common
+from common import http_request
 from boxname import boxname
 
 # import SimpleDownloader as downloader
@@ -59,6 +60,11 @@ vijayVODUrl_ori = f'''http://api.yamsonline.com/astream?name=hotstarnew&username
 importlib.reload(sys)
 # sys.setdefaultencoding('utf8') # deprecated in python3
 params = plugintools.get_params()
+
+
+HTTP_HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36',
+}
 
 
 def run():
@@ -461,7 +467,7 @@ def __check_login():
 
         # TODO needs to review
         try:
-            response = urllib.request.urlopen("https://astreamweb.com/kodi/astreamweb.conf").read().decode('utf-8')
+            response = http_request("https://astreamweb.com/kodi/astreamweb.conf").read().decode('utf-8')
         except:
             traceback.print_exc()
 
@@ -469,11 +475,6 @@ def __check_login():
         configUrl = 'https://astreamweb.com/kodi/astreamweb.config'
 
         if not os.path.exists(configFile1):
-            # TypeOfMessage = "t"
-            # (NewImage, NewMessage) = Common.FetchNews()
-            # Common.CheckNews(TypeOfMessage, NewImage, NewMessage, False)
-            #           dialog.ok('Initial Configuration',
-            #              'This is your first time running AstreamWeb. We need to install some configuration files.')
             boxname(params)
             select_device()
             xbmc.Monitor().waitForAbort(2)
@@ -597,7 +598,7 @@ def history(params):
     dateavt = dt.date.today() - dt.timedelta(3 * 365 / 40)
     vurl = f'''http://169.55.113.138/api/stat/?key=yamsdagr8&action=user_history&username={username}&from_date={dateavt}&password={password}'''
     xbmc.log(f'''history url {vurl}''')
-    response = urllib.request.urlopen(vurl).read().decode('utf-8')
+    response = http_request(vurl).read().decode('utf-8')
     json_data = json.loads(response)
     data_content = json_data["data"]
     sorted_date = sorted(data_content, key=lambda x: x['created_at'], reverse=True)
@@ -645,7 +646,7 @@ def api_yamsonline_providers(params):
     api_digest = scraper.digest
     sourceurl = "https://api.yamsonline.com/api?sort=added%2CDESC&task=movies&option=com_jsonapi&format=json&without_files=1&version=v2&user=" + username + "&page=" + pagenum + "&" + action + "=1&digest=" + api_digest
     xbmc.log(f'''api_yamsonline_providers url: {sourceurl}''')
-    response = urllib.request.urlopen(sourceurl).read().decode('utf-8')
+    response = http_request(sourceurl).read().decode('utf-8')
     json_data = json.loads(response)
     data_pagination = json_data["pagination"]
     data_content = json_data["data"]
@@ -701,7 +702,7 @@ def show_iptv_favourite(params):  # pagenum):
     sourceurl = "https://api.yamsonline.com/api?task=channel_favorite&option=com_jsonapi&format=json&user=" \
                 + username + "&version=v2&device=box&digest=" + api_digest
     xbmc.log(sourceurl)
-    response = urllib.request.urlopen(sourceurl).read().decode('utf-8')
+    response = http_request(sourceurl).read().decode('utf-8')
     json_data = json.loads(response)
     data_pagination = json_data["pagination"]
     data_content = json_data["data"]
@@ -726,7 +727,7 @@ def play_iptv_favourite(params):  # url, label, cid):
     url = params.get('url')
 
     if cid == '0':
-        response = urllib.request.urlopen(base64.b64decode(url).decode('utf-8'))
+        response = http_request(base64.b64decode(url).decode('utf-8'))
         html_content = response.read()
         # print(html)
         USER_AGENT = "Opera/9.80 (Linux armv7l; InettvBrowser/2.2 (00014A;SonyDTV115;0002;0100) KDL42W650A; CC/GRC) " \
@@ -767,7 +768,7 @@ def personal2(params):
 
     url = 'http://api.astreamweb.com/listmovie.php'
 
-    source = requests.get(url).content
+    source = requests.get(url, headers=HTTP_HEADERS).content
     try:
         json_data = json.loads(source)["data"]
         xbmc.log(f'''personal {json_data}''')
@@ -820,7 +821,7 @@ def personal2link(params):
     password = plugintools.get_setting("password")
     url = 'http://api.astreamweb.com/listmovie.php'
 
-    source = requests.get(url).content
+    source = requests.get(url, headers=HTTP_HEADERS).content
     json_data = json.loads(source)["data"]
     xbmc.log(f'''personal {json_data}''')
     page = params.get('page')
@@ -864,7 +865,7 @@ def personal(params):
     username = plugintools.get_setting("username")
 
     url = f'''http://api.astreamweb.com/listmovie.php?username={username}'''
-    source = requests.get(url).content
+    source = requests.get(url, headers=HTTP_HEADERS).content
 
     # xbmc.log(f'''personal data url:{url}, resp: {source}''')
     try:
@@ -905,7 +906,7 @@ def personallink(params):
     password = plugintools.get_setting("password")
 
     url = 'http://api.astreamweb.com/listmovie.php?username=' + username
-    source = requests.get(url).content
+    source = requests.get(url, headers=HTTP_HEADERS).content
     json_data = json.loads(source)["data"]
     #xbmc.log('personal ' + json_data)
     page = params.get('page')
@@ -1139,7 +1140,7 @@ def play_vod(params):
     xbmc.Monitor().waitForAbort(1)
     if not xbmc.Player().isPlaying():
         try:
-            response = urllib.request.urlopen(urllink).read().decode('utf-8')
+            response = http_request(urllink).read().decode('utf-8')
             json_data = json.loads(response)
         except:
             pass
@@ -1449,7 +1450,7 @@ def show_hotstar_ori(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     if not isauth_ok():
         return
-    response = urllib.request.urlopen(vijayVODUrl_ori).read().decode('utf-8')
+    response = http_request(vijayVODUrl_ori).read().decode('utf-8')
     nodes = json.loads(response)
     for i in range(len(nodes)):
         if nodes[i]["title"] == "English":
@@ -1468,7 +1469,7 @@ def show_hotstarlv1_ori(params):
     if not isauth_ok():
         return
     vurl = params.get('url')
-    response = urllib.request.urlopen(vurl).read().decode('utf-8')
+    response = http_request(vurl).read().decode('utf-8')
     nodes = json.loads(response)
     items = [x for x in nodes]
     items.reverse()
@@ -1486,7 +1487,7 @@ def show_hotstarlv2_ori(params):
     if not isauth_ok():
         return
     vurl = params.get('url')
-    response = urllib.request.urlopen(vurl).read().decode('utf-8')
+    response = http_request(vurl).read().decode('utf-8')
     nodes = json.loads(response)
 
     agentType = '0'
@@ -1504,7 +1505,7 @@ def show_hotstarlv3_ori(params):
     if not isauth_ok():
         return
     vurl = params.get('url')
-    response = urllib.request.urlopen(vurl).read().decode('utf-8')
+    response = http_request(vurl).read().decode('utf-8')
     nodes = json.loads(response)
     xbmc.log('show_hotstarlv3_ori end{}'.format(nodes))
     agentType = '0'
@@ -1521,7 +1522,7 @@ def show_hotstarsublist_ori(params):
     vurl = params.get('url')
     agent = params.get('page')
     xbmc.log('__get_json show_hotstarplay vijayURL url: %s' % vurl)
-    response = urllib.request.urlopen(vurl).read().decode('utf-8')
+    response = http_request(vurl).read().decode('utf-8')
     nodes = json.loads(response)
     items = [x for x in nodes]
     items.reverse()
@@ -1560,8 +1561,7 @@ def show_hotstarplayvideo(params):
             if int(parsedUrl['cid'][0]) in iptv_cids:
                 if not isiptvauth_ok():
                     return
-        response = urllib.request.urlopen(vurl)
-        html = response.read()
+        html = http_request(vurl).read()
         USER_AGENT = "https://www.hotstar.com/ca/tv/super-singer/s-263/wildcard-finals-with-anirudh/1100029079"
         html += '|referer=%s' % USER_AGENT
 
@@ -1591,7 +1591,7 @@ def show_indian_channels(params):
     category = params.get('url')
     link = "http://vod.yamsftp.net/apiyamsnew.php?cfg={0}".format(category)
     # channelsJson = network.Net().http_GET("http://vod.yamsftp.net/apiyamsnew.php?cfg={0}".format(category))
-    channelsJson = urllib.request.urlopen(link).read().decode('utf-8')
+    channelsJson = http_request(link).read().decode('utf-8')
     channels = json.loads(channelsJson)  # .content)
     items = [x for x in channels]
     items.reverse()
@@ -1713,7 +1713,7 @@ def more_cathup(params):
 
     vurl = "https://api.yamsonline.com/api?username=" + username + "&password=" + password + "&task=catchtamil&type=channel"
 
-    response = urllib.request.urlopen(vurl).read().decode('utf-8')
+    response = http_request(vurl).read().decode('utf-8')
     nodes = json.loads(response)
     for node in nodes:
         v_url = "https://api.yamsonline.com/api?task=catchtamil&type=shows&channel=" + urllib.parse.quote(node['name'].strip())
@@ -1747,7 +1747,7 @@ def news_fun_cathup(params):
     password = plugintools.get_setting('password')
     vurl = "https://astreamweb.com/kodi/youtube/api.php?task=youtube&listplaylist=yes"
 
-    response = urllib.request.urlopen(vurl).read().decode('utf-8')
+    response = http_request(vurl).read().decode('utf-8')
     nodes = json.loads(response)
     for node in nodes:
         v_url = "https://astreamweb.com/kodi/youtube/api.php?task=youtube&playlistname=" + urllib.parse.quote(node['playlist_name'].strip())
@@ -1767,7 +1767,7 @@ def news_fun_cathup_videos(params):
 
     vurl = params.get('url')
     self_url = vurl
-    response = urllib.request.urlopen(vurl).read().decode('utf-8')
+    response = http_request(vurl).read().decode('utf-8')
     nodes = json.loads(response)
 
     username = plugintools.get_setting('username')
@@ -1797,7 +1797,7 @@ def more_cathup_shows(params):
     vurl = params.get('url')
     self_url = vurl
 
-    response = urllib.request.urlopen(vurl).read().decode('utf-8')
+    response = http_request(vurl).read().decode('utf-8')
 
     nodes = json.loads(response)
 
@@ -1831,7 +1831,7 @@ def more_cathup_channels(params):
     password = plugintools.get_setting('password')
 
 
-    response = urllib.request.urlopen(vurl).read().decode('utf-8')
+    response = http_request(vurl).read().decode('utf-8')
 
     nodes = json.loads(response)
     for node in nodes:
@@ -1851,7 +1851,7 @@ def more_cathup_by_name(params):
 
     vurl = params.get('url')
 
-    response = urllib.request.urlopen(vurl).read().decode('utf-8')
+    response = http_request(vurl).read().decode('utf-8')
 
     nodes = json.loads(response)
     for node in nodes:
@@ -1881,7 +1881,7 @@ def catchupvod_channels(params):
     xbmc.log('catchupvod_channels url: %s' % vurl, xbmc.LOGINFO)
     if not isauth_ok():
         return
-    response = urllib.request.urlopen(vurl).read().decode('utf-8')
+    response = http_request(vurl).read().decode('utf-8')
     nodes = json.loads(response)
 
     per_page = '14' if 'widget' in params and params['widget'] == 'true' else __get_per_page()
@@ -1925,7 +1925,7 @@ def show_catchupvod_ori(params):
     agent = params.get('extra')
     xbmc.log('agent {}'.format(agent))
     if not agent: agent = '0'
-    response = urllib.request.urlopen(vurl).read().decode('utf-8')
+    response = http_request(vurl).read().decode('utf-8')
     ##print vurl
     nodes = json.loads(response)
     items = [x for x in nodes]
@@ -2706,7 +2706,7 @@ def handle_wait(time_to_wait, title, text):
 def _select_skin_language(langs=None):
     xbmc.log(f'language changes to {langs}', xbmc.LOGINFO)
     url = "https://yamshost.org/amember/api/check-access/by-login?_key=HODzCPbEpwmz4ufir2jimobile&login=%s" % username
-    response = urllib.request.urlopen(url).read().decode('utf-8')
+    response = http_request(url).read().decode('utf-8')
     jsonResp = json.loads(response)
     categories = [int(a) for a in list(jsonResp["categories"].keys())]
     category = ""
@@ -2920,7 +2920,7 @@ def show_einthusan_featured(params):
     lang = params.get("url")
     page_url = 'https://einthusan.ca/movie/browse/?lang=' + lang
 
-    html = requests.get(page_url).text
+    html = requests.get(page_url, headers=HTTP_HEADERS).text
     matches = re.compile(
         'name="newrelease_tab".+?img src="(.+?)".+?href="(.+?)"><h2>(.+?)</h2>.+?i class=(.+?)</div>').findall(html)
 
@@ -2957,7 +2957,7 @@ def show_einthusan_search(params):
         #     'Referer': 'https://einthusan.ca/movie/browse/?' + url,
         #     'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36'}
 
-        html = requests.get(search_url).text
+        html = requests.get(search_url, headers=HTTP_HEADERS).text
         match = re.compile(
             '<div class="block1">.*?href=".*?watch\/(.*?)\/\?lang=(.*?)".*?src="(.*?)".*?<h3>(.*?)</h3>.+?i class(.+?)<p').findall(
             html)
@@ -3225,7 +3225,7 @@ def show_livetv(params):
                 lang = plugintools.get_setting('channellanguage')[0:3]
                 vurl = "https://astreamweb.com/kodi/web/channels/json.php?lang=" + lang + "&username=" + username + "&password=" + password
 
-        response = urllib.request.urlopen(vurl).read().decode('utf-8')
+        response = http_request(vurl).read().decode('utf-8')
         nodes = json.loads(response)
 
         per_page = '14' if 'widget' in params and params['widget'] == 'true' else __get_per_page()

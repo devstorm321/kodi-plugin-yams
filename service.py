@@ -1,12 +1,10 @@
 import importlib
 import os
-import time
 import traceback
-import urllib.error
-import urllib.parse
-import urllib.request
-
 import feedparser
+import json
+import threading
+
 import xbmc
 import xbmcaddon
 import xbmcgui
@@ -15,12 +13,8 @@ import xbmcvfs
 import resources.modules.scraper as scraper
 import resources.modules.yamsutils as yamsutils
 from resources.modules.scraper import get_mac
+from common import http_request
 
-import json
-
-import threading
-from urllib.request import urlopen
-import urllib.request, urllib.parse, urllib.error
 
 Addon = xbmcaddon.Addon(id='plugin.video.yams')
 # Addon = xbmcaddon.Addon(id='service.yams-msg')
@@ -82,7 +76,7 @@ def app_active():
     scraper.__set_digest(digest)
     api_digest = scraper.digest
     try:
-        ip = urllib.request.urlopen("https://astreamweb.com/kodi/ip.php").read().decode('utf-8')
+        ip = http_request("https://astreamweb.com/kodi/ip.php").read().decode('utf-8')
     except Exception as e:
         dialog = xbmcgui.Dialog()
         dialog.notification('Connection Failure',
@@ -108,7 +102,7 @@ def app_active():
                 'System.OSVersionInfo') + '- KOD' + xbmc.getInfoLabel('System.BuildVersion').split(" ")[0],
             api_digest)
         url = url.replace(' ', '%20')
-        response = urlopen(url).read().decode('utf-8')
+        response = http_request(url).read().decode('utf-8')
         json_data = json.loads(response)
         message = json_data['reason']
         if json_data['status'] == 'error' and 'logged out' in json_data['reason']:
@@ -131,7 +125,7 @@ def run():
 
     scraper.__set_digest(digest)
     try:
-        ip = urllib.request.urlopen("https://astreamweb.com/kodi/ip.php").read().decode('utf-8')
+        ip = http_request("https://astreamweb.com/kodi/ip.php").read().decode('utf-8')
     except Exception as e:
         dialog = xbmcgui.Dialog()
         dialog.notification('Connection Failure',

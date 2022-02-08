@@ -1,11 +1,12 @@
 import json
 import sys
 import time
-from urllib.request import urlopen
 
 import xbmc
 import xbmcgui
 import xbmcplugin
+
+from common import http_request
 
 try:
     from resources.modules import plugintools
@@ -26,7 +27,7 @@ login_infos = "&username=" + username + "&password=" + password
 def show_english_channels(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
     url = base
-    response = urlopen(url).read().decode('utf-8')
+    response = http_request(url).read().decode('utf-8')
     json_data = json.loads(response)
     if len(json_data):
         for item in json_data:
@@ -54,14 +55,14 @@ def show_english_channels_items(params):
         if adult_pword == '':
             return
         xbmc.log('Getting current password')
-        response = urlopen("https://astreamweb.com/kodi/passcode.txt").read().decode('utf-8')
+        response = http_request("https://astreamweb.com/kodi/passcode.txt").read().decode('utf-8')
 
         if str(adult_pword) != response.strip():
             dialog = xbmcgui.Dialog()
             dialog.ok('Unlock error', "Bad Password")
             return False
     url = base
-    response = urlopen(url).read().decode('utf-8')
+    response = http_request(url).read().decode('utf-8')
     json_data = json.loads(response)
     if len(json_data):
         for item in json_data[category_id]:

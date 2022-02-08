@@ -2,13 +2,13 @@ import json
 import sys
 import time
 from string import ascii_lowercase
-from urllib.request import urlopen
 
 import xbmc
 import xbmcgui
 import xbmcplugin
 
 from . import plugintools
+from common import http_request
 
 params = plugintools.get_params()
 __get_icon = plugintools.__get_icon
@@ -26,7 +26,7 @@ NOVELAS_CATEGORY_ID = '117'
 # ('/asiptvs_vod/')
 def asiptvs_vod():
     url = base + "?" + login_infos + "&action=get_vod_categories"
-    response = urlopen(url).read().decode('utf-8')
+    response = http_request(url).read().decode('utf-8')
     json_data = json.loads(response)
     if len(json_data):
         items = sorted(json_data, key=lambda k: k["category_name"], reverse=False)
@@ -42,7 +42,7 @@ def asiptvs_vod_videos(params):  # category_id):
     category_id = params.get('url')
     title = params.get('title')
     url = base + "?" + login_infos + "&action=get_vod_streams&category_id=" + category_id
-    response = urlopen(url).read().decode('utf-8')
+    response = http_request(url).read().decode('utf-8')
     json_data = json.loads(response)
     xbmc.log('jsondata {}'.format(json_data))
     if len(json_data):
@@ -62,7 +62,7 @@ def asiptvs_vod_eng(params):  # category_id):
     category_id = params.get('url')
     let = params.get('title').lower()
     url = base + "?" + login_infos + "&action=get_vod_streams&category_id=" + category_id
-    response = urlopen(url).read().decode('utf-8')
+    response = http_request(url).read().decode('utf-8')
     json_data = json.loads(response)
     xbmc.log('jsondata {}'.format(json_data))
     if len(json_data):
@@ -76,7 +76,7 @@ def asiptvs_vod_eng(params):  # category_id):
 
 def asiptvs_vod_videos2(category_id, let=None):
     url = base + "?" + login_infos + "&action=get_vod_streams&category_id=" + category_id
-    response = urlopen(url).read().decode('utf-8')
+    response = http_request(url).read().decode('utf-8')
     json_data = json.loads(response)
     xbmc.log('jsondata {}'.format(json_data))
     if len(json_data):

@@ -4,12 +4,12 @@ from base64 import b64decode
 from urllib.error import URLError, HTTPError
 from urllib.parse import urlencode
 from urllib.request import pathname2url
-from urllib.request import urlopen, Request
 
 import requests as Net
 import zipfile
 
 from . import rijndael
+from common import http_request
 
 try:
     from simplejson import loads as json_loads
@@ -391,7 +391,7 @@ def get_seasons(movie_id, username, password, seasn):
             url = 'https://api.yamsonline.com/api?task=season&option=com_jsonapi&format=json&cleancache=1&version=v2&user=%s&id=%s&season_num=%s&digest=%s' % (
                 username, movie_id, seasn, digest)
         xbmc.log('get_saisons url %s' % url)
-        response = urlopen(url).read().decode('utf-8')
+        response = http_request(url).read().decode('utf-8')
         json_data = json.loads(response)  # ;print(json_data)
     except:
         pass
@@ -548,9 +548,9 @@ def get_youtube_playlist(channel, per_page, sorting, pageToken=None):
 
     shows = list()
     if pageToken is None:
-        url = urlopen(YOUTUBE_BASEAPI + YOUTUBE_PLAYLIST % (channel, str(per_page)))
+        url = http_request(YOUTUBE_BASEAPI + YOUTUBE_PLAYLIST % (channel, str(per_page)))
     else:
-        url = urlopen(YOUTUBE_BASEAPI + YOUTUBE_PLAYLIST_PAGE % (channel, str(per_page), pageToken))
+        url = http_request(YOUTUBE_BASEAPI + YOUTUBE_PLAYLIST_PAGE % (channel, str(per_page), pageToken))
 
     play_list = json.load(url)
     num_entries = play_list['pageInfo']['totalResults']
@@ -587,9 +587,9 @@ def get_youtube_playitem(channel, per_page, sorting, pageToken=None):
 
     shows = list()
     if pageToken is None:
-        url = urlopen(YOUTUBE_BASEAPI + YOUTUBE_PLAYLISTITEM % (channel, str(per_page)))
+        url = http_request(YOUTUBE_BASEAPI + YOUTUBE_PLAYLISTITEM % (channel, str(per_page)))
     else:
-        url = urlopen(YOUTUBE_BASEAPI + YOUTUBE_PLAYLISTITEM_PAGE % (channel, str(per_page), pageToken))
+        url = http_request(YOUTUBE_BASEAPI + YOUTUBE_PLAYLISTITEM_PAGE % (channel, str(per_page), pageToken))
 
     play_list = json.load(url)
     num_entries = play_list['pageInfo']['totalResults']
@@ -632,7 +632,7 @@ def get_youtube_playitem(channel, per_page, sorting, pageToken=None):
 
 
 def get_youtube_playlist_icon(playlist_id):
-    url = urlopen(YOUTUBE_SEARCH % playlist_id)
+    url = http_request(YOUTUBE_SEARCH % playlist_id)
     snippet = json.load(url)
 
     thumbnail = ''
@@ -655,7 +655,7 @@ def get_youtube_sections(page, per_page, sorting):
     url = '{0}?digest={1}'.format(VOD_URL, digest)
     xbmc.log('vod_url:{0}'.format(url))
     try:
-        response = urlopen(url)
+        response = http_request(url)
     except HTTPError:
         dialog = xbmcgui.Dialog()
         dialog.ok('Error with VOD Authentication', 'Access Error')
@@ -696,7 +696,7 @@ def get_youtube_channels(page, per_page, sorting):
     url = VOD_URL + '?digest=' + digest
     xbmc.log('vod_url:' + url)
     try:
-        response = urlopen(url)
+        response = http_request(url)
     except HTTPError:
         dialog = xbmcgui.Dialog()
         dialog.ok('Error with VOD Authentication', 'Access Error')
@@ -720,7 +720,7 @@ def get_channellive_seasons(lang, page, per_page, sorting, grabVideo=False):
     xbmc.log('Getting season list for language {0}'.format(lang))
     xml_url = 'https://astreamweb.com/kodi/RokuGateway.xml'
     try:
-        resp = urlopen(xml_url)
+        resp = http_request(xml_url)
         if resp.getcode() != 200:
             dialog = xbmcgui.Dialog()
             dialog.ok('Exception', 'Unable to retrieve information: Code: ' + str(resp.getcode()))
@@ -778,7 +778,7 @@ def get_channellive_prog(root, page, per_page, sorting):
 
 def get_channellive_vod(vodfeed, page, per_page, sorting):
     try:
-        resp = urlopen(vodfeed)
+        resp = http_request(vodfeed)
         if resp.getcode() != 200:
             dialog = xbmcgui.Dialog()
             dialog.ok('Exception', 'Unable to retrieve information: Code: ' + str(resp.getcode()))
@@ -920,7 +920,7 @@ def __get_json(data, raiseError=True):
         url = '%s?%s' % (MAIN_URL, urlencode(data))
 
         xbmc.log('__get_json opening url: %s' % url)
-        response = urlopen(url).read().decode('utf-8')
+        response = http_request(url).read().decode('utf-8')
         # xbmc.log('response: ' + response.decode('utf-8'), level=xbmc.LOGINFO)
 
         json_data = json_loads(response)

@@ -72,11 +72,11 @@ def fast_com(verbose=False, maxtime=15, forceipv4=False, forceipv6=False):
     # go to fast.com to get the javascript file
     url = 'https://fast.com/'
     try:
-        urlresult = urllib.request.urlopen(url)
+        response = urllib.request.urlopen(url).read().decode('utf-8')
     except:
         # no connection at all?
         return 0
-    response = urlresult.read().decode('utf-8')
+    
     for line in response.split('\n'):
         # We're looking for a line like
         #           <script src="/app-40647a.js"></script>
@@ -88,8 +88,8 @@ def fast_com(verbose=False, maxtime=15, forceipv4=False, forceipv6=False):
     url = 'https://fast.com' + jsname
     if verbose:
         print(("javascript url is", url))
-    urlresult = urllib.request.urlopen(url)
-    allJSstuff = urlresult.read().decode('utf-8')  # this is a obfuscated Javascript file
+
+    allJSstuff = urllib.request.urlopen(url).read().decode('utf-8')  # this is a obfuscated Javascript file
     '''
     # OLD STUFF ... beautiful, but needs the js-beautifier module, which was a non-stardard requirement
     res = jsbeautifier.beautify(allJSstuff) # ... so un-obfuscate it

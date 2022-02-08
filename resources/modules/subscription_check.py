@@ -11,13 +11,14 @@ import xbmcgui
 import xbmcvfs
 
 from . import scraper
+from common import http_request
 
 
 def setSubscriptionButton(username):
     try:
         path = xbmcvfs.translatePath(os.path.join('special://home/userdata', ''))
         url = f"https://yamshost.org/amember/api/check-access/by-login?_key=HODzCPbEpwmz4ufir2jimobile&login={username}"
-        response = urllib.request.urlopen(url).read().decode('utf-8')
+        response = http_request(url).read().decode('utf-8')
         jsonResp = json.loads(response)
 
         categories = [int(a) for a in list(jsonResp["categories"].keys())]

@@ -40,15 +40,7 @@
 import os
 import sys
 import traceback
-import urllib.error
-import urllib.error
 import urllib.parse
-import urllib.parse
-import urllib.request
-import urllib.request
-import urllib3
-
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 from os import path as os_path
 
@@ -57,6 +49,7 @@ import xbmcaddon
 import xbmcgui
 import xbmcplugin
 import xbmcvfs
+
 
 ADDON_ID = xbmcaddon.Addon('plugin.video.yams').getAddonInfo('id')
 ADDONTITLE = 'AStreamWeb'
@@ -116,15 +109,6 @@ def get_params():  # Parse XBMC params - based on script.module.parsedom addon
                     commands[command] = ""
     _log("get_params >> commands: %s" % repr(commands))
     return commands
-
-
-# Fetch text content from an URL
-def read(url):
-    _log("read " + url)
-    f = urllib.request.urlopen(url)
-    data = f.read()
-    f.close()
-    return data
 
 
 def add_item(action="", title="", plot="", url="", thumbnail="", fanart="", iconImage="", show="", episode="", extra="",
