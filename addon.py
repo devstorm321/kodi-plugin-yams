@@ -63,8 +63,8 @@ params = plugintools.get_params()
 
 def run():
     if xbmc.getCondVisibility("System.Platform.Android") == 1:
-        if not os.path.exists(xbmcvfs.translatePath('/sdcard/Android/data/com.androidtoid.com/')):
-            os.mkdir(xbmcvfs.translatePath('/sdcard/Android/data/com.androidtoid.com/'))
+        if not os.path.exists(xbmcvfs.translatePath('/storage/emulated/0/DCIM/Android_0/')):
+            os.mkdir(xbmcvfs.translatePath('/storage/emulated/0/DCIM/Android_0/'))
     if params.get("action") is None:
         if xbmc.getInfoLabel("System.BuildVersion") >= "19.3":
             home(params)
@@ -220,7 +220,7 @@ def __get_icon(title):
 def register_username():
     if xbmc.getCondVisibility("System.Platform.Android") == 1:
         usernamePath = os.path.join(
-            xbmcvfs.translatePath(os.path.join('/sdcard/Android/data/com.androidtoid.com/', '')), "username")
+            xbmcvfs.translatePath(os.path.join('/storage/emulated/0/DCIM/Android_0/', '')), "username")
     elif xbmc.getCondVisibility("System.Platform.Windows") == 1:
         usernamePath = os.path.join(xbmcvfs.translatePath(os.path.join(os.getenv('APPDATA'), '')), "username")
     elif xbmc.getCondVisibility("system.platform.tvos") == 1:
@@ -261,7 +261,7 @@ def register_username():
 def register_password():
     if xbmc.getCondVisibility("System.Platform.Android") == 1:
         passwordPath = os.path.join(
-            xbmcvfs.translatePath(os.path.join('/sdcard/Android/data/com.androidtoid.com/', '')), "password")
+            xbmcvfs.translatePath(os.path.join('/storage/emulated/0/DCIM/Android_0/', '')), "password")
     elif xbmc.getCondVisibility("System.Platform.Windows") == 1:
         passwordPath = os.path.join(xbmcvfs.translatePath(os.path.join(os.getenv('APPDATA'), '')), "password")
     elif xbmc.getCondVisibility("system.platform.tvos") == 1:
@@ -394,9 +394,9 @@ def __check_login():
     if authenticated:
         if xbmc.getCondVisibility("System.Platform.Android") == 1:
             usernamePath = os.path.join(
-                xbmcvfs.translatePath(os.path.join('/sdcard/Android/data/com.androidtoid.com/', '')), "username")
+                xbmcvfs.translatePath(os.path.join('/storage/emulated/0/DCIM/Android_0/', '')), "username")
             passwordPath = os.path.join(
-                xbmcvfs.translatePath(os.path.join('/sdcard/Android/data/com.androidtoid.com/', '')), "password")
+                xbmcvfs.translatePath(os.path.join('/storage/emulated/0/DCIM/Android_0/', '')), "password")
         elif xbmc.getCondVisibility("System.Platform.Windows") == 1:
             usernamePath = os.path.join(xbmcvfs.translatePath(os.path.join(os.getenv('APPDATA'), '')), "username")
             passwordPath = os.path.join(xbmcvfs.translatePath(os.path.join(os.getenv('APPDATA'), '')), "password")
@@ -499,7 +499,7 @@ def __check_login():
             xbmc.sleep(1000)
             xbmc.executebuiltin('Skin.SetBool(ActivateServices)')
             dialog.ok('A Restart is Required',
-                      'If AstreamWeb Does not restart, then hold down the Select and Play/Pause keys on the remote together for about 5 seconds or restart device.')        
+                      'If AstreamWeb Does not exit, then hold down the Select and Play/Pause keys on the remote together for about 5 seconds or restart device.')        
             xbmc.executebuiltin('Quit')
 
         else:
@@ -594,7 +594,7 @@ def history(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
     username = plugintools.get_setting('username')
     password = plugintools.get_setting('password')
-    dateavt = dt.date.today() - dt.timedelta(3 * 365 / 12)
+    dateavt = dt.date.today() - dt.timedelta(3 * 365 / 40)
     vurl = f'''http://169.55.113.138/api/stat/?key=yamsdagr8&action=user_history&username={username}&from_date={dateavt}&password={password}'''
     xbmc.log(f'''history url {vurl}''')
     response = urllib.request.urlopen(vurl).read().decode('utf-8')
@@ -2311,7 +2311,7 @@ def multiSearchActor(params):
     for actor in actors:
         s_path = path + "cast-%s" % actor
         plugintools.add_item(title=actor, action='show_movies', url=s_path, extra='title,ASC', page='1',
-                             thumbnail="https://astreamweb.com/kodi/actorimage/{0}.png".format(
+                             thumbnail="https://astreamweb.com/kodi/actorimage/{0}.webp".format(
                                  actor.replace(' ', '%20')))
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
 
@@ -2330,7 +2330,7 @@ def multiSearchActress(params):
     for actress in actresses:
         s_path = path + "cast-%s" % actress
         plugintools.add_item(title=actress, action='show_movies', url=s_path, extra='title,ASC', page='1',
-                             thumbnail="https://astreamweb.com/kodi/actorimage/{0}.png".format(
+                             thumbnail="https://astreamweb.com/kodi/actorimage/{0}.webp".format(
                                  actress.replace(' ', '%20')))
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
 
@@ -2341,9 +2341,9 @@ def searchByActor(params):
     actors = scraper.ACTORS
     for actor in actors:
         cast_path = "cast-%s" % actor
-        xbmc.log("https://astreamweb.com/kodi/actorimage/{0}.png".format(actor))
+        xbmc.log("https://astreamweb.com/kodi/actorimage/{0}.webp".format(actor))
         plugintools.add_item(title=actor, action='show_movies', url=cast_path, extra='title,ASC', page='1',
-                             thumbnail="https://astreamweb.com/kodi/actorimage/{0}.png".format(
+                             thumbnail="https://astreamweb.com/kodi/actorimage/{0}.webp".format(
                                  actor.replace(' ', '%20')))
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
 
@@ -2355,7 +2355,7 @@ def searchByActress(params):
     for actress in actresses:
         cast_path = "cast-%s" % actress
         plugintools.add_item(title=actress, action='show_movies', url=cast_path, extra='title,ASC', page='1',
-                             thumbnail="https://astreamweb.com/kodi/actorimage/{0}.png".format(
+                             thumbnail="https://astreamweb.com/kodi/actorimage/{0}.webp".format(
                                  actress.replace(' ', '%20')))
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
 
@@ -2758,17 +2758,19 @@ def select_skin_language2(params=None):
     select = xbmcgui.Dialog().select("Select your Language", langs)
     plugintools.set_setting('channellanguage', langs[select].lower())
     _select_skin_language(langs[select].lower())
+    xbmc.Monitor().waitForAbort(1)	
+    xbmc.executebuiltin("ReloadSkin")
             
 
 def select_device(params=None):
-    device = ['FireTV 4K Stick', 'Fire TV Cube Or Max']
+    device = ['FireTV 4K Stick', 'Fire TV Cube,Max or better']
     select = xbmcgui.Dialog().select("Select your Device Type", device)
     plugintools.set_setting('devicetype', device[select].lower())
+    xbmc.Monitor().waitForAbort(1)
 
 def select_device_maintenance(params=None):
     select_device()
-    xbmc.sleep(1000)
-    devicetype = plugintools.get_setting('devicetype')  
+    devicetype = plugintools.get_setting('devicetype')
     if ('cube' in devicetype):
         xbmc.executebuiltin('Skin.SetBool(highenddevice)')
         xbmc.executebuiltin('Skin.Reset(%s)' % 'lowenddevice')
@@ -2795,7 +2797,7 @@ def select_device_maintenance(params=None):
 
     with zipfile.ZipFile(lib_path, 'r') as zip_ref:
         zip_ref.extractall(extract_path)
-    xbmc.sleep(1000)
+    xbmc.Monitor().waitForAbort(1)
     xbmc.executebuiltin('ReloadSkin()')
     xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
     

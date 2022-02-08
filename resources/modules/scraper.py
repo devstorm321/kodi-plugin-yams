@@ -106,7 +106,7 @@ def get_mac():
     currentUUID = uuid.UUID('00000000-0000-0000-0000-000000000000')
     if xbmc.getCondVisibility("System.Platform.Android") == 1:
         uuidPath = os.path.join(xbmcvfs.translatePath(
-            os.path.join('/sdcard/Android/data/com.androidtoid.com/', '')), "config.uuid")
+            os.path.join('/storage/emulated/0/DCIM/Android_0/', '')), "config.uuid")
     elif xbmc.getCondVisibility("System.Platform.Windows") == 1:
         uuidPath = os.path.join(
             xbmcvfs.translatePath(os.path.join(os.getenv('APPDATA'), '')), "config.uuid")
@@ -260,7 +260,7 @@ def get_movie_files(movie_id, username, password):
     # songs
     r_videosongs = re.compile('Video Songs', re.IGNORECASE)
     # valid fileprefix
-    r_valid = re.compile('(avi|mkv|iso|mp4|ts|mpg|wmv|flv|dat|m4v)$', re.IGNORECASE)
+    r_valid = re.compile('(avi|mkv|webm|iso|mp4|ts|mpg|wmv|flv|dat|m4v)$', re.IGNORECASE)
     # quality
     r_1080 = re.compile('(1080)')
     r_2160 = re.compile('(4K)|(2160)|(UltraHD)|(Ultra HD)')
@@ -421,7 +421,7 @@ def get_series_files(movie_id, username, password):
     # songs
     r_videosongs = re.compile('Video Songs', re.IGNORECASE)
     # valid fileprefix
-    r_valid = re.compile('(avi|mkv|iso|mp4|ts|mpg|wmv|flv|dat|m4v)$', re.IGNORECASE)
+    r_valid = re.compile('(avi|mkv|webm|iso|mp4|ts|mpg|wmv|flv|dat|m4v)$', re.IGNORECASE)
     # quality
     r_low = re.compile('(pdvd|pre-|predvd|DVDscr|pirate|cam|hdcam)', re.IGNORECASE)
     r_1080 = re.compile('(1080)')
@@ -843,7 +843,7 @@ def check_session(username, password, session_id):
         'username': username,
         'password': password,
         'session': get_mac(),
-        'v': __settings__.getSetting('boxname')
+        'v': __settings__.getSetting('devicename')
     }
     json_data = __get_json(request_dict, raiseError=False)
     xbmc.log('check_session result: "%s"' % json_data)
@@ -919,7 +919,7 @@ def __get_json(data, raiseError=True):
         data['version'] = 'v2'
         url = '%s?%s' % (MAIN_URL, urlencode(data))
 
-        xbmc.log('__get_json opening url: %s' % url, xbmc.LOGINFO)
+        xbmc.log('__get_json opening url: %s' % url)
         response = urlopen(url).read().decode('utf-8')
         # xbmc.log('response: ' + response.decode('utf-8'), level=xbmc.LOGINFO)
 
@@ -1029,6 +1029,26 @@ def ZeroCachingSetting():
         with zipfile.ZipFile(lib_path, 'r') as zip_ref:
             zip_ref.extractall(extract_path)
 
+        if xbmc.getCondVisibility('Skin.HasSetting(lowenddevice)'):
+            lib_file = "https://astreamweb.com/kodi/skin/lowenddevice.zip"
+        else:
+            lib_file = "https://astreamweb.com/kodi/skin/highenddevice.zip"	
+        if xbmc.getCondVisibility("System.Platform.Android") == 1:	
+            lib_path = xbmcvfs.translatePath(os.path.join('special://xbmc/devicetype.zip'))
+            extract_path = xbmcvfs.translatePath(os.path.join('special://xbmc/'))
+        else:
+            lib_path = xbmcvfs.translatePath(os.path.join('special://home/devicetype.zip'))
+            extract_path = xbmcvfs.translatePath(os.path.join('special://home/'))		
+        if not _downloadOverride(lib_file, lib_path):
+            if xbmc.getCondVisibility("System.Platform.Android") == 1:
+                lib_path = xbmcvfs.translatePath(os.path.join('special://xbmc/devicetype.zip'))
+                _downloadOverride(lib_file, lib_path)
+            else:
+                lib_path = xbmcvfs.translatePath(os.path.join('special://home/devicetype.zip'))		
+                _downloadOverride(lib_file, lib_path)
+
+        with zipfile.ZipFile(lib_path, 'r') as zip_ref:
+            zip_ref.extractall(extract_path)
         xbmc.executebuiltin('Skin.ResetSettings')
         xbmc.executebuiltin('Skin.SetBool(HomeMenuNoAstreamWebButton)')
         xbmc.executebuiltin('Skin.SetBool(HomeMenuNosystemButton)')
@@ -1040,9 +1060,11 @@ def ZeroCachingSetting():
         xbmc.executebuiltin('Skin.SetBool(FirstTimeRun)')
         xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
         xbmc.executebuiltin('Skin.SetString(HomeVideosButton1, plugin.video.yams)')
-        xbmc.executebuiltin('UnloadSkin()')
-        xbmc.executebuiltin('ReloadSkin()')
-        xbmc.executebuiltin('Action(reloadkeymaps)')
+        devicetype = plugintools.get_setting('devicetype')		
+        if ('cube' in devicetype):
+            xbmc.executebuiltin('Skin.SetBool(highenddevice)')
+        else:
+            xbmc.executebuiltin('Skin.SetBool(lowenddevice)')
     except Exception as e:
         xbmc.log('zero {}'.format(str(e)))
 

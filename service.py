@@ -34,10 +34,10 @@ RSS_URLS = [
 ]
 
 TITLE = 'AStreamWeb Info Panel'
-CHECK_INTERVAL = 60
-SUBCHECK_INTERVAL = 3600
-IP_INTERVAL = 1800
-DIALOG_INTERVAL = 21600
+CHECK_INTERVAL = 60 # 1 Minute
+SUBCHECK_INTERVAL = 3600 #1 Hour
+IP_INTERVAL = 1800 # 30 Minute
+DIALOG_INTERVAL = 21600 # 6 Hours
 digest = yamsutils.__digest(ADDON_PATH)
 xbmc.log("d2Fpc3Rpbmd5b3VydGltZV9hY2NvdW50YmxvY2tlZA {}".format(digest))
 
@@ -120,7 +120,7 @@ def app_active():
             'plugin.video.yams').getSetting("session"))
         for i in range(0, 120):
             importlib.reload(threading)
-            xbmc.Monitor().waitForAbort(1)
+            xbmc.Monitor().waitForAbort(2)
             if xbmc.Monitor().abortRequested():
                 return
 
@@ -260,7 +260,7 @@ def run():
                         if subtime >= SUBCHECK_INTERVAL:
                             subbool = True
                         xbmc.log("SUBCHECK TIME, %i, %i" % (subtime, SUBCHECK_INTERVAL))
-                        xbmc.Monitor().waitForAbort(1)
+                        xbmc.Monitor().waitForAbort(2)
                         if xbmc.Monitor().abortRequested():
                             break
             except Exception as e:

@@ -14,6 +14,8 @@ except:
 
 params = plugintools.get_params()
 
+per_page = plugintools.get_setting('per_page')
+
 username = plugintools.get_setting('username')
 password = plugintools.get_setting('password')
 base = "https://astreamweb.com/kodi/web/iptv/m3u2json.php"
@@ -77,6 +79,6 @@ def show_english_channels_items(params):
 def play_vod(params):
     urllink = params.get("url")
     plugintools.play_resolved_url(urllink)
-    time.sleep(3)
+    xbmc.Monitor().waitForAbort(1)
     if not xbmc.Player().isPlaying():
         xbmc.executebuiltin('Notification(Channel Unavailable at this moment,10000)')

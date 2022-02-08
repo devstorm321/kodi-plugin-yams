@@ -61,19 +61,19 @@ def setSubscriptionButton(username):
 def skin_update(category):
     dialog = xbmcgui.Dialog()
     dialog.ok('Notice',
-              f"Due to a change of your subscription, we are updating the skin to be accustomed to subscription level: {category}")
+              f"Due to a change in your subscription, we are updating the skin accustomed to subscription level: {category}")
     # selecting skin Languages
-    __settings__ = xbmcaddon.Addon(id='plugin.video.yams')
-    langs = __settings__.getSetting('channellanguage').lower()
-    mainmenu_config = "https://astreamweb.com/kodi/skin/{0}/skin.estuary-mainmenu.DATA.xml".format(langs.lower())
-    videosubmenu_config = "https://astreamweb.com/kodi/skin/{0}/skin.estuary-videosubmenu.DATA.xml".format(langs.lower())
-    path = xbmcvfs.translatePath(os.path.join('special://home/userdata/addon_data/script.skinshortcuts/', ''))
-    settingsFile1 = os.path.join(path, 'mainmenu.DATA.xml')
-    settingsFile2 = os.path.join(path, 'videosubmenu.DATA.xml')
-    if not os.path.exists(path):
-        os.mkdir(path)
-    scraper._downloadOverride(mainmenu_config, settingsFile1)
-    scraper._downloadOverride(videosubmenu_config, settingsFile2)
+    #__settings__ = xbmcaddon.Addon(id='plugin.video.yams')
+    #langs = __settings__.getSetting('channellanguage').lower()
+    #mainmenu_config = "https://astreamweb.com/kodi/skin/{0}/skin.estuary-mainmenu.DATA.xml".format(langs.lower())
+    #videosubmenu_config = "https://astreamweb.com/kodi/skin/{0}/skin.estuary-videosubmenu.DATA.xml".format(langs.lower())
+    #path = xbmcvfs.translatePath(os.path.join('special://home/userdata/addon_data/script.skinshortcuts/', ''))
+    #settingsFile1 = os.path.join(path, 'mainmenu.DATA.xml')
+    #settingsFile2 = os.path.join(path, 'videosubmenu.DATA.xml')
+    #if not os.path.exists(path):
+    #    os.mkdir(path)
+    #scraper._downloadOverride(mainmenu_config, settingsFile1)
+    #scraper._downloadOverride(videosubmenu_config, settingsFile2)
     xbmc.executebuiltin('UnloadSkin()')
     xbmc.executebuiltin('ReloadSkin()')
     xbmc.executebuiltin("XBMC.ActivateWindow(Home)")

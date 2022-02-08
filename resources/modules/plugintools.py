@@ -148,7 +148,7 @@ def add_item(action="", title="", plot="", url="", thumbnail="", fanart="", icon
         listitem.setProperty('IsPlayable', 'true')
     elif isPlayable:
         listitem.setProperty("Video", "true")
-        listitem.setProperty('IsPlayable', 'true')
+        listitem.setProperty('IsPlayable', 'true');
         try:
             itemurl = '%s?action=%s&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s' % (
                 sys.argv[0], action, urllib.parse.quote_plus(title), urllib.parse.quote_plus(url),

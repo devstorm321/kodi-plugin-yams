@@ -12,6 +12,7 @@ from . import plugintools
 
 params = plugintools.get_params()
 __get_icon = plugintools.__get_icon
+per_page = plugintools.get_setting('per_page')
 
 username = plugintools.get_setting('username')
 password = plugintools.get_setting('password')
@@ -96,7 +97,7 @@ def asiptvs_play_stream(params):  # url, label):
     liz.setProperty("IsPlayable", "true")
     liz.setPath(url)
     xbmc.Player().play(url, liz)
-    time.sleep(3)
+    xbmc.Monitor().waitForAbort(1)
     if not xbmc.Player().isPlaying():
         xbmc.executebuiltin('Notification(Channel Unavailable at this moment,,10000,)')
 

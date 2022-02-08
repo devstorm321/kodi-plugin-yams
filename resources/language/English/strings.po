@@ -103,8 +103,8 @@ msgid "No"
 msgstr "No"
 
 msgctxt "#30600"
-msgid "Login"
-msgstr "Login"
+msgid "User Credentials"
+msgstr "User Credentials"
 
 msgctxt "#30601"
 msgid "Username"
@@ -122,50 +122,54 @@ msgctxt "#30604"
 msgid "Remove Sharing Restriction"
 msgstr "Remove Sharing Restriction"
 
-msgctxt "#30605"
+msgctxt "#30606"
 msgid "1 day pass (Maximum 10 Times)"
 msgstr "1 day pass (Maximum 10 Times)"
 
-msgctxt "#30606"
+msgctxt "#30607"
 msgid "5 day pass (Maximum  3 Times)"
 msgstr "5 day pass (Maximum  3 Times)"
 
-msgctxt "#30607"
+msgctxt "#30608"
 msgid "Is daypass active?"
 msgstr "Is daypass active?"
 
-msgctxt "#30608"
+msgctxt "#30609"
 msgid "Remove Devices From Account"
 msgstr "Remove Devices From Account"
 
-msgctxt "#30609"
+msgctxt "#30610"
 msgid "Remove one or more Devices"
 msgstr "Remove one or more Devices"
 
-msgctxt "#30610"
+msgctxt "#30611"
 msgid "Active devices"
 msgstr "Active devices"
 
-msgctxt "#30611"
+msgctxt "#30612"
+msgid "The Name Of This Device"
+msgstr "The Name Of This Device"
+
+msgctxt "#30613"
 msgid "Rename this device"
 msgstr "Rename this device"
 
-msgctxt "#30612"
+msgctxt "#30614"
 msgid "List all active box devices"
 msgstr "List all active box devices"
 
-msgctxt "#30613"
+msgctxt "#30615"
 msgid "List all active mobile devices"
 msgstr "List all active mobile devices"
 
-msgctxt "#30614"
+msgctxt "#30616"
 msgid "General"
 msgstr "General"
 
-msgctxt "#30615"
+msgctxt "#30617"
 msgid "Listing"
 msgstr "Listing"
 
-msgctxt "#30616"
+msgctxt "#30618"
 msgid "Movies per Page (max 200)"
 msgstr "Movies per Page (max 200)"
