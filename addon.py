@@ -6,7 +6,6 @@ import urllib.parse
 import requests
 import subprocess
 import re
-import html
 
 from os import path as os_path
 import datetime as dt
@@ -16,14 +15,13 @@ import importlib
 import zipfile
 import math
 
-from resources.modules import (plugintools, scraper, yamsutils, asiptvs, engchannels)
+from resources.modules import (scraper, yamsutils, asiptvs, engchannels)
 from resources.modules.asiptvs import *
 from resources.modules.engchannels import *
 from resources.modules.utils import ApiError, postHtml
 from resources.modules.loginobf import login_info
 
 import xbmc, xbmcaddon, xbmcgui, xbmcplugin, xbmcvfs
-import common as Common
 from common import http_request
 from boxname import boxname
 
@@ -55,12 +53,11 @@ dialog = xbmcgui.Dialog()
 cookie_file = os.path.join(os.path.join(dataPath, ''), 'snhdcookie.lwp')
 agentType = '0'
 
-vijayVODUrl_ori = f'''http://api.yamsonline.com/astream?name=hotstarnew&username={username}&password={password}'''
+vijayVODUrl_ori = f'''https://api.yamsonline.com/astream?name=hotstarnew&username={username}&password={password}'''
 
 importlib.reload(sys)
 # sys.setdefaultencoding('utf8') # deprecated in python3
 params = plugintools.get_params()
-
 
 HTTP_HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36',
@@ -97,7 +94,6 @@ def home(params):
         authenticated, status_code = __check_login()
         xbmc.log(f'''Authenticated {authenticated}''', xbmc.LOGINFO)
         xbmc.log(f'''Status {status_code}''', xbmc.LOGINFO)
-
 
         if status_code == 0 or status_code == 8:
             plugintools.add_item(action="show_restart", title="restart AstreamWeb",
@@ -316,8 +312,6 @@ def show_restart1(param=None):
 
 
 def __check_login():
-    status_code = 0
-
     xbmc.log('check login')
     dialog = xbmcgui.Dialog()
     username = plugintools.get_setting('username')
@@ -479,7 +473,7 @@ def __check_login():
             select_device()
             xbmc.Monitor().waitForAbort(2)
             xbmc.executebuiltin('ActivateWindow(busydialognocancel)')
-            devicetype = plugintools.get_setting('devicetype')      
+            devicetype = plugintools.get_setting('devicetype')
             if ('cube' in devicetype):
                 xbmc.executebuiltin('Skin.SetBool(highenddevice)')
                 xbmc.executebuiltin('Skin.Reset(%s)' % 'lowenddevice')
@@ -487,7 +481,7 @@ def __check_login():
                 xbmc.executebuiltin('Skin.SetBool(lowenddevice)')
                 xbmc.executebuiltin('Skin.Reset(%s)' % 'highenddevice')
             scraper.ZeroCachingSetting()
-            devicetype = plugintools.get_setting('devicetype')      
+            devicetype = plugintools.get_setting('devicetype')
             if ('cube' in devicetype):
                 xbmc.executebuiltin('Skin.SetBool(highenddevice)')
                 xbmc.executebuiltin('Skin.Reset(%s)' % 'lowenddevice')
@@ -495,12 +489,12 @@ def __check_login():
                 xbmc.executebuiltin('Skin.SetBool(lowenddevice)')
                 xbmc.executebuiltin('Skin.Reset(%s)' % 'highenddevice')
             xbmc.executebuiltin('Dialog.Close(busydialognocancel)')
-            xbmc.sleep(1000)        
+            xbmc.sleep(1000)
             select_skin_language2()
             xbmc.sleep(1000)
             xbmc.executebuiltin('Skin.SetBool(ActivateServices)')
             dialog.ok('A Restart is Required',
-                      'If AstreamWeb Does not exit, then hold down the Select and Play/Pause keys on the remote together for about 5 seconds or restart device.')        
+                      'If AstreamWeb Does not exit, then hold down the Select and Play/Pause keys on the remote together for about 5 seconds or restart device.')
             xbmc.executebuiltin('Quit')
 
         else:
@@ -554,28 +548,7 @@ def __check_session():
     return True
 
 
-def isauth_ok():
-    authenticated = __check_session()
-    xbmc.log(f'''isauth_ok authenticated = {authenticated}''')
-    if not authenticated:
-        return False
-    xbmc.log('show_tv_streams started')
-    username = plugintools.get_setting('username')
-    password = plugintools.get_setting('password')
-    authenticated, message = scraper.check_login_stream(username, password)
-    if not authenticated:
-        # xbmcgui.Dialog().ok('AstreamWeb Notice', message)
-        xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
-    else:
-        return True
-
-    return False
-
-
 def isiptvauth_ok():
-    authenticated = __check_session()
-    if not authenticated:
-        return False  # dialog.ok('AstreamWeb Notice', message)
     xbmc.log('show_tv_iptv started')
     username = plugintools.get_setting('username')
     password = plugintools.get_setting('password')
@@ -616,7 +589,7 @@ def history(params):
         if item['film_id'] == 0:
             if 'mp4' in label:
                 vod = label.replace('\\', '')
-                vurl = f'''http://api.yamsonline.com/playvod?username={username}&password={password}&name=media/{vod}'''
+                vurl = f'''https://api.yamsonline.com/playvod?username={username}&password={password}&name=media/{vod}'''
                 xbmc.log(f'''history VOD {vurl}''')
 
                 plugintools.add_item(action="play_vod", title=title, url=vurl,
@@ -636,10 +609,6 @@ def history(params):
 
 #########################################
 def api_yamsonline_providers(params):
-    authenticated = __check_session()
-    if not authenticated:
-        return
-
     pagenum = params.get('page')
     action = params.get('extra')
     username = plugintools.get_setting('username')
@@ -666,25 +635,6 @@ def api_yamsonline_providers(params):
 
 def show_favourites(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')
-    authenticated = __check_session()
-    if not authenticated:
-        return  # dialog.ok('AstreamWeb Notice', message)
-
-    username = plugintools.get_setting('username')
-    password = plugintools.get_setting('password')
-    authenticated, message, status_code = scraper.check_login(username, password, plugintools.get_setting('session'))
-
-    if not authenticated:
-        xbmcgui.Dialog().ok('Notice', message)
-        if status_code in [2, 3]:
-            xbmcgui.Dialog().ok('[COLOR green]INFORMATION ONLY:[/COLOR]',
-                                'Please remove a device connected to this account in settings -> Device Specific')
-            plugintools.open_settings_dialog()
-            sys.exit()
-        else:
-            xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
-        return False
-
     xbmc.log('show_favourites started')
     xbmc.executebuiltin('ActivateWindow(Favourites)')
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
@@ -692,9 +642,6 @@ def show_favourites(params):
 
 def show_iptv_favourite(params):  # pagenum):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')
-    authenticated = __check_session()
-    if not authenticated:
-        return
 
     pagenum = params.get('page')
     username = plugintools.get_setting('username')
@@ -763,10 +710,8 @@ def play_iptv_favourite(params):  # url, label, cid):
 ##############################################################################################################
 def personal2(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')
-    if not isauth_ok():
-        return
 
-    url = 'http://api.astreamweb.com/listmovie.php'
+    url = 'https://api.astreamweb.com/listmovie.php'
 
     source = requests.get(url, headers=HTTP_HEADERS).content
     try:
@@ -774,7 +719,7 @@ def personal2(params):
         xbmc.log(f'''personal {json_data}''')
     except Exception as e:
         if 'KeyError' in str(e):
-            #xbmcgui.Dialog().ok(
+            # xbmcgui.Dialog().ok(
             #    "AstreamWeb Notice", "No Movies found in Watchlist or you have not signed up for On Demand feature")
             return
 
@@ -814,12 +759,9 @@ def personal2(params):
 
 def personal2link(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
-    authenticated = __check_session()
-    if not authenticated:
-        return
     username = plugintools.get_setting("username")
     password = plugintools.get_setting("password")
-    url = 'http://api.astreamweb.com/listmovie.php'
+    url = 'https://api.astreamweb.com/listmovie.php'
 
     source = requests.get(url, headers=HTTP_HEADERS).content
     json_data = json.loads(source)["data"]
@@ -859,12 +801,10 @@ def personal2link(params):
 
 def personal(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')
-    if not isauth_ok():
-        return
 
     username = plugintools.get_setting("username")
 
-    url = f'''http://api.astreamweb.com/listmovie.php?username={username}'''
+    url = f'''https://api.astreamweb.com/listmovie.php?username={username}'''
     source = requests.get(url, headers=HTTP_HEADERS).content
 
     # xbmc.log(f'''personal data url:{url}, resp: {source}''')
@@ -872,7 +812,7 @@ def personal(params):
         json_data = json.loads(source)["data"]
         xbmc.log(f'''personal data:{json_data}''')
     except KeyError:
-        #xbmcgui.Dialog().ok("AstreamWeb Notice",
+        # xbmcgui.Dialog().ok("AstreamWeb Notice",
         #                    "No Movies found in Watchlist or you have not signed up for On Demand feature")
         return
     except Exception as e:
@@ -899,16 +839,13 @@ def personal(params):
 
 def personallink(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
-    authenticated = __check_session()
-    if not authenticated:
-        return
     username = plugintools.get_setting("username")
     password = plugintools.get_setting("password")
 
-    url = 'http://api.astreamweb.com/listmovie.php?username=' + username
+    url = 'https://api.astreamweb.com/listmovie.php?username=' + username
     source = requests.get(url, headers=HTTP_HEADERS).content
     json_data = json.loads(source)["data"]
-    #xbmc.log('personal ' + json_data)
+    # xbmc.log('personal ' + json_data)
     page = params.get('page')
     for i in json_data:
         if str(i["movie_id"]) == page:
@@ -938,24 +875,9 @@ def personallink(params):
 #########################################
 def latestMovies(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')
-    authenticated = __check_session()
 
-    if not authenticated:
-        return
     username = plugintools.get_setting("username")
     password = plugintools.get_setting("password")
-    authenticated, message, status_code = scraper.check_login(username, password, plugintools.get_setting("session"))
-
-    if not authenticated:
-        # xbmcgui.Dialog().ok("AstreamWeb Notice", message)
-        if status_code in [2, 3]:
-            xbmcgui.Dialog().ok('[COLOR green]INFORMATION ONLY:[/COLOR] ',
-                                'Please remove a device connected to this account in settings -> Device Specific')
-            plugintools.open_settings_dialog()
-            exit()
-        else:
-            xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
-        return False
 
     page = params.get("page") if params.get("page") else '1'
     per_page = '14' if 'widget' in params and params['widget'] == 'true' else __get_per_page()
@@ -1022,7 +944,6 @@ def latestMovies(params):
                                     thumbnail=item['thumbnail'], fanart=item['fanart'], iconImage=item['iconImage'],
                                     page=page, contextmenu=context_men, folder=True)
 
-    
     total_page = math.ceil(int(result['pagination']['count']) / int(per_page))
 
     if total_page > int(page):
@@ -1032,105 +953,102 @@ def latestMovies(params):
 
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
 
+
 def show_movie_files(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
     # xbmcplugin.setPluginCategory(int(sys.argv[1]), 'Folders')
     id = params.get("url")
     page = params.get("page")
-    authenticated = __check_session()
     servers = {"Auto Select Best Server": "api.yamsonline.com", "Service Not Available": "api.yamsonline.com",
                "Servie Not Available": "api.yamsonline.com"}
     server = "api.yamsonline.com"
 
-    if not authenticated:
-        return  # dialog.ok('AstreamWeb Notice', message)
-    else:
-        xbmc.log('show_movie_files started for movie_id={}, page={}'.format(id, page))
-        username = plugintools.get_setting('username')
-        password = plugintools.get_setting('password')
-        try:
-            videos = scraper.get_movie_files(id, username, password)
-        except:
-            traceback.print_exc()
-            scraper.notifyError("AStreamWeb", msg="Movie not available yet, please contact support.")
-        # xbmc.log('show_movie_files got {}'.format(videos))
-        added_seasons = list()
-        oneUrl = len(videos) == 100
-        xbmc.log('oneUrl {}'.format(oneUrl))
-        ListDownload = 'XBMC.RunPlugin(%s)' % (
-                sys.argv[0] + '?action=do_download_movie&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
+    xbmc.log('show_movie_files started for movie_id={}, page={}'.format(id, page))
+    username = plugintools.get_setting('username')
+    password = plugintools.get_setting('password')
+    try:
+        videos = scraper.get_movie_files(id, username, password)
+    except:
+        traceback.print_exc()
+        scraper.notifyError("AStreamWeb", msg="Movie not available yet, please contact support.")
+    # xbmc.log('show_movie_files got {}'.format(videos))
+    added_seasons = list()
+    oneUrl = len(videos) == 100
+    xbmc.log('oneUrl {}'.format(oneUrl))
+    ListDownload = 'XBMC.RunPlugin(%s)' % (
+            sys.argv[0] + '?action=do_download_movie&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
 
-        # print "oneUrl: " + str(oneUrl)
-        if not videos:  # items:
-            dialog = xbmcgui.Dialog()
-            dialog.ok('No Videos',
-                      'Movie will be available shortly. Movie-ID: %s' % id)
-            return
+    # print "oneUrl: " + str(oneUrl)
+    if not videos:  # items:
+        dialog = xbmcgui.Dialog()
+        dialog.ok('No Videos',
+                  'Movie will be available shortly. Movie-ID: %s' % id)
+        return
 
-        for video in videos:
-            # is tv serials
-            if 'season' in video:
-                # show the season listing
-                xbmc.log('show_movie_files season in video')
-                if page == '0':
-                    xbmc.log('show_movie_files page=0')
-                    if video['season'] not in added_seasons:
-                        xbmc.log('show_movie_files season')
-                        added_seasons.append(video['season'])
-                        plugintools.add_item(action='show_movie_files', url=id, title='Season %s' % video['season'],
-                                             page=video['season'])
+    for video in videos:
+        # is tv serials
+        if 'season' in video:
+            # show the season listing
+            xbmc.log('show_movie_files season in video')
+            if page == '0':
+                xbmc.log('show_movie_files page=0')
+                if video['season'] not in added_seasons:
+                    xbmc.log('show_movie_files season')
+                    added_seasons.append(video['season'])
+                    plugintools.add_item(action='show_movie_files', url=id, title='Season %s' % video['season'],
+                                         page=video['season'])
 
 
-                # show the episode listing for given season (=page)
-                else:
-                    if video['season'] == page and not oneUrl:
-                        xbmc.log('show_movie_files episode and not oneUrl')
-                        url = video['url'].replace("server.akshayan.me", server)
-                        urllink = urllib.parse.quote_plus(url)
-                        plugintools.add_itemcontext(action="play_vod",
-                                                    title='Episode %s - %s' % (video['episode'], video['label']),
-                                                    url=url, contextmenu=[
-                                ('Download Movie', ListDownload % (video['label'], urllink, '', '', '', ''))],
-                                                    folder=False, isPlayable=True)
-                    elif video['season'] == page:
-                        url = video['url'].replace("server.akshayan.me", server)
-                        urllink = urllib.parse.quote_plus(url)
-                        plugintools.add_itemcontext(action="play_vod",
-                                                    title='Episode %s - %s' % (video['episode'], video['label']),
-                                                    url=url, contextmenu=[
-                                ('Download Movie', ListDownload % (video['label'], urllink, '', '', '', ''))],
-                                                    folder=False, isPlayable=True)
-
-            # is movie
+            # show the episode listing for given season (=page)
             else:
-                if oneUrl:
-                    xbmc.log('passe par oneUrl')
-                    xbmc.log('url video[url] {}'.format(video['url']))
-                    thumbnail = video['thumbnail'].replace("\\", "")
-                    plugintools.add_item(action="play_vod", title=video['label'],
-                                         url=video['url'].replace("server.akshayan.me", server),
-                                         thumbnail=thumbnail, plot=video['plot'], extra='', page='',
-                                         isPlayable=True,
-                                         folder=False)
-                else:
-                    xbmc.log('passe par oneUrl=false')
-                    xbmc.log('url video[url] {}'.format(video['url']))
+                if video['season'] == page and not oneUrl:
+                    xbmc.log('show_movie_files episode and not oneUrl')
                     url = video['url'].replace("server.akshayan.me", server)
-                    thumbnail = video['thumbnail'].replace("\\", "")
                     urllink = urllib.parse.quote_plus(url)
-                    plugintools.add_itemcontext(action="play_vod", title=video['label'],
+                    plugintools.add_itemcontext(action="play_vod",
+                                                title='Episode %s - %s' % (video['episode'], video['label']),
                                                 url=url, contextmenu=[
                             ('Download Movie', ListDownload % (video['label'], urllink, '', '', '', ''))],
-                                                thumbnail=thumbnail, plot=video['plot'], extra='', page='',
+                                                folder=False, isPlayable=True)
+                elif video['season'] == page:
+                    url = video['url'].replace("server.akshayan.me", server)
+                    urllink = urllib.parse.quote_plus(url)
+                    plugintools.add_itemcontext(action="play_vod",
+                                                title='Episode %s - %s' % (video['episode'], video['label']),
+                                                url=url, contextmenu=[
+                            ('Download Movie', ListDownload % (video['label'], urllink, '', '', '', ''))],
                                                 folder=False, isPlayable=True)
 
-        if not videos:
-            dialog = xbmcgui.Dialog()
-            dialog.ok('No Videos',
-                      'Movie will be available shortly. Movie-ID: %s' % id)
+        # is movie
         else:
-            xbmcplugin.addSortMethod(int(sys.argv[1]), xbmcplugin.SORT_METHOD_EPISODE)
-            xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
+            if oneUrl:
+                xbmc.log('passe par oneUrl')
+                xbmc.log('url video[url] {}'.format(video['url']))
+                thumbnail = video['thumbnail'].replace("\\", "")
+                plugintools.add_item(action="play_vod", title=video['label'],
+                                     url=video['url'].replace("server.akshayan.me", server),
+                                     thumbnail=thumbnail, plot=video['plot'], extra='', page='',
+                                     isPlayable=True,
+                                     folder=False)
+            else:
+                xbmc.log('passe par oneUrl=false')
+                xbmc.log('url video[url] {}'.format(video['url']))
+                url = video['url'].replace("server.akshayan.me", server)
+                thumbnail = video['thumbnail'].replace("\\", "")
+                urllink = urllib.parse.quote_plus(url)
+                plugintools.add_itemcontext(action="play_vod", title=video['label'],
+                                            url=url, contextmenu=[
+                        ('Download Movie', ListDownload % (video['label'], urllink, '', '', '', ''))],
+                                            thumbnail=thumbnail, plot=video['plot'], extra='', page='',
+                                            folder=False, isPlayable=True)
+
+    if not videos:
+        dialog = xbmcgui.Dialog()
+        dialog.ok('No Videos',
+                  'Movie will be available shortly. Movie-ID: %s' % id)
+    else:
+        xbmcplugin.addSortMethod(int(sys.argv[1]), xbmcplugin.SORT_METHOD_EPISODE)
+        xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
 
 
 def play_vod(params):
@@ -1151,105 +1069,65 @@ def play_vod(params):
         except:
             pass
 
-#
+
 def show_langs(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
     path = params.get('url')
-    authenticated = __check_session()
-    if not authenticated:
-        return  # dialog.ok('AstreamWeb Notice', message)
-    else:
-        username = plugintools.get_setting('username')
-        password = plugintools.get_setting('password')
-        authenticated, message, status_code = scraper.check_login(username, password,
-                                                                  plugintools.get_setting('session'))
-        if not authenticated:
-            xbmcgui.Dialog().ok('AstreamWeb Notice', message)
-            if status_code == 2 or status_code == 3:
-                xbmcgui.Dialog().ok('[COLOR green]INFORMATION ONLY:[/COLOR] ',
-                                    'Please remove a device connected to this account in settings -> Device Specific')
-                plugintools.open_settings_dialog()
-                sys.exit()
-            else:
-                xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
-            return False
-        else:
-            xbmc.log('show_langs start')
-        nodes = scraper.get_langs()
-        nodes.insert(0, {'name': 'All languages',
-                         'id': '-'})
-        for node in nodes:
-            plugintools.add_item(action="show_sorting", title=node['name'], url='%s+language-%s' % (path, node['id']),
-                                 thumbnail='', folder=True)
+    nodes = scraper.get_langs()
+    nodes.insert(0, {'name': 'All languages',
+                     'id': '-'})
+    for node in nodes:
+        plugintools.add_item(action="show_sorting", title=node['name'], url='%s+language-%s' % (path, node['id']),
+                             thumbnail='', folder=True)
 
-        xbmc.log('show_langs end')
-        xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
-        xbmc.executebuiltin('Container.SetViewMode(50)')
+    xbmc.log('show_langs end')
+    xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
+    xbmc.executebuiltin('Container.SetViewMode(50)')
 
 
 #####
 def show_sorting(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
     path = params.get('url')
-    authenticated = __check_session()
-    if not authenticated:
-        return  # dialog.ok('AstreamWeb Notice', message)
-    else:
-        username = plugintools.get_setting('username')
-        password = plugintools.get_setting('password')
-        authenticated, message, status_code = scraper.check_login(username, password,
-                                                                  plugintools.get_setting('session'))
-        if not authenticated:
-            # xbmcgui.Dialog().ok('AstreamWeb Notice', message)
-            if status_code == 2 or status_code == 3:
-                xbmcgui.Dialog().ok('[COLOR green]INFORMATION ONLY:[/COLOR] ',
-                                    'Please remove a device connected to this account in settings -> Device Specific')
-                plugintools.open_settings_dialog()
-                sys.exit()
-            else:
-                xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
-            return False
-        else:
-            xbmc.log('show_sorting started with path="%s"' % path)
-        sortings = list()
+    sortings = list()
 
-        this_year = dt.datetime.now().year
-        sortings.append({'label': 'Movies from %s' % this_year,
-                         'image': 'this-year',
-                         'sort_order': 'added,DESC',
-                         'path_append': 'year-%s' % this_year})
-        sortings.append({'label': 'Movies from %s' % str(this_year - 1),
-                         'image': 'last-year',
-                         'sort_order': 'added,DESC',
-                         'path_append': 'year-%s' % str(this_year - 1)})
-        sortings.append({'label': 'Last Added',
-                         'image': 'last-added',
-                         'sort_order': 'added,DESC'})
-        sortings.append({'label': 'Most Viewed',
-                         'image': 'most-viewed',
-                         'sort_order': 'viewed,DESC'})
-        sortings.append({'label': 'Best Rated',
-                         'image': 'best-rated',
-                         'sort_order': 'rating,DESC'})
+    this_year = dt.datetime.now().year
+    sortings.append({'label': 'Movies from %s' % this_year,
+                     'image': 'this-year',
+                     'sort_order': 'added,DESC',
+                     'path_append': 'year-%s' % this_year})
+    sortings.append({'label': 'Movies from %s' % str(this_year - 1),
+                     'image': 'last-year',
+                     'sort_order': 'added,DESC',
+                     'path_append': 'year-%s' % str(this_year - 1)})
+    sortings.append({'label': 'Last Added',
+                     'image': 'last-added',
+                     'sort_order': 'added,DESC'})
+    sortings.append({'label': 'Most Viewed',
+                     'image': 'most-viewed',
+                     'sort_order': 'viewed,DESC'})
+    sortings.append({'label': 'Best Rated',
+                     'image': 'best-rated',
+                     'sort_order': 'rating,DESC'})
 
-        if not scraper.get_latesMoviesCategory(path) is None:
-            plugintools.add_item(action="show_movies", title="Latest Movies (Low Quality)",
-                                 thumbnail=__get_icon('latest-movies'),
-                                 url="language-" + scraper.get_latesMoviesCategory(path),
-                                 extra='added,DESC', page='1')
-            xbmcplugin.setContent(int(sys.argv[1]), 'movies')
-        for sorting in sortings:
-            full_path = path
-            if 'path_append' in sorting:
-                full_path = '%s+%s' % (path, sorting['path_append'])
-            xbmc.log('show_sorting %s' % full_path, xbmc.LOGINFO)
-            plugintools.add_item(action="show_movies", title=sorting['label'], thumbnail=__get_icon(sorting['image']),
-                                 url=full_path, extra=sorting['sort_order'], page='1')
-            xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
-        plugintools.add_item(action="show_letters", title='A-Z', url=path, thumbnail=__get_icon('a-z-movies'))
-        xbmc.log('show_sorting end')
-        xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
-        xbmc.executebuiltin('Container.SetViewMode(50)')
+    if not scraper.get_latesMoviesCategory(path) is None:
+        plugintools.add_item(action="show_movies", title="Latest Movies (Low Quality)",
+                             thumbnail=__get_icon('latest-movies'),
+                             url="language-" + scraper.get_latesMoviesCategory(path),
+                             extra='added,DESC', page='1')
+        xbmcplugin.setContent(int(sys.argv[1]), 'movies')
+    for sorting in sortings:
+        full_path = path
+        if 'path_append' in sorting:
+            full_path = '%s+%s' % (path, sorting['path_append'])
+        xbmc.log('show_sorting %s' % full_path, xbmc.LOGINFO)
+        plugintools.add_item(action="show_movies", title=sorting['label'], thumbnail=__get_icon(sorting['image']),
+                             url=full_path, extra=sorting['sort_order'], page='1')
+        xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
+    plugintools.add_item(action="show_letters", title='A-Z', url=path, thumbnail=__get_icon('a-z-movies'))
+    xbmc.log('show_sorting end')
+    xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
+    xbmc.executebuiltin('Container.SetViewMode(50)')
 
 
 def show_movies(params):
@@ -1261,74 +1139,53 @@ def show_movies(params):
         sorting = params.get('extra')
         page = params.get('page')
 
-        authenticated = __check_session()
-        if not authenticated:
-            return  # dialog.ok('AstreamWeb Notice', message)
-        else:
-            username = plugintools.get_setting('username')
-            password = plugintools.get_setting('password')
-            authenticated, message, status_code = scraper.check_login(username, password,
-                                                                      plugintools.get_setting('session'))
-            if not authenticated:
-                # xbmcgui.Dialog().ok('AstreamWeb Notice', message)
-                if status_code == 2 or status_code == 3:
-                    xbmcgui.Dialog().ok('[COLOR green]INFORMATION ONLY:[/COLOR] ',
-                                        'Please remove a device connected to this account in settings -> Device Specific')
-                    plugintools.open_settings_dialog()
-                    sys.exit()
-                else:
-                    xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
-                return False
-            else:
-                xbmc.log('show_movies started with path="%s", sorting="%s", page="%s"' %
-                         (path, sorting, page))
-            username = plugintools.get_setting('username')
+        username = plugintools.get_setting('username')
 
-            per_page = '14' if 'widget' in params and params['widget'] == 'true' else __get_per_page()
+        per_page = '14' if 'widget' in params and params['widget'] == 'true' else __get_per_page()
 
-            items, has_next_page = scraper.get_movies(username, path, page, per_page, sorting)
-            xbmc.log('items {}'.format(items))
-            xbmc.log('has_next_page {}'.format(has_next_page))
-            # Add context menu items for title and actor search
-            ListSearch = 'XBMC.Container.Update(%s)' % (
-                    sys.argv[0] + '?action=search&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
-            ListMovie = 'XBMC.Container.Update(%s)' % (
-                    sys.argv[0] + '?action=show_movies&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
+        items, has_next_page = scraper.get_movies(username, path, page, per_page, sorting)
+        xbmc.log('items {}'.format(items))
+        xbmc.log('has_next_page {}'.format(has_next_page))
+        # Add context menu items for title and actor search
+        ListSearch = 'XBMC.Container.Update(%s)' % (
+                sys.argv[0] + '?action=search&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
+        ListMovie = 'XBMC.Container.Update(%s)' % (
+                sys.argv[0] + '?action=show_movies&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
 
-            is_update = (not page == '1')
-            xbmc.log('is_update {}.'.format(is_update))
-            if int(page) > 1:
-                prev_page = str(int(page) - 1)
-                plugintools.add_item(title='<< %s %s <<' % ('Page', prev_page),
-                                     action='show_movies', url=path, extra=sorting, page=prev_page)
+        is_update = (not page == '1')
+        xbmc.log('is_update {}.'.format(is_update))
+        if int(page) > 1:
+            prev_page = str(int(page) - 1)
+            plugintools.add_item(title='<< %s %s <<' % ('Page', prev_page),
+                                 action='show_movies', url=path, extra=sorting, page=prev_page)
 
-            for item in items:
-                try:
-                    context_men = [('Movie information', 'XBMC.Action(Info)'),
-                                   ('Search for Movies by title', ListSearch % ('', '', '', '', '', ''))]
+        for item in items:
+            try:
+                context_men = [('Movie information', 'XBMC.Action(Info)'),
+                               ('Search for Movies by title', ListSearch % ('', '', '', '', '', ''))]
 
-                    for cast in item['info']['cast']:
-                        s_path = 'cast-%s' % cast
-                        context_men.append(
-                            ('Movies with %s' % cast, ListMovie % ('', s_path, '', '', 'title%2CASC', '1')))
+                for cast in item['info']['cast']:
+                    s_path = 'cast-%s' % cast
+                    context_men.append(
+                        ('Movies with %s' % cast, ListMovie % ('', s_path, '', '', 'title%2CASC', '1')))
 
-                except:
-                    traceback.print_exc()
+            except:
+                traceback.print_exc()
 
-                plugintools.add_itemcontext(action='show_movie_files', title=item['label'], url=item['id'],
-                                            info_labels=item['info'],
-                                            thumbnail=item['thumbnail'], fanart=item['fanart'], page='0',
-                                            contextmenu=context_men, folder=True)
+            plugintools.add_itemcontext(action='show_movie_files', title=item['label'], url=item['id'],
+                                        info_labels=item['info'],
+                                        thumbnail=item['thumbnail'], fanart=item['fanart'], page='0',
+                                        contextmenu=context_men, folder=True)
 
-            # add pagination-items
-            if has_next_page:
-                next_page = str(int(page) + 1)
-                xbmc.log('has_next_page {} , next_page {}.'.format(has_next_page, next_page))
-                plugintools.add_item(title='>> %s %s >>' % ('Page', next_page),
-                                     action='show_movies', url=path, extra=sorting, page=next_page)
-            xbmc.log('show_movies end')
+        # add pagination-items
+        if has_next_page:
+            next_page = str(int(page) + 1)
+            xbmc.log('has_next_page {} , next_page {}.'.format(has_next_page, next_page))
+            plugintools.add_item(title='>> %s %s >>' % ('Page', next_page),
+                                 action='show_movies', url=path, extra=sorting, page=next_page)
+        xbmc.log('show_movies end')
 
-            xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True, updateListing=is_update)
+        xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True, updateListing=is_update)
     except:
         traceback.print_exc()
 
@@ -1342,72 +1199,52 @@ def show_movies_widget(params):
         sorting = params.get('extra')
         page = '0'
 
-        authenticated = __check_session()
-        if not authenticated:
-            return  # dialog.ok('AstreamWeb Notice', message)
-        else:
-            username = plugintools.get_setting('username')
-            password = plugintools.get_setting('password')
-            authenticated, message, status_code = scraper.check_login(username, password,
-                                                                      plugintools.get_setting('session'))
-            if not authenticated:
-                # xbmcgui.Dialog().ok('AstreamWeb Notice', message)
-                if status_code == 2 or status_code == 3:
-                    xbmcgui.Dialog().ok('[COLOR green]INFORMATION ONLY:[/COLOR] ',
-                                        'Please remove a device connected to this account in settings -> Device Specific')
-                    plugintools.open_settings_dialog()
-                    sys.exit()
-                else:
-                    xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
-                return False
-            else:
-                xbmc.log('show_movies started with path="%s", sorting="%s", page="%s"' %
-                         (path, sorting, page))
-            username = plugintools.get_setting('username')
-            per_page = __get_per_page_widget()
-            items, has_next_page = scraper.get_movies(username, path, page, per_page, sorting)
-            xbmc.log('items {}'.format(items))
-            xbmc.log('has_next_page {}'.format(has_next_page))
-            # Add context menu items for title and actor search
-            ListSearch = 'XBMC.Container.Update(%s)' % (
-                    sys.argv[0] + '?action=search&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
-            ListMovie = 'XBMC.Container.Update(%s)' % (
-                    sys.argv[0] + '?action=show_movies&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
+        username = plugintools.get_setting('username')
 
-            is_update = (not page == '1')
-            xbmc.log('is_update {}.'.format(is_update))
-            if int(page) > 1:
-                prev_page = str(int(page) - 1)
-                plugintools.add_item(title='<< %s %s <<' % ('Page', prev_page),
-                                     action='show_movies', url=path, extra=sorting, page=prev_page)
+        per_page = __get_per_page_widget()
+        items, has_next_page = scraper.get_movies(username, path, page, per_page, sorting)
+        xbmc.log('items {}'.format(items))
+        xbmc.log('has_next_page {}'.format(has_next_page))
+        # Add context menu items for title and actor search
+        ListSearch = 'XBMC.Container.Update(%s)' % (
+                sys.argv[0] + '?action=search&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
+        ListMovie = 'XBMC.Container.Update(%s)' % (
+                sys.argv[0] + '?action=show_movies&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
 
-            for item in items:
-                try:
-                    context_men = [('Movie information', 'XBMC.Action(Info)'),
-                                   ('Search for Movies by title', ListSearch % ('', '', '', '', '', ''))]
+        is_update = (not page == '1')
+        xbmc.log('is_update {}.'.format(is_update))
+        if int(page) > 1:
+            prev_page = str(int(page) - 1)
+            plugintools.add_item(title='<< %s %s <<' % ('Page', prev_page),
+                                 action='show_movies', url=path, extra=sorting, page=prev_page)
 
-                    for cast in item['info']['cast']:
-                        s_path = 'cast-%s' % cast
-                        context_men.append(
-                            ('Movies with %s' % cast, ListMovie % ('', s_path, '', '', 'title%2CASC', '1')))
+        for item in items:
+            try:
+                context_men = [('Movie information', 'XBMC.Action(Info)'),
+                               ('Search for Movies by title', ListSearch % ('', '', '', '', '', ''))]
 
-                except:
-                    traceback.print_exc()
+                for cast in item['info']['cast']:
+                    s_path = 'cast-%s' % cast
+                    context_men.append(
+                        ('Movies with %s' % cast, ListMovie % ('', s_path, '', '', 'title%2CASC', '1')))
 
-                plugintools.add_itemcontext(action='show_movie_files', title=item['label'], url=item['id'],
-                                            info_labels=item['info'],
-                                            thumbnail=item['thumbnail'], fanart=item['fanart'], page='0',
-                                            contextmenu=context_men, folder=True)
+            except:
+                traceback.print_exc()
 
-            # add pagination-items
-            if has_next_page:
-                next_page = str(int(page) + 1)
-                xbmc.log('has_next_page {} , next_page {}.'.format(has_next_page, next_page))
-                plugintools.add_item(title='>> %s %s >>' % ('Page', next_page),
-                                     action='show_movies', url=path, extra=sorting, page=next_page)
-            xbmc.log('show_movies end')
+            plugintools.add_itemcontext(action='show_movie_files', title=item['label'], url=item['id'],
+                                        info_labels=item['info'],
+                                        thumbnail=item['thumbnail'], fanart=item['fanart'], page='0',
+                                        contextmenu=context_men, folder=True)
 
-            xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True, updateListing=is_update)
+        # add pagination-items
+        if has_next_page:
+            next_page = str(int(page) + 1)
+            xbmc.log('has_next_page {} , next_page {}.'.format(has_next_page, next_page))
+            plugintools.add_item(title='>> %s %s >>' % ('Page', next_page),
+                                 action='show_movies', url=path, extra=sorting, page=next_page)
+        xbmc.log('show_movies end')
+
+        xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True, updateListing=is_update)
     except:
         traceback.print_exc()
 
@@ -1415,8 +1252,7 @@ def show_movies_widget(params):
 ####################### LiveTV #####################
 def show_livetv2_server(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
-    if not isauth_ok():
-        return
+
     xbmc.log('show_livetv2_server started')
     agentType = '1'
 
@@ -1448,8 +1284,7 @@ def show_livetv2_server(params):
 
 def show_hotstar_ori(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')
-    if not isauth_ok():
-        return
+
     response = http_request(vijayVODUrl_ori).read().decode('utf-8')
     nodes = json.loads(response)
     for i in range(len(nodes)):
@@ -1466,8 +1301,7 @@ def show_hotstar_ori(params):
 
 def show_hotstarlv1_ori(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')
-    if not isauth_ok():
-        return
+
     vurl = params.get('url')
     response = http_request(vurl).read().decode('utf-8')
     nodes = json.loads(response)
@@ -1484,8 +1318,7 @@ def show_hotstarlv1_ori(params):
 
 def show_hotstarlv2_ori(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')
-    if not isauth_ok():
-        return
+
     vurl = params.get('url')
     response = http_request(vurl).read().decode('utf-8')
     nodes = json.loads(response)
@@ -1502,8 +1335,7 @@ def show_hotstarlv2_ori(params):
 
 def show_hotstarlv3_ori(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')
-    if not isauth_ok():
-        return
+
     vurl = params.get('url')
     response = http_request(vurl).read().decode('utf-8')
     nodes = json.loads(response)
@@ -1541,29 +1373,25 @@ def show_hotstarsublist_ori(params):
 
 
 def show_hotstarplayvideo(params):
-    authenticated = __check_session()
-    if not authenticated:
-        return  # dialog.ok('AstreamWeb Notice', message)
-    else:
-        vurl = params.get('url')
-        agent = params.get('page')
-        xbmc.log('agent {}'.format(agent))
-        if not agent: agent = '0'
-        xbmc.log('__get_json show_hotstarplayvideo vijayURL url: %s' % vurl)
+    vurl = params.get('url')
+    agent = params.get('page')
+    xbmc.log('agent {}'.format(agent))
+    if not agent: agent = '0'
+    xbmc.log('__get_json show_hotstarplayvideo vijayURL url: %s' % vurl)
 
-        iptv_cids = [3569, 3564, 3563]
-        import urllib.parse
-        parsedUrl = urllib.parse.parse_qs(urllib.parse.urlparse(vurl).query)
-        xbmc.log("checking for cid")
-        xbmc.log(str(parsedUrl))
-        if 'cid' in parsedUrl:
-            print(parsedUrl['cid'][0])
-            if int(parsedUrl['cid'][0]) in iptv_cids:
-                if not isiptvauth_ok():
-                    return
-        html = http_request(vurl).read()
-        USER_AGENT = "https://www.hotstar.com/ca/tv/super-singer/s-263/wildcard-finals-with-anirudh/1100029079"
-        html += '|referer=%s' % USER_AGENT
+    iptv_cids = [3569, 3564, 3563]
+    import urllib.parse
+    parsedUrl = urllib.parse.parse_qs(urllib.parse.urlparse(vurl).query)
+    xbmc.log("checking for cid")
+    xbmc.log(str(parsedUrl))
+    if 'cid' in parsedUrl:
+        print(parsedUrl['cid'][0])
+        if int(parsedUrl['cid'][0]) in iptv_cids:
+            if not isiptvauth_ok():
+                return
+    html = http_request(vurl).read()
+    USER_AGENT = "https://www.hotstar.com/ca/tv/super-singer/s-263/wildcard-finals-with-anirudh/1100029079"
+    html += '|referer=%s' % USER_AGENT
 
     if agent == '1':
         USER_AGENT = "Opera/9.80 (Linux armv7l; InettvBrowser/2.2 (00014A;SonyDTV115;0002;0100) KDL42W650A; CC/GRC) Presto/2.12.362 Version/12.11"
@@ -1585,11 +1413,9 @@ def show_hotstarplayvideo(params):
 
 def show_indian_channels(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
-    if not isauth_ok():
-        return
 
     category = params.get('url')
-    link = "http://vod.yamsftp.net/apiyamsnew.php?cfg={0}".format(category)
+    link = "https://vod.yamsftp.net/apiyamsnew.php?cfg={0}".format(category)
     # channelsJson = network.Net().http_GET("http://vod.yamsftp.net/apiyamsnew.php?cfg={0}".format(category))
     channelsJson = http_request(link).read().decode('utf-8')
     channels = json.loads(channelsJson)  # .content)
@@ -1605,48 +1431,40 @@ def show_indian_channels(params):
 
 
 def play_indian_channel(params):  # id, cat, iconimg, name):
-    authenticated = __check_session()
-    if not authenticated:
-        return  # dialog.ok('AstreamWeb Notice', message)
+    id = str(params.get('url'))
+    cat = params.get('page')
+    iconimg = params.get('extra')
+    name = params.get('plot')
+    timezone = get_timezone_in_hours()
+    if timezone is None:
+        dialog = xbmcgui.Dialog()
+        dialog.ok('Timezone error', "Please choose timezone in General->Global timezone and try again.")
+        get_timezoneselect()
+        print("timezone is none")
+        return plugintools.play_resolved_url("")  # xbmcplugin.endOfDirectory(int(sys.argv[1]))
+
     else:
-        id = str(params.get('url'))
-        cat = params.get('page')
-        iconimg = params.get('extra')
-        name = params.get('plot')
-        timezone = get_timezone_in_hours()
-        if timezone is None:
-            dialog = xbmcgui.Dialog()
-            dialog.ok('Timezone error', "Please choose timezone in General->Global timezone and try again.")
-            get_timezoneselect()
-            print("timezone is none")
-            return plugintools.play_resolved_url("")  # xbmcplugin.endOfDirectory(int(sys.argv[1]))
+        now = dt.datetime.utcnow() - dt.timedelta(minutes=60)
+        now += dt.timedelta(hours=timezone)
+        url = f'https://vod.yamsftp.net/playlist.php?cfg={cat}&chanid={id}&date={now.month}/{now.day}/{now.year}&time={str(now.hour).zfill(2)}{str(now.minute).zfill(2)}'
+        playlist = xbmc.PlayList(xbmc.PLAYLIST_VIDEO)
+        playlist.clear()
+        playlist.add(url)
+        itemToPlay = xbmcgui.ListItem(iconImage=urllib.parse.unquote(iconimg), label=name)
+        xbmc.Player().play(playlist, listitem=itemToPlay, windowed=False)
 
-        else:
-            now = dt.datetime.utcnow() - dt.timedelta(minutes=60)
-            now += dt.timedelta(hours=timezone)
-            url = f'http://vod.yamsftp.net/playlist.php?cfg={cat}&chanid={id}&date={now.month}/{now.day}/{now.year}&time={str(now.hour).zfill(2)}{str(now.minute).zfill(2)}'
-            playlist = xbmc.PlayList(xbmc.PLAYLIST_VIDEO)
-            playlist.clear()
-            playlist.add(url)
-            itemToPlay = xbmcgui.ListItem(iconImage=urllib.parse.unquote(iconimg), label=name)
-            xbmc.Player().play(playlist, listitem=itemToPlay, windowed=False)
-
-            xbmc.Monitor().waitForAbort(1)
-            if xbmc.Player().isPlaying() is False:
-                xbmc.executebuiltin('Notification(Channel Unavailable at this moment,,10000,)')
+        xbmc.Monitor().waitForAbort(1)
+        if xbmc.Player().isPlaying() is False:
+            xbmc.executebuiltin('Notification(Channel Unavailable at this moment,,10000,)')
 
 
 def show_eng_channels(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
-    if not isiptvauth_ok():
-        return
     engchannels.show_english_channels(params)
 
 
 def catchup_providers(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
-    if not isauth_ok():
-        return
 
     if (xbmc.getCondVisibility(
             '!Skin.HasSetting(HomeMenuNoBasicButton)')):
@@ -1673,7 +1491,6 @@ def catchup_providers(params):
         plugintools.add_item(action='news_fun_cathup', title='Youtube Catchup',
                              thumbnail=__get_icon('tv-shows'), folder=True)
 
-
     # if xbmc.getCondVisibility('!Skin.HasSetting(HomeMenuNoBasicButton)'):
     # plugintools.add_item(action='show_hotstar_ori',title='HotStar (US & CA Only)',thumbnail=__get_icon('hotstar'),url='HotStar',folder=True)
 
@@ -1682,11 +1499,10 @@ def catchup_providers(params):
 
 def catchupvod_lang(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
-    if not isauth_ok():
-        return
+
     username = plugintools.get_setting('username')
     password = plugintools.get_setting('password')
-    yuppUrl = "http://api.yamsonline.com/astream?username=" + username + "&password=" + password + "&name=VOD&mod=channels&cfg="
+    yuppUrl = "https://api.yamsonline.com/astream?username=" + username + "&password=" + password + "&name=VOD&mod=channels&cfg="
 
     if xbmc.getCondVisibility('!Skin.HasSetting(HomeMenuNoBasicButton)'):
         plugintools.add_item(action='catchupvod_channels', url=yuppUrl + "tamil", title='Tamil', extra='tamil',
@@ -1705,9 +1521,6 @@ def catchupvod_lang(params):
 def more_cathup(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
 
-    if not isauth_ok():
-        return
-
     username = plugintools.get_setting('username')
     password = plugintools.get_setting('password')
 
@@ -1716,7 +1529,8 @@ def more_cathup(params):
     response = http_request(vurl).read().decode('utf-8')
     nodes = json.loads(response)
     for node in nodes:
-        v_url = "https://api.yamsonline.com/api?task=catchtamil&type=shows&channel=" + urllib.parse.quote(node['name'].strip())
+        v_url = "https://api.yamsonline.com/api?task=catchtamil&type=shows&channel=" + urllib.parse.quote(
+            node['name'].strip())
 
         plugintools.add_item(
             action='more_cathup_channels',
@@ -1740,17 +1554,13 @@ def more_cathup(params):
 def news_fun_cathup(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
 
-    if not isauth_ok():
-        return
-
-    username = plugintools.get_setting('username')
-    password = plugintools.get_setting('password')
     vurl = "https://astreamweb.com/kodi/youtube/api.php?task=youtube&listplaylist=yes"
 
     response = http_request(vurl).read().decode('utf-8')
     nodes = json.loads(response)
     for node in nodes:
-        v_url = "https://astreamweb.com/kodi/youtube/api.php?task=youtube&playlistname=" + urllib.parse.quote(node['playlist_name'].strip())
+        v_url = "https://astreamweb.com/kodi/youtube/api.php?task=youtube&playlistname=" + urllib.parse.quote(
+            node['playlist_name'].strip())
 
         plugintools.add_item(
             action='news_fun_cathup_videos',
@@ -1777,8 +1587,8 @@ def news_fun_cathup_videos(params):
 
     for node in nodes[:int(per_page)]:
         tmp = node['playback_url'].split('?')
-        v_url = tmp[0] + '?name=' + urllib.parse.quote(tmp[1].split('=')[1]) + '&username=' + username + '&password=' + password
-
+        v_url = tmp[0] + '?name=' + urllib.parse.quote(
+            tmp[1].split('=')[1]) + '&username=' + username + '&password=' + password
 
         plugintools.add_itemcontext(action="play_vod",
                                     title=node['title'],
@@ -1789,7 +1599,6 @@ def news_fun_cathup_videos(params):
         plugintools.add_item(action='news_fun_cathup_videos', url=self_url, title='>> %s %s >>' % ('Page', 2))
 
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
-
 
 
 def more_cathup_shows(params):
@@ -1804,7 +1613,8 @@ def more_cathup_shows(params):
     per_page = '14' if 'widget' in params and params['widget'] == 'true' else __get_per_page()
 
     for node in nodes[:int(per_page)]:
-        v_url = "https://api.yamsonline.com/api?task=catchtamil&type=episodes&show_name=" + urllib.parse.quote(node['show_name']) + "&username=" + username + "&password=" + password
+        v_url = "https://api.yamsonline.com/api?task=catchtamil&type=episodes&show_name=" + urllib.parse.quote(
+            node['show_name']) + "&username=" + username + "&password=" + password
         plugintools.add_item(
             action='more_cathup_by_name',
             title=node['show_name'],
@@ -1815,27 +1625,22 @@ def more_cathup_shows(params):
     if 'widget' in params and params['widget'] == 'true' and len(nodes) > int(per_page):
         plugintools.add_item(action='more_cathup_shows', url=self_url, title='>> %s %s >>' % ('Page', 2))
 
-
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
-
 
 
 def more_cathup_channels(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     vurl = params.get('url')
 
-    if not isauth_ok():
-        return
-
     username = plugintools.get_setting('username')
     password = plugintools.get_setting('password')
-
 
     response = http_request(vurl).read().decode('utf-8')
 
     nodes = json.loads(response)
     for node in nodes:
-        v_url = "https://api.yamsonline.com/api?task=catchtamil&type=episodes&show_name=" + urllib.parse.quote(node['show_name']) + "&username=" + username + "&password=" + password
+        v_url = "https://api.yamsonline.com/api?task=catchtamil&type=episodes&show_name=" + urllib.parse.quote(
+            node['show_name']) + "&username=" + username + "&password=" + password
         plugintools.add_item(
             action='more_cathup_by_name',
             title=node['show_name'],
@@ -1867,20 +1672,18 @@ def more_cathup_by_name(params):
 
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
 
+
 def catchupvod_channels(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')
-    if not isauth_ok():
-        return
 
     username = plugintools.get_setting('username')
     password = plugintools.get_setting('password')
 
     lang = params.get('extra') if 'extra' in params else 'tamil'
-    vurl = f'''http://api.yamsonline.com/astream?username={username}&password={password}&name=VOD&mod=channels&cfg={lang}'''
+    vurl = f'''https://api.yamsonline.com/astream?username={username}&password={password}&name=VOD&mod=channels&cfg={lang}'''
 
     xbmc.log('catchupvod_channels url: %s' % vurl, xbmc.LOGINFO)
-    if not isauth_ok():
-        return
+
     response = http_request(vurl).read().decode('utf-8')
     nodes = json.loads(response)
 
@@ -1901,8 +1704,6 @@ def catchupvod_channels(params):
 def catchupvod_dates(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
     vurl = params.get('url')
-    if not isauth_ok():
-        return
 
     t = dt.datetime.now()
     agentType = '2'
@@ -1965,8 +1766,7 @@ def secure_catchupvod_url(src_url):
 # catchup_providers/eng1
 def show_eng1(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')
-    if not isiptvauth_ok():
-        return
+
     asiptvs.asiptvs_vod()
 
 
@@ -1983,8 +1783,7 @@ def show_eng2l(params):
 def show_eng2(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     lettre = params.get('url')
-    if not isiptvauth_ok():
-        return
+
     asiptvs.asiptvs_vod_videos2("70", lettre)
 
 
@@ -1994,10 +1793,12 @@ def getseries(params):
     params.update({'category_id': '82'})
     getseries_bycategory(params)
 
+
 # Premium Indian TV series
 def getseries3(params):
     params.update({'category_id': '78'})
     getseries_bycategory(params)
+
 
 # Premium TV series
 def getseries2(params):
@@ -2011,72 +1812,50 @@ def show_series(params):  # (path, sorting, page):
     path = params.get('url')
     sorting = 'title,ASC'  # params.get('title')+','+params.get('extra')
     page = params.get('page')
+    username = plugintools.get_setting('username')
+    per_page = __get_per_page()
+    items, has_next_page = scraper.get_series(username, path, page, per_page, sorting)
+    xbmc.log('items {}'.format(items))
+    xbmc.log('has_next_page {}'.format(has_next_page))
 
-    authenticated = __check_session()
-    if not authenticated:
-        return  # dialog.ok('AstreamWeb Notice', message)
-    else:
-        username = plugintools.get_setting('username')
-        password = plugintools.get_setting('password')
-        authenticated, message, status_code = scraper.check_login(username, password,
-                                                                  plugintools.get_setting('session'))
-        if not authenticated:
-            xbmcgui.Dialog().ok('AstreamWeb Notice', message)
-            if status_code == 2 or status_code == 3:
-                xbmcgui.Dialog().ok('[COLOR green]INFORMATION ONLY:[/COLOR] ',
-                                    'Please remove a device connected to this account in settings -> Device Specific')
-                plugintools.open_settings_dialog()
-                sys.exit()
-            else:
-                xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
-            return False
-        else:
-            xbmc.log('show_series started with path="%s", sorting="%s", page="%s"' %
-                     (path, sorting, page))
-        username = plugintools.get_setting('username')
-        per_page = __get_per_page()
-        items, has_next_page = scraper.get_series(username, path, page, per_page, sorting)
-        xbmc.log('items {}'.format(items))
-        xbmc.log('has_next_page {}'.format(has_next_page))
+    # Add context menu items for title and actor search
+    ListSearch = 'XBMC.Container.Update(%s)' % (
+            sys.argv[0] + '?action=search&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
+    ListMovie = 'XBMC.Container.Update(%s)' % (
+            sys.argv[0] + '?action=show_series&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
+    # figure out if this is a page refresh
+    is_update = (not page == '1')
+    # add pagination-items
+    if has_next_page:
+        next_page = str(int(page) + 1)
+        xbmc.log('has_next_page {} , next_page {}.'.format(has_next_page, next_page))
+        plugintools.add_item(title='>> %s %s >>' % ('Page', next_page),
+                             action='show_series', url=path, extra=sorting, page=next_page)
 
-        # Add context menu items for title and actor search
-        ListSearch = 'XBMC.Container.Update(%s)' % (
-                sys.argv[0] + '?action=search&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
-        ListMovie = 'XBMC.Container.Update(%s)' % (
-                sys.argv[0] + '?action=show_series&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
-        # figure out if this is a page refresh
-        is_update = (not page == '1')
-        # add pagination-items
-        if has_next_page:
-            next_page = str(int(page) + 1)
-            xbmc.log('has_next_page {} , next_page {}.'.format(has_next_page, next_page))
-            plugintools.add_item(title='>> %s %s >>' % ('Page', next_page),
-                                 action='show_series', url=path, extra=sorting, page=next_page)
+    for item in items:
+        xbmc.log('getseries info {}'.format(item["info"]["cast"]))
+        xbmc.log('getseries info {}'.format(item["id"]))
+        try:
+            context_men = [('Movie information', 'XBMC.Action(Info)'),
+                           ('Search for Movies by title', ListSearch % ('', '', '', '', '', ''))]
 
-        for item in items:
-            xbmc.log('getseries info {}'.format(item["info"]["cast"]))
-            xbmc.log('getseries info {}'.format(item["id"]))
-            try:
-                context_men = [('Movie information', 'XBMC.Action(Info)'),
-                               ('Search for Movies by title', ListSearch % ('', '', '', '', '', ''))]
+            for cast in item['info']['cast']:
+                s_path = 'cast-%s' % cast
+                context_men.append(('Movies with %s' % cast, ListMovie % ('', s_path, '', '', 'title%2CASC', '1')))
 
-                for cast in item['info']['cast']:
-                    s_path = 'cast-%s' % cast
-                    context_men.append(('Movies with %s' % cast, ListMovie % ('', s_path, '', '', 'title%2CASC', '1')))
+        except:
+            traceback.print_exc()
+        plugintools.add_itemcontext(action='show_series_files', title=item['label'], url=item['id'],
+                                    info_labels=item['info'],
+                                    thumbnail=item['thumbnail'], fanart=item['fanart'], page='0',
+                                    contextmenu=context_men, folder=True)
 
-            except:
-                traceback.print_exc()
-            plugintools.add_itemcontext(action='show_series_files', title=item['label'], url=item['id'],
-                                        info_labels=item['info'],
-                                        thumbnail=item['thumbnail'], fanart=item['fanart'], page='0',
-                                        contextmenu=context_men, folder=True)
-
-        if int(page) > 1:
-            prev_page = str(int(page) - 1)
-            plugintools.add_item(title='<< %s %s <<' % ('Page', prev_page),
-                                 action='show_series', url=path, extra=sorting, page=prev_page)
-        xbmc.log('show_series end')
-        xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True, updateListing=is_update)
+    if int(page) > 1:
+        prev_page = str(int(page) - 1)
+        plugintools.add_item(title='<< %s %s <<' % ('Page', prev_page),
+                             action='show_series', url=path, extra=sorting, page=prev_page)
+    xbmc.log('show_series end')
+    xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True, updateListing=is_update)
 
 
 # series_files v1
@@ -2084,133 +1863,129 @@ def show_series_files(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     idx = params.get("url")
     page = params.get("page")
-    authenticated = __check_session()
     servers = {"Auto Select Best Server": "api.yamsonline.com"}
     server = "api.yamsonline.com"
 
-    if not authenticated:
-        return  # dialog.ok('AstreamWeb Notice', message)
-    else:
-        xbmc.log('show_series_files started for movie_id={}, page={}'.format(id, page))
-        username = plugintools.get_setting('username')
-        password = plugintools.get_setting('password')
-        try:
-            videos = scraper.get_series_files(idx, username, password)
-            data = scraper.get_seasons(idx, username, password, page)
-            xbmc.log('seasons data {} '.format(data))
-        except Exception as e:
-            xbmc.log('seasons error {} '.format(e))
-            scraper.notifyError("AStreamWeb", msg="Movie not available yet, please contact support.")
-            return
-        xbmc.log('show_series_files got {}'.format(videos))
-        added_seasons = list()
-        oneUrl = len(videos) == 100
-        xbmc.log('oneUrl {}'.format(oneUrl))
+    xbmc.log('show_series_files started for movie_id={}, page={}'.format(id, page))
+    username = plugintools.get_setting('username')
+    password = plugintools.get_setting('password')
+    try:
+        videos = scraper.get_series_files(idx, username, password)
+        data = scraper.get_seasons(idx, username, password, page)
+        xbmc.log('seasons data {} '.format(data))
+    except Exception as e:
+        xbmc.log('seasons error {} '.format(e))
+        scraper.notifyError("AStreamWeb", msg="Movie not available yet, please contact support.")
+        return
+    xbmc.log('show_series_files got {}'.format(videos))
+    added_seasons = list()
+    oneUrl = len(videos) == 100
+    xbmc.log('oneUrl {}'.format(oneUrl))
 
-        for video in videos:
-            # is tv serials
-            if 'season' in video:
-                # show the season listing
-                xbmc.log('show_series_files season in video{}'.format(video))
-                try:
-                    thumbnail = video['thumbnail']
-                except:
-                    thumbnail = ''
-                if page == '0':
-                    xbmc.log('show_series_files page=0')
-                    if video['season'] not in added_seasons:
-                        for item in data:
-                            xbmc.log('seasons item {} video {}'.format(item['label'], video['season']))
-                            if int(item['label']) == int(video['season']):
-                                thumbnail = item['thumbnail']
+    for video in videos:
+        # is tv serials
+        if 'season' in video:
+            # show the season listing
+            xbmc.log('show_series_files season in video{}'.format(video))
+            try:
+                thumbnail = video['thumbnail']
+            except:
+                thumbnail = ''
+            if page == '0':
+                xbmc.log('show_series_files page=0')
+                if video['season'] not in added_seasons:
+                    for item in data:
+                        xbmc.log('seasons item {} video {}'.format(item['label'], video['season']))
+                        if int(item['label']) == int(video['season']):
+                            thumbnail = item['thumbnail']
+                            break
+                        else:
+                            thumbnail = ''
+
+                    xbmc.log('show_series_files season {}'.format(video))
+                    added_seasons.append(video['season'])
+                    plugintools.add_item(action='show_series_files', url=idx, title='Season %s' % video['season'],
+                                         page=video['season'], thumbnail=thumbnail)
+
+
+            # show the episode listing for given season (=page)
+            else:
+                if video['season'] == page and not oneUrl:
+                    xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
+                    # xbmc.log('page {} show_series_files episode and not oneUrl{}'.format(page,video['episode']))
+                    for item in data:
+                        for c in item['info']:
+                            xbmc.log(
+                                'episode_number {} episode test  {}'.format(c['episode_number'], video['episode']))
+                            if int(c['episode_number']) == int(video['episode']):
+                                thumbnail = c['poster']
+                                plot = c['plot']
                                 break
                             else:
                                 thumbnail = ''
+                                plot = ''
+                            if thumbnail: break
 
-                        xbmc.log('show_series_files season {}'.format(video))
-                        added_seasons.append(video['season'])
-                        plugintools.add_item(action='show_series_files', url=idx, title='Season %s' % video['season'],
-                                             page=video['season'], thumbnail=thumbnail)
-
-
-                # show the episode listing for given season (=page)
-                else:
-                    if video['season'] == page and not oneUrl:
-                        xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
-                        # xbmc.log('page {} show_series_files episode and not oneUrl{}'.format(page,video['episode']))
-                        for item in data:
-                            for c in item['info']:
-                                xbmc.log(
-                                    'episode_number {} episode test  {}'.format(c['episode_number'], video['episode']))
-                                if int(c['episode_number']) == int(video['episode']):
-                                    thumbnail = c['poster']
-                                    plot = c['plot']
-                                    break
-                                else:
-                                    thumbnail = ''
-                                    plot = ''
-                                if thumbnail: break
-
-                        url = video['url'].replace("server.akshayan.me", server)
-                        xbmc.log('episode plot %s' % plot)
-                        xbmc.log('thumbnail %s' % thumbnail)
-                        if not thumbnail:
-                            thumbnail = ''
-                        plugintools.add_itemcontext(action="play_vod",
-                                                    title='Episode %s - %s' % (video['episode'], video['label']),
-                                                    plot=plot, url=url,
-                                                    thumbnail=thumbnail, folder=False, isPlayable=True)
-                    elif video['season'] == page:
-                        # xbmc.log('show_series_files episode and  oneUrl{}'.format(video))
-                        xbmc.log('page {} show_series_files episode and  oneUrl{}'.format(page, video['season']))
-
-                        for item in data:
-                            # xbmc.log('seasons item {} video {}'.format(item['label'] , video['season']))
-                            for c in item['info']:
-                                if int(c['episode_number']) == int(video['episode']):
-                                    thumbnail = c['poster']
-                                    plot = c['plot'].encode('utf-8')
-                                    break
-                                else:
-                                    thumbnail = ''
-                                    plot = ''
-                                if thumbnail:
-                                    break
-
-                        url = video['url'].replace("server.akshayan.me", server)
-                        if not thumbnail:
-                            thumbnail = ''
-                        plugintools.add_itemcontext(action="play_vod",
-                                                    title='Episode %s - %s' % (video['episode'], video['label']),
-                                                    url=url,
-                                                    thumbnail=thumbnail, plot=plot, folder=False, isPlayable=True)
-
-            # is movie
-            else:
-                if oneUrl:
-                    xbmc.log('passe par oneUrl')
-                    xbmc.log('url video[url] {}'.format(video['url']))
-                    plugintools.add_item(action="play_vod", title=video['label'],
-                                         url=video['url'].replace("server.akshayan.me", server),
-                                         thumbnail='', plot='', extra='', page='',
-                                         folder=False, isPlayable=True)
-                else:
-                    xbmc.log('passe par oneUrl=false')
-                    xbmc.log('url video[url] {}'.format(video['url']))
                     url = video['url'].replace("server.akshayan.me", server)
-                    plugintools.add_itemcontext(action="play_vod", title=video['label'],
-                                                url=url,
-                                                folder=False, isPlayable=True)
+                    xbmc.log('episode plot %s' % plot)
+                    xbmc.log('thumbnail %s' % thumbnail)
+                    if not thumbnail:
+                        thumbnail = ''
+                    plugintools.add_itemcontext(action="play_vod",
+                                                title='Episode %s - %s' % (video['episode'], video['label']),
+                                                plot=plot, url=url,
+                                                thumbnail=thumbnail, folder=False, isPlayable=True)
+                elif video['season'] == page:
+                    # xbmc.log('show_series_files episode and  oneUrl{}'.format(video))
+                    xbmc.log('page {} show_series_files episode and  oneUrl{}'.format(page, video['season']))
 
-        if not videos:  # items:
-            dialog = xbmcgui.Dialog()
-            dialog.ok('No Videos',
-                      'movie will be available shortly',
-                      'Alternative contact support',
-                      'Movie-ID: %s' % idx)
+                    for item in data:
+                        # xbmc.log('seasons item {} video {}'.format(item['label'] , video['season']))
+                        for c in item['info']:
+                            if int(c['episode_number']) == int(video['episode']):
+                                thumbnail = c['poster']
+                                plot = c['plot'].encode('utf-8')
+                                break
+                            else:
+                                thumbnail = ''
+                                plot = ''
+                            if thumbnail:
+                                break
+
+                    url = video['url'].replace("server.akshayan.me", server)
+                    if not thumbnail:
+                        thumbnail = ''
+                    plugintools.add_itemcontext(action="play_vod",
+                                                title='Episode %s - %s' % (video['episode'], video['label']),
+                                                url=url,
+                                                thumbnail=thumbnail, plot=plot, folder=False, isPlayable=True)
+
+        # is movie
         else:
-            xbmcplugin.addSortMethod(int(sys.argv[1]), xbmcplugin.SORT_METHOD_EPISODE)
-            xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
+            if oneUrl:
+                xbmc.log('passe par oneUrl')
+                xbmc.log('url video[url] {}'.format(video['url']))
+                plugintools.add_item(action="play_vod", title=video['label'],
+                                     url=video['url'].replace("server.akshayan.me", server),
+                                     thumbnail='', plot='', extra='', page='',
+                                     folder=False, isPlayable=True)
+            else:
+                xbmc.log('passe par oneUrl=false')
+                xbmc.log('url video[url] {}'.format(video['url']))
+                url = video['url'].replace("server.akshayan.me", server)
+                plugintools.add_itemcontext(action="play_vod", title=video['label'],
+                                            url=url,
+                                            folder=False, isPlayable=True)
+
+    if not videos:  # items:
+        dialog = xbmcgui.Dialog()
+        dialog.ok('No Videos',
+                  'movie will be available shortly',
+                  'Alternative contact support',
+                  'Movie-ID: %s' % idx)
+    else:
+        xbmcplugin.addSortMethod(int(sys.argv[1]), xbmcplugin.SORT_METHOD_EPISODE)
+        xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
 
 
 ############################################
@@ -2362,156 +2137,95 @@ def searchByActress(params):
 
 def searchByName(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')
-    authenticated = __check_session()
-    if not authenticated:
-        return  # dialog.ok('AstreamWeb Notice', message)
-    else:
-        username = plugintools.get_setting('username')
-        password = plugintools.get_setting('password')
-        authenticated, message, status_code = scraper.check_login(username, password,
-                                                                  plugintools.get_setting('session'))
-        if not authenticated:
-            xbmcgui.Dialog().ok('AstreamWeb Notice', message)
-            if status_code == 2 or status_code == 3:
-                xbmcgui.Dialog().ok('[COLOR red]Required:[/COLOR] ',
-                                    'Please remove a device connected to this account in settings -> Device Specific')
-                plugintools.open_settings_dialog()
-                sys.exit()
-            else:
-                xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
-            return False
-        else:
-            xbmc.log('search start')
-        username = plugintools.get_setting('username')
-        per_page = __get_per_page()
-        page = '1'
-        keyboard = xbmc.Keyboard('', 'Enter Search String')
-        keyboard.doModal()
-        if keyboard.isConfirmed() and keyboard.getText():
-            search_string = keyboard.getText()
-            xbmc.log('search gots a string: "%s"' % search_string)
-            if '*' not in search_string:
-                search_string = '*%s*' % search_string
-                xbmc.log('altered search string to: "%s"' % search_string)
-            path = 'title-%s' % search_string
-            items, has_next_page = scraper.get_movies(username, path, page, per_page,
-                                                      'title,ASC')
-            xbmc.log('items {}'.format(items))
-            xbmc.log('has_next_page {}'.format(has_next_page))
+    username = plugintools.get_setting('username')
+    per_page = __get_per_page()
+    page = '1'
+    keyboard = xbmc.Keyboard('', 'Enter Search String')
+    keyboard.doModal()
+    if keyboard.isConfirmed() and keyboard.getText():
+        search_string = keyboard.getText()
+        xbmc.log('search gots a string: "%s"' % search_string)
+        if '*' not in search_string:
+            search_string = '*%s*' % search_string
+            xbmc.log('altered search string to: "%s"' % search_string)
+        path = 'title-%s' % search_string
+        items, has_next_page = scraper.get_movies(username, path, page, per_page,
+                                                  'title,ASC')
+        xbmc.log('items {}'.format(items))
+        xbmc.log('has_next_page {}'.format(has_next_page))
 
-            # Add context menu items for title and actor search
-            context_men = []
-            ListMovie = 'XBMC.Container.Update(%s)' % (
-                    sys.argv[0] + '?action=show_movies&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
-            for item in items:
-                try:
-                    for cast in item['info']['cast']:
-                        s_path = 'cast-%s' % cast
-                        context_men.append(('Movies with %s' % cast, ListMovie % ('', s_path, '', '', '-', '1')))
+        # Add context menu items for title and actor search
+        context_men = []
+        ListMovie = 'XBMC.Container.Update(%s)' % (
+                sys.argv[0] + '?action=show_movies&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
+        for item in items:
+            try:
+                for cast in item['info']['cast']:
+                    s_path = 'cast-%s' % cast
+                    context_men.append(('Movies with %s' % cast, ListMovie % ('', s_path, '', '', '-', '1')))
 
-                except:
-                    xbmc.log('has_next_page {}'.format(has_next_page))
-                    ""
-                plugintools.add_itemcontext(action='show_movie_files', title=item['label'], url=item['id'],
-                                            info_labels=item['info'],
-                                            thumbnail=item['thumbnail'], fanart=item['fanart'], page='0',
-                                            contextmenu=context_men, folder=True)
+            except:
+                xbmc.log('has_next_page {}'.format(has_next_page))
+                ""
+            plugintools.add_itemcontext(action='show_movie_files', title=item['label'], url=item['id'],
+                                        info_labels=item['info'],
+                                        thumbnail=item['thumbnail'], fanart=item['fanart'], page='0',
+                                        contextmenu=context_men, folder=True)
 
-            xbmc.log('search end')
-            xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
+        xbmc.log('search end')
+        xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
 
 
 def searchBySeries(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')
-    authenticated = __check_session()
-    if not authenticated:
-        return  # dialog.ok('AstreamWeb Notice', message)
-    else:
-        username = plugintools.get_setting('username')
-        password = plugintools.get_setting('password')
-        authenticated, message, status_code = scraper.check_login(username, password,
-                                                                  plugintools.get_setting('session'))
-        if not authenticated:
-            xbmcgui.Dialog().ok('AstreamWeb Notice', message)
-            if status_code == 2 or status_code == 3:
-                xbmcgui.Dialog().ok('[COLOR red]Required:[/COLOR] ',
-                                    'Please remove a device connected to this account in settings -> Device Specific')
-                plugintools.open_settings_dialog()
-                sys.exit()
-            else:
-                xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
-            return False
-        else:
-            xbmc.log('search start')
+    per_page = __get_per_page()
+    page = '1'
+    keyboard = xbmc.Keyboard('', 'Enter Search String')
+    keyboard.doModal()
+    if keyboard.isConfirmed() and keyboard.getText():
+        search_string = keyboard.getText()
+        xbmc.log('search gots a string: "%s"' % search_string)
+        if '*' not in search_string:
+            search_string = '*%s*' % search_string
+            xbmc.log('altered search string to: "%s"' % search_string)
+        path = 'title-%s' % search_string
+        items, has_next_page = scraper.get_series(username, path, page, per_page,
+                                                  'title,ASC')
+        xbmc.log('items {}'.format(items))
+        xbmc.log('has_next_page {}'.format(has_next_page))
 
-        per_page = __get_per_page()
-        page = '1'
-        keyboard = xbmc.Keyboard('', 'Enter Search String')
-        keyboard.doModal()
-        if keyboard.isConfirmed() and keyboard.getText():
-            search_string = keyboard.getText()
-            xbmc.log('search gots a string: "%s"' % search_string)
-            if '*' not in search_string:
-                search_string = '*%s*' % search_string
-                xbmc.log('altered search string to: "%s"' % search_string)
-            path = 'title-%s' % search_string
-            items, has_next_page = scraper.get_series(username, path, page, per_page,
-                                                      'title,ASC')
-            xbmc.log('items {}'.format(items))
-            xbmc.log('has_next_page {}'.format(has_next_page))
+        # Add context menu items for title and actor search
+        context_men = []
+        ListMovie = 'XBMC.Container.Update(%s)' % (
+                sys.argv[0] + '?action=show_movies&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
+        for item in items:
+            try:
+                for cast in item['info']['cast']:
+                    s_path = 'cast-%s' % cast
+                    context_men.append(('Movies with %s' % cast, ListMovie % ('', s_path, '', '', '-', '1')))
 
-            # Add context menu items for title and actor search
-            context_men = []
-            ListMovie = 'XBMC.Container.Update(%s)' % (
-                    sys.argv[0] + '?action=show_movies&title=%s&url=%s&thumbnail=%s&plot=%s&extra=%s&page=%s')
-            for item in items:
-                try:
-                    for cast in item['info']['cast']:
-                        s_path = 'cast-%s' % cast
-                        context_men.append(('Movies with %s' % cast, ListMovie % ('', s_path, '', '', '-', '1')))
+            except:
+                xbmc.log('has_next_page {}'.format(has_next_page))
+                ""
+            plugintools.add_itemcontext(action='show_series_files', title=item['label'], url=item['id'],
+                                        info_labels=item['info'],
+                                        thumbnail=item['thumbnail'], fanart=item['fanart'], page='0',
+                                        contextmenu=context_men, folder=True)
 
-                except:
-                    xbmc.log('has_next_page {}'.format(has_next_page))
-                    ""
-                plugintools.add_itemcontext(action='show_series_files', title=item['label'], url=item['id'],
-                                            info_labels=item['info'],
-                                            thumbnail=item['thumbnail'], fanart=item['fanart'], page='0',
-                                            contextmenu=context_men, folder=True)
-
-            xbmc.log('search end')
-            xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
+        xbmc.log('search end')
+        xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
 
 
 def show_letters(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
     path = params.get('url')
-    authenticated = __check_session()
-    if not authenticated:
-        return  # dialog.ok('AstreamWeb Notice', message)
-    else:
-        username = plugintools.get_setting('username')
-        password = plugintools.get_setting('password')
-        authenticated, message, status_code = scraper.check_login(username, password,
-                                                                  plugintools.get_setting('session'))
-        if not authenticated:
-            xbmcgui.Dialog().ok('AstreamWeb Notice', message)
-            if status_code == 2 or status_code == 3:
-                xbmcgui.Dialog().ok('[COLOR red]Required:[/COLOR] ',
-                                    'Please remove a device connected to this account in settings -> Device Specific')
-                plugintools.open_settings_dialog()
-                sys.exit()
-            else:
-                xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
-            return False
-        else:
-            xbmc.log('show_letters started with path="%s"' % path)
 
-        for l in ascii_lowercase:
-            path = '%s+title-%s*' % (path, l)
-            plugintools.add_item(action='show_movies', title=l.upper(), url=path, extra='title,ASC', page='1')
+    for l in ascii_lowercase:
+        path = '%s+title-%s*' % (path, l)
+        plugintools.add_item(action='show_movies', title=l.upper(), url=path, extra='title,ASC', page='1')
 
-        xbmc.log('show_letters end')
-        xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
+    xbmc.log('show_letters end')
+    xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
 
 
 ###########################################
@@ -2519,7 +2233,7 @@ def show_maintenance(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
     # plugintools.add_item(action="show_speedtest", title='Speedtest',
     #                      thumbnail=__get_icon('speed'))
-    #plugintools.add_item(action="show_ping", title='Ping',
+    # plugintools.add_item(action="show_ping", title='Ping',
     #                     thumbnail=__get_icon('ping'))
     plugintools.add_item(action="select_device_maintenance", title='Update Device Type',
                          thumbnail=__get_icon('resetastreamweb'))
@@ -2758,15 +2472,16 @@ def select_skin_language2(params=None):
     select = xbmcgui.Dialog().select("Select your Language", langs)
     plugintools.set_setting('channellanguage', langs[select].lower())
     _select_skin_language(langs[select].lower())
-    xbmc.Monitor().waitForAbort(1)	
+    xbmc.Monitor().waitForAbort(1)
     xbmc.executebuiltin("ReloadSkin")
-            
+
 
 def select_device(params=None):
     device = ['FireTV 4K Stick', 'Fire TV Cube,Max or better']
     select = xbmcgui.Dialog().select("Select your Device Type", device)
     plugintools.set_setting('devicetype', device[select].lower())
     xbmc.Monitor().waitForAbort(1)
+
 
 def select_device_maintenance(params=None):
     select_device()
@@ -2793,14 +2508,13 @@ def select_device_maintenance(params=None):
         if not scraper._downloadOverride(lib_file, lib_path):
             lib_path = xbmcvfs.translatePath(os.path.join('special://home/devicetype.zip'))
             scraper._downloadOverride(lib_file, lib_path)
-    
 
     with zipfile.ZipFile(lib_path, 'r') as zip_ref:
         zip_ref.extractall(extract_path)
     xbmc.Monitor().waitForAbort(1)
     xbmc.executebuiltin('ReloadSkin()')
     xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
-    
+
 
 def get_timezoneselect():
     timezone = ['None', 'America/Los Angeles', 'America/Chicago', 'America/New York', 'Europe/London',
@@ -2815,6 +2529,7 @@ def __get_per_page():
         per_page = 200
         plugintools.set_setting('per_page', str(per_page))
     return per_page
+
 
 def __get_per_page_widget():
     per_page = '14'
@@ -2847,9 +2562,6 @@ def get_einthusan():
 
 # show_einthusan_categories
 def show_einthusan_categories(params):
-    if not isauth_ok():
-        return
-
     xbmcplugin.setContent(int(sys.argv[1]), 'movies2')
     languages = ["Hindi", "Tamil", "Telugu", "Malayalam", "Kannada", "Bengali", "Marathi", "Punjabi"]
     for lang in languages:
@@ -2962,8 +2674,6 @@ def show_einthusan_search(params):
             '<div class="block1">.*?href=".*?watch\/(.*?)\/\?lang=(.*?)".*?src="(.*?)".*?<h3>(.*?)</h3>.+?i class(.+?)<p').findall(
             html)
 
-
-
         for movie, lang, image, name, ishd in match:
             image = 'http:' + image
             movie = str(name) + ',' + str(movie) + ',' + lang + ','
@@ -2994,8 +2704,6 @@ def get_einthusan_location():
 
 # show_einthusan_movies
 def show_einthusan_movies(params):
-    if not isauth_ok():
-        return
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     page = params.get("page")
     post = params.get("extra")
@@ -3126,12 +2834,11 @@ def einthusan_preferred_server(lnk, mainurl):
 
 # play_einthusan
 def play_einthusan(params):
-    authenticated = __check_session()
     url = params.get('url')
     xbmc.log('einthsan url %s' % url)
     s = requests.Session()
     name, url, lang, isithd, referurl = url.split(',')
-    if xbmc.getCondVisibility('Skin.HasSetting(HomeMenuNoBasicButton)') and authenticated:
+    if xbmc.getCondVisibility('Skin.HasSetting(HomeMenuNoBasicButton)'):
         s = requests.Session()
         subc = False
     else:
@@ -3257,23 +2964,10 @@ def show_livetv(params):
 
 def getseries_bycategory(params):
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')
-    if not isauth_ok():
-        return
-    
+
     category_id = params['category_id']
     username = plugintools.get_setting("username")
     password = plugintools.get_setting("password")
-    authenticated, message, status_code = scraper.check_login(username, password, plugintools.get_setting("session"))
-    if not authenticated:
-        xbmcgui.Dialog().ok("AstreamWeb Notice", message)
-        if status_code == 2 or status_code == 3:
-            xbmcgui.Dialog().ok('[COLOR green]required:[/COLOR] ',
-                                'Please remove a device connected to this account in settings -> Device Specific')
-            plugintools.open_settings_dialog()
-            sys.exit()
-        else:
-            xbmc.executebuiltin("XBMC.ActivateWindow(Home)")
-        return False
 
     page = params.get("page") if params.get("page") else '1'
     per_page = '14' if 'widget' in params and params['widget'] == 'true' else __get_per_page()
@@ -3333,7 +3027,6 @@ def getseries_bycategory(params):
             plugintools.add_item(title='<< %s %s <<' % ('Page', prev_page),
                                  action='getseries', extra=sorting, page=prev_page)
 
-
     for item in items:
         xbmc.log('getseries info {}'.format(item["info"]["cast"]))
         xbmc.log('getseries info {}'.format(item["id"]))
@@ -3353,7 +3046,6 @@ def getseries_bycategory(params):
                                     thumbnail=item['thumbnail'], page='0', contextmenu=context_men, folder=True)
 
     total_page = math.ceil(int(result['pagination']['count']) / int(per_page))
-
 
     if total_page > int(page):
         if 'widget' in params and params['widget'] == 'true':

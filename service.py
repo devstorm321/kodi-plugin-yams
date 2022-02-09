@@ -23,8 +23,8 @@ PATH = xbmcvfs.translatePath(Addon.getAddonInfo('profile'))
 ADDON_PATH = xbmcvfs.translatePath(Addon.getAddonInfo('path'))
 FILE = os.path.join(PATH, 'items.json')
 RSS_URLS = [
-    'http://api.astreamweb.com/feed.php?username=%s' % (xbmcaddon.Addon('plugin.video.yams').getSetting("username")),
-    'http://astreamweb.com/kodi/rssnew/rss.xml'
+    'https://api.astreamweb.com/feed.php?username=%s' % (xbmcaddon.Addon('plugin.video.yams').getSetting("username")),
+    'https://astreamweb.com/kodi/rssnew/rss.xml'
 ]
 
 TITLE = 'AStreamWeb Info Panel'
